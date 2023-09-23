@@ -17,21 +17,19 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
-       <dependency>
-            <groupId>com.github.salaboy</groupId>
-            <artifactId>spring-boot-starter-dapr</artifactId>
-            <version>9a66533eb3</version>
-            <scope>test</scope>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>com.github.salaboy</groupId>
+            <artifactId>spring-boot-starter-dapr</artifactId>
+            <version>9a66533eb3</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
