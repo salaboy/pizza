@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
@@ -23,12 +24,12 @@ public class PizzaStore {
  private String ORDER = "pizza";
 
   @PostMapping("/")
-  public String newPizza(){
+  public String newPizza(@RequestBody Pizza pizza){
 
     try (DaprClient client = (new DaprClientBuilder()).build()) {
         
         // Save state
-        client.saveState(STATE_STORE_NAME, ORDER, new Pizza("peperoni", "L")).block();
+        client.saveState(STATE_STORE_NAME, ORDER, pizza).block();
         return "Done!";
     }catch(Exception ex){
         ex.printStackTrace();
