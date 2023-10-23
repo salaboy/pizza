@@ -1,18 +1,16 @@
 package io.diagrid.dapr;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.State;
+import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 @RestController
@@ -24,64 +22,61 @@ public class PizzaInventory {
 
   }
 
+
   private String STATE_STORE_NAME = "statestore";
 
   @GetMapping("/inventory")
-  public ResponseEntity<InventoryResult> checkInventory(@QueryParam(required = true) PizzaType pizzaType){
+  public ResponseEntity<InventoryResult> checkInventory(@RequestParam(required = true) PizzaType pizzaType){
     
     try (DaprClient client = (new DaprClientBuilder()).build()) {
         
         // Get inventory count based on pizza type
-        client.getState(STATE_STORE_NAME, order.id, order).block();
-
-        return ResponseEntity.ok(new InventoryResult(pizzaType, 0));
+        State<Integer> stockCount = client.getState(STATE_STORE_NAME, pizzaType.toString(), Integer.class).block();
+        return ResponseEntity.ok(new InventoryResult(pizzaType, stockCount.getValue()));
     }catch(Exception ex){
         ex.printStackTrace();
-        return ResponseEntity.internalServerError().body("Error placing the order! Check the logs.");
+        return ResponseEntity.internalServerError().build();
     }
 
   }
 
 
   @PutMapping("/inventory")
-  public ResponseEntity<String> updateInventory(@RequestBody(required = true) InventoryRequest inventoryRequest){
+  public ResponseEntity<InventoryResult> updateInventory(@RequestBody(required = true) InventoryRequest inventoryRequest){
     
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       
-      //Get State from pizza type, decrement by inventoryRequest.stockCount
-
+        //Get State from pizza type, decrement by inventoryRequest.stockCount
+        State<Integer> stockCount = client.getState(STATE_STORE_NAME, inventoryRequest.pizzaType.toString(), Integer.class).block();
         // Save state
-        client.saveState(STATE_STORE_NAME, order.id, order).block();
+        int newStockCount = stockCount.getValue() - inventoryRequest.amount;
+        client.saveState(STATE_STORE_NAME, inventoryRequest.pizzaType.toString(), newStockCount).block();
 
-        return ResponseEntity.ok("Done!");
+        return ResponseEntity.ok(new InventoryResult(inventoryRequest.pizzaType, newStockCount));
     }catch(Exception ex){
         ex.printStackTrace();
-        return ResponseEntity.internalServerError().body("Error placing the order! Check the logs.");
+        return ResponseEntity.internalServerError().build();
     }
 
+    
   }
-  // @GetMapping("/")
-  // public List<Order> getOrders(){
-
-  //   try (DaprClient client = (new DaprClientBuilder()).build()) {
-       
-
-  //       // Get state
-  //       State<Order> retrievedMessage = client.getState(STATE_STORE_NAME, ORDER, Order.class).block();
-
-  //       return retrievedMessage.getValue();
-
-  //   }catch(Exception ex){
-  //       ex.printStackTrace();
-  //   }
-  //   return null;
-  // }
+  
+  @PostConstruct
+  private void initStock(){
+    try (DaprClient client = (new DaprClientBuilder()).build()) {
+      client.saveState(STATE_STORE_NAME, PizzaType.hawaiian.toString(), 10).block();
+      client.saveState(STATE_STORE_NAME, PizzaType.margherita.toString(), 10).block();
+      client.saveState(STATE_STORE_NAME, PizzaType.pepperoni.toString(), 10).block();
+      client.saveState(STATE_STORE_NAME, PizzaType.vegetarian.toString(), 10).block();
+      }catch(Exception ex){
+        ex.printStackTrace();
+        
+    }
+  }
 
   
   public enum PizzaType{pepperoni, margherita, hawaiian, vegetarian}
   public record InventoryResult(PizzaType pizzaType, int stockCount){}
-  public record InventoryRequest(PizzaType pizzaType, int stockCount){}
-
+  public record InventoryRequest(PizzaType pizzaType, int amount){}
+  
 }
-
-

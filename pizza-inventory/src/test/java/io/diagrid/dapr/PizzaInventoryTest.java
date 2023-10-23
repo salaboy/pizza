@@ -1,29 +1,22 @@
 package io.diagrid.dapr;
 
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import static org.hamcrest.Matchers.*;
 
-import io.diagrid.dapr.PizzaStore.Customer;
-import io.diagrid.dapr.PizzaStore.Order;
-import io.diagrid.dapr.PizzaStore.OrderItem;
-import io.diagrid.dapr.PizzaStore.PizzaType;
-import io.diagrid.dapr.PizzaStore.Status;
+import io.diagrid.dapr.PizzaInventory.InventoryRequest;
+import io.diagrid.dapr.PizzaInventory.PizzaType;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-import static io.restassured.RestAssured.with;
+import static io.restassured.RestAssured.*;
 
-import java.util.Arrays;
-import java.util.Date;
-
-@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes=PizzaInventoryAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-public class PizzaStoreTest {
+public class PizzaInventoryTest {
 
     @LocalServerPort
     private int port;
@@ -34,16 +27,27 @@ public class PizzaStoreTest {
     }
     
     @Test
-    public void testPlaceOrder() throws Exception {
+    public void testInventoryRequest() throws Exception {
         
-        with().body(new Order(new Customer("salaboy", "salaboy@mail.com"), 
-                                Arrays.asList(new OrderItem(PizzaType.pepperoni, 1)), 
-                                new Date(), Status.placed ))
-                                .contentType(ContentType.JSON)
-        .when()
-        .request("POST", "/order")
+
+        given()
+        .param("pizzaType",PizzaType.pepperoni)
+        .get("/inventory")
         .then()
-        .statusCode(200);
+        .assertThat().body("pizzaType",equalTo(PizzaType.pepperoni.toString()))
+        .assertThat().body("stockCount",equalTo(10))
+        .statusCode(200)
+        .log().body(true);
+
+       with().body(new InventoryRequest(PizzaType.pepperoni, 1))
+                                .contentType(ContentType.JSON)
+
+        .when()
+        .put("/inventory")
+        .then()
+        .assertThat().body("pizzaType",equalTo(PizzaType.pepperoni.toString()))
+        .assertThat().body("stockCount",equalTo(9))
+        .statusCode(200); 
     }
 
 }

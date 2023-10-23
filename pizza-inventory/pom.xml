@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.diagrid.dapr</groupId>
-	<artifactId>pizza-store</artifactId>
+	<artifactId>pizza-inventory</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Pizza Online Store</name>
-	<description>Pizza Online Store</description>
+	<name>Pizza Inventory Service</name>
+	<description>Pizza Inventory</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

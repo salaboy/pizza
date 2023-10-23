@@ -7,7 +7,7 @@ import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 @SpringBootApplication
 public class PizzaInventoryAppTest {
     public static void main(String[] args) {
-        SpringApplication.from(PizzaStore::main)
+        SpringApplication.from(PizzaInventory::main)
                 .with(DaprTestConfiguration.class)
                 .run(args);
     }
