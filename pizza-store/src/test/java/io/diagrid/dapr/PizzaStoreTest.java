@@ -20,6 +20,7 @@ import static io.restassured.RestAssured.with;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
 @SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -36,7 +37,7 @@ public class PizzaStoreTest {
     @Test
     public void testPlaceOrder() throws Exception {
         
-        with().body(new Order(new Customer("salaboy", "salaboy@mail.com"), 
+        with().body(new Order(UUID.randomUUID().toString(), new Customer("salaboy", "salaboy@mail.com"), 
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1)), 
                                 new Date(), Status.placed ))
                                 .contentType(ContentType.JSON)
