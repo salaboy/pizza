@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/kitchen/"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+        "message":"placed",
+        "orderId":"123" 
+    },
+    "headers": {
+        "Content-Type": "application/json"
+    }
+  }
+}
