@@ -3,7 +3,9 @@ package io.diagrid.dapr;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,25 +33,30 @@ public class PizzaStore {
   @Value( "${dapr-http.base-url:http://localhost:3500}" )
   private String daprHttp;
 
+  private String STATE_STORE_NAME = "statestore";
+  private String PUB_SUB_NAME = "pubsub";
+  private String PUB_SUB_TOPIC = "topic";
+  private String KEY = "orders";
+  private static RestTemplate restTemplate;
+
   public static void main(String[] args) {
     SpringApplication.run(PizzaStore.class, args);
 
   }
 
-  private String STATE_STORE_NAME = "statestore";
-  private String KEY = "orders";
-  private static RestTemplate restTemplate;
+  
 
   @PostMapping("/order")
   public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) {
 
-    // Store Order and Emit Event NewOrder
-    store(order);
-
     // Process Order, sent to kitcken
     Order updatedOrder = callKitchenService(order);
 
+    // Store Order
     store(updatedOrder);
+
+    // Emit Event
+    emitEvent(new Event(EventType.ORDER_PLACED, updatedOrder));
 
     return ResponseEntity.ok(updatedOrder);
   }
@@ -60,6 +67,18 @@ public class PizzaStore {
     Orders orders = loadOrders();
 
     return ResponseEntity.ok(orders);
+  }
+
+  private Map<EventType, Event> events = new HashMap<>();
+
+  @PostMapping("/events")
+  public void receiveEvent(Event event){
+      events.put(event.type, event);
+  }
+
+  @GetMapping("/events")
+  public Map<EventType, Event> getAllEvents(){
+      return events;
   }
 
   public record Customer(@JsonProperty String name, @JsonProperty String email) {
@@ -74,6 +93,22 @@ public class PizzaStore {
 
   public enum Status {
     created, placed, notplaced, instock, notinstock, inpreparation, completed, failed
+  }
+
+  public record Event(EventType type, Order order){}
+
+  public enum EventType {
+
+    ORDER_PLACED("order-placed"),
+    ITEMS_IN_STOCK("items-in-stock"),
+    ITEMS_NOT_IN_STOCK("items-not-in-stock"),
+    ORDER_IN_PREPARATION("order-in-preparation"),
+    ORDER_COMPLETED("order-completed");
+
+    private String type;
+    EventType(String type){
+      this.type = type;
+    }
   }
 
 
@@ -105,6 +140,14 @@ public class PizzaStore {
     }
   }
 
+  private void emitEvent(Event event){
+    try (DaprClient client = (new DaprClientBuilder()).build()) {
+      client.publishEvent(PUB_SUB_NAME, PUB_SUB_TOPIC, event, null ).block();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    } 
+  }
+
   private void store(Order order) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       Orders orders = new Orders(new ArrayList<Order>());
@@ -113,8 +156,6 @@ public class PizzaStore {
           orders.orders.addAll(ordersState.getValue().orders);
       }
       orders.orders.add(order);
-      // Emit Event
-      //client.publishEvent(STATE_STORE_NAME, KEY, ordersState, null);
       // Save state
       client.saveState(STATE_STORE_NAME, KEY, orders).block();
 

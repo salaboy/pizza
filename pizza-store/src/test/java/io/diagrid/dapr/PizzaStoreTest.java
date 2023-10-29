@@ -46,9 +46,6 @@ public class PizzaStoreTest {
         .then().extract().as(Order.class);
         
         assertThat(order.status()).isEqualTo(Status.placed);
-        // .assertThat()
-        // .body("order.status", equalTo(Status.placed))
-        // .statusCode(200).log();
 
         
     }
