@@ -14,12 +14,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static io.restassured.RestAssured.with;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
-import java.util.Date;
-import java.util.UUID;
 
 
 @SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,7 +23,6 @@ public class PizzaStoreTest {
 
     @LocalServerPort
     private int port;
-
 
     @BeforeEach
     public void setUp() {
