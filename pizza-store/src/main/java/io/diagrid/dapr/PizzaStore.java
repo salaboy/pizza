@@ -36,14 +36,10 @@ public class PizzaStore {
   @Value("${dapr-http.base-url:http://localhost:3500}")
   private String daprHttp;
 
-  private static final String MESSAGE_TTL_IN_SECONDS = "1000";
   private String STATE_STORE_NAME = "statestore";
-  private String PUB_SUB_NAME = "pubsub";
-  private String PUB_SUB_TOPIC = "topic";
+  
   private String KEY = "orders";
   private static RestTemplate restTemplate;
-
-  private List<CloudEvent> events = new ArrayList<>();
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -58,6 +54,11 @@ public class PizzaStore {
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {
+    System.out.println("Received CloudEvent via Subscription: " + event.toString());
+    Event pizzaEvent = event.getData();
+    if(pizzaEvent.type.equals(EventType.ORDER_READY)){
+      prepareOrderForDelivery(pizzaEvent.order);
+    }
     emitWSEvent(event.getData());
   }
 
@@ -67,22 +68,29 @@ public class PizzaStore {
         event);
   }
 
+  private void prepareOrderForDelivery(Order order){
+    store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
+     // Emit Event
+    Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order);
+
+    emitWSEvent(event);
+
+  }
+
   @PostMapping("/order")
   public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) throws Exception {
-
-    new Order(order);
-    // Process Order, sent to kitcken
-    Order updatedOrder = callKitchenService(order);
-
-    // // Store Order
-    store(updatedOrder);
+    // Store Order
+    store(order);
 
     // Emit Event
-    Event event = new Event(EventType.ORDER_PLACED, updatedOrder);
+    Event event = new Event(EventType.ORDER_PLACED, order);
 
-    emitEvent(event);
+    emitWSEvent(event);
 
-    return ResponseEntity.ok(updatedOrder);
+    // Process Order, sent to kitcken
+    callKitchenService(order);
+
+    return ResponseEntity.ok(order);
 
   }
 
@@ -117,6 +125,7 @@ public class PizzaStore {
     ITEMS_IN_STOCK("items-in-stock"),
     ITEMS_NOT_IN_STOCK("items-not-in-stock"),
     ORDER_IN_PREPARATION("order-in-preparation"),
+    ORDER_READY("order-ready"),
     ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
     ORDER_COMPLETED("order-completed");
 
@@ -175,15 +184,6 @@ public class PizzaStore {
     }
   }
 
-  private void emitEvent(Event event) {
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
-      client.publishEvent(PUB_SUB_NAME, PUB_SUB_TOPIC, event,
-          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-
   private void store(Order order) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       Orders orders = new Orders(new ArrayList<Order>());
@@ -193,7 +193,7 @@ public class PizzaStore {
       }
       orders.orders.add(order);
       // Save state
-      client.saveState(STATE_STORE_NAME, KEY, orders).block();
+      client.saveState(STATE_STORE_NAME, KEY, orders);
 
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -201,19 +201,14 @@ public class PizzaStore {
 
   }
 
-  private Order callKitchenService(Order order) {
-
+  private void callKitchenService(Order order) {
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    KitchenResponse kitchenResponse = restTemplate.postForObject(
-        daprHttp + "/kitchen/", request, KitchenResponse.class);
-    if (kitchenResponse.message.equals("placed")) {
-      return new Order(order.id, order.customer, order.items, order.orderDate, Status.placed);
-    }
-    return new Order(order.id, order.customer, order.items, order.orderDate, Status.notplaced);
+    restTemplate.put(
+        daprHttp + "/prepare", request);
   }
 
   private Orders loadOrders() {

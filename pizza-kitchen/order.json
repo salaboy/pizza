@@ -1,0 +1,12 @@
+{
+    "customer": {
+      "name": "salaboy",
+      "email": "salaboy@mail.com"
+    },
+    "items": [
+      {
+      "type":"pepperoni",
+      "amount": 1
+      }
+    ]
+}

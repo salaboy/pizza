@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizza-store-deployment
+spec:
+  selector:
+    matchLabels:
+      app: pizza-store-service
+  template:
+    metadata:
+      annotations:  
+        dapr.io/app-id: pizza-store
+        dapr.io/app-port: "8080"
+        dapr.io/enabled: "true"
+        dapr.io/log-level: "debug"
+      labels:
+        app: pizza-store-service
+        app.kubernetes.io/name: pizza-store-service
+        app.kubernetes.io/part-of: pizza-store-service
+        app.kubernetes.io/version: 0.1.0
+    spec:
+      containers:
+      - name: pizza-store-service
+        image: salaboy/pizza-store:0.1.0
+        imagePullPolicy: Always
+        env:
+        - name: JAVA_OPTS
+          value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
+        - name: WS_HOST_ENDPOINT
+          value: localhost
+        - name: STATESTORE_NAME
+          value: statestore
+        - name: PUBSUB_NAME
+          value: pubsub     
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-store
+spec:
+  selector:
+    app: pizza-store-service
+  ports:
+  - port: 80
+    targetPort: 8080

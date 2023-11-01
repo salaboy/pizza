@@ -32,14 +32,14 @@ public class PizzaStoreTest {
     @Test
     public void testPlaceOrder() throws Exception {
         
-       Order order = with().body(new Order(new Customer("salaboy", "salaboy@mail.com"), 
+       with().body(new Order(new Customer("salaboy", "salaboy@mail.com"), 
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1))))
                                 .contentType(ContentType.JSON)
         .when()
         .request("POST", "/order")
-        .then().extract().as(Order.class);
+        .then().assertThat().statusCode(200);
         
-        assertThat(order.status()).isEqualTo(Status.placed);
+        
 
         
     }

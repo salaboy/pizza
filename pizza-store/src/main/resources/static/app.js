@@ -82,7 +82,7 @@ function createItem(detailsImage, text, disabled) {
     if (disabled) {
         item += "<img class='disabled transition' src='imgs/GreenDot.png'/>";
     } else {
-        item += "<img class='' src='imgs/GreenDot.png'/>";
+        item += "<img class='transition' src='imgs/GreenDot.png'/>";
     }
     item += "</div>" +
             "<div class='details'>" +
