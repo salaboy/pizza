@@ -47,7 +47,6 @@ public class PizzaStore {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
-
   public static void main(String[] args) {
     SpringApplication.run(PizzaStore.class, args);
 
@@ -62,9 +61,8 @@ public class PizzaStore {
     emitWSEvent(event.getData());
   }
 
-
   private void emitWSEvent(Event event) {
-    System.out.println("Emitting Event via WS: "+ event.toString());
+    System.out.println("Emitting Event via WS: " + event.toString());
     simpMessagingTemplate.convertAndSend("/topic/events",
         event);
   }
@@ -73,7 +71,7 @@ public class PizzaStore {
   public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) throws Exception {
 
     new Order(order);
-    //Process Order, sent to kitcken
+    // Process Order, sent to kitcken
     Order updatedOrder = callKitchenService(order);
 
     // // Store Order
@@ -81,13 +79,11 @@ public class PizzaStore {
 
     // Emit Event
     Event event = new Event(EventType.ORDER_PLACED, updatedOrder);
-  
+
     emitEvent(event);
 
-    emitWSEvent(event);
+    return ResponseEntity.ok(updatedOrder);
 
-    return ResponseEntity.ok(order);
-    // return ResponseEntity.ok(updatedOrder);
   }
 
   @GetMapping("/order")
@@ -131,7 +127,7 @@ public class PizzaStore {
     }
 
     @JsonValue
-    public String getType(){
+    public String getType() {
       return type;
     }
   }
@@ -145,20 +141,31 @@ public class PizzaStore {
   public record Order(@JsonProperty String id, @JsonProperty Customer customer, @JsonProperty List<OrderItem> items,
       @JsonProperty Date orderDate, @JsonProperty Status status) {
 
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Order(String id, Customer customer, List<OrderItem> items, Date orderDate, Status status) {
-      this.id = id;
+      if (id == null) {
+        this.id = UUID.randomUUID().toString();
+      } else {
+        this.id = id;
+      }
       this.customer = customer;
       this.items = items;
-      this.orderDate = orderDate;
-      this.status = status;
+      if (orderDate == null) {
+        this.orderDate = new Date();
+      } else {
+        this.orderDate = orderDate;
+      }
+      if (status == null) {
+        this.status = Status.created;
+      } else {
+        this.status = status;
+      }
     }
 
-    
     public Order(Customer customer, List<OrderItem> items, Date orderDate, Status status) {
       this(UUID.randomUUID().toString(), customer, items, orderDate, status);
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Order(Customer customer, List<OrderItem> items) {
       this(UUID.randomUUID().toString(), customer, items, new Date(), Status.created);
     }
@@ -170,7 +177,8 @@ public class PizzaStore {
 
   private void emitEvent(Event event) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
-      client.publishEvent(PUB_SUB_NAME, PUB_SUB_TOPIC, event, singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
+      client.publishEvent(PUB_SUB_NAME, PUB_SUB_TOPIC, event,
+          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
     } catch (Exception ex) {
       ex.printStackTrace();
     }

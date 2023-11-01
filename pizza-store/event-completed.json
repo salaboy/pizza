@@ -2,7 +2,7 @@
     "specversion" : "1.0",
     "type" : "com.salaboy.event",
     "data": {
-        "type": "order-in-preparation",
+        "type": "order-completed",
         "order": {
             "customer":
                     {
@@ -17,7 +17,7 @@
                 ],
             "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
             "orderDate":"2023-10-31T18:13:55.571+00:00",
-            "status":"inpreparation"
+            "status":"completed"
         }
     }
 }
