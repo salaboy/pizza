@@ -1,10 +1,8 @@
 package io.diagrid.dapr;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.junit.Assert.*;
 
@@ -19,7 +17,6 @@ import io.diagrid.dapr.PizzaKitchen.EventType;
 import io.diagrid.dapr.PizzaKitchen.Order;
 import io.diagrid.dapr.PizzaKitchen.OrderItem;
 import io.diagrid.dapr.PizzaKitchen.PizzaType;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 import static io.restassured.RestAssured.*;

@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.diagrid.dapr</groupId>
-	<artifactId>pizza-inventory</artifactId>
+	<artifactId>pizza-delivery</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Pizza Inventory Service</name>
-	<description>Pizza Inventory</description>
+	<name>Pizza Delivery Service</name>
+	<description>Pizza Delivery</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>io.diagrid.dapr</groupId>
             <artifactId>dapr-spring-boot-starter</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

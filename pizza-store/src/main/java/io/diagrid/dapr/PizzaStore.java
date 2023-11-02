@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import static java.util.Collections.singletonMap;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,7 +25,6 @@ import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
-import io.dapr.client.domain.Metadata;
 
 @SpringBootApplication
 @RestController
@@ -54,12 +51,12 @@ public class PizzaStore {
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {
+    emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
     if(pizzaEvent.type.equals(EventType.ORDER_READY)){
       prepareOrderForDelivery(pizzaEvent.order);
     }
-    emitWSEvent(event.getData());
   }
 
   private void emitWSEvent(Event event) {
@@ -71,24 +68,29 @@ public class PizzaStore {
   private void prepareOrderForDelivery(Order order){
     store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
      // Emit Event
-    Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order);
-
+    Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order, "store", "Delivery in progress.");
     emitWSEvent(event);
+
+    callDeliveryService(order);
 
   }
 
   @PostMapping("/order")
   public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) throws Exception {
-    // Store Order
-    store(order);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        // Emit Event
+        Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
 
-    // Emit Event
-    Event event = new Event(EventType.ORDER_PLACED, order);
+        emitWSEvent(event);
+        // Store Order
+        store(order);
 
-    emitWSEvent(event);
-
-    // Process Order, sent to kitcken
-    callKitchenService(order);
+        // Process Order, sent to kitcken
+        callKitchenService(order);
+      }
+    }).start();
 
     return ResponseEntity.ok(order);
 
@@ -116,7 +118,7 @@ public class PizzaStore {
     created, placed, notplaced, instock, notinstock, inpreparation, delivery, completed, failed
   }
 
-  public record Event(EventType type, Order order) {
+  public record Event(EventType type, Order order, String service, String message) {
   }
 
   public enum EventType {
@@ -127,6 +129,7 @@ public class PizzaStore {
     ORDER_IN_PREPARATION("order-in-preparation"),
     ORDER_READY("order-ready"),
     ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
+    ORDER_ON_ITS_WAY("order-on-its-way"),
     ORDER_COMPLETED("order-completed");
 
     private String type;
@@ -193,7 +196,7 @@ public class PizzaStore {
       }
       orders.orders.add(order);
       // Save state
-      client.saveState(STATE_STORE_NAME, KEY, orders);
+      client.saveState(STATE_STORE_NAME, KEY, orders).block();
 
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -209,6 +212,16 @@ public class PizzaStore {
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
     restTemplate.put(
         daprHttp + "/prepare", request);
+  }
+
+  private void callDeliveryService(Order order) {
+    restTemplate = new RestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "application/json");
+    headers.add("dapr-app-id", "delivery-service");
+    HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
+    restTemplate.put(
+        daprHttp + "/deliver", request);
   }
 
   private Orders loadOrders() {

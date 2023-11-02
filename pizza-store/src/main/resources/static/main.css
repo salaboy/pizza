@@ -34,10 +34,29 @@ a {
   }
 }
 
+
+
 .item {
     margin-top: 2rem;
     display: flex;
   }
+
+  .animate {
+    animation-duration: 0.5s;
+    animation-name: animate-fade;
+    animation-delay: 0.5s;
+    animation-fill-mode: backwards;
+    }
+    
+    @keyframes animate-fade {
+        0% {
+        opacity: 0;
+        }
+        100% {
+        opacity: 1;
+        }
+    }
+
   
   .details {
     flex: 1;
@@ -117,3 +136,117 @@ a {
       display: none;
     }
   }
+
+  button {
+    background-color: var(--vt-c-green-light);
+    border-color: var(--vt-c-green-dark);
+    border-radius: 0.5rem;
+    padding: 0.7rem;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.4s ease-out;
+  }
+  
+  button:hover:enabled {
+    box-shadow: 0px 0px 10px var(--vt-c-green-dark);
+    transition: all 0.1s ease-out;
+  }
+  
+  button:disabled {
+    border-color: var(--vt-c-divider-dark-2);
+    background-color: var(--vt-c-text-dark-2);
+  }
+
+  .greetings h1,
+.greetings h3 {
+  text-align: center;
+}
+
+.flex-row {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.flex-center {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  .greetings h1,
+  .greetings h3 {
+    text-align: left;
+  }
+
+  .flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .flex-center {
+    display: flex;
+    justify-content: center;
+    text-align: left;
+  }
+}
+
+.pizza-item {
+    margin: 0.5em;
+    display: flex;
+    flex-direction: column;
+}
+
+img {
+  margin: 0.5em 0.2em;
+  width: 150px;
+  height: auto;
+}
+
+button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--vt-c-yellow-dark);
+  border-color: var(--vt-c-yellow-dark);
+  border-radius: 0.5rem;
+  padding: 0.7rem;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-top: 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.4s ease-out;
+}
+
+.amount {
+  font-weight: normal;
+}
+
+button:hover:enabled {
+  box-shadow: 0px 0px 10px var(--vt-c-yellow-dark);
+  transition: all 0.1s ease-out;
+}
+
+.flex-row-pizza {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 1024px) {
+.flex-row-pizza {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+}

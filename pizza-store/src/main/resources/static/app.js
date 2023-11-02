@@ -37,10 +37,79 @@ function connect() {
     stompClient.activate();
 }
 
+function placeOrderFake(){
+    var fakeEvent = {
+        "type": "order-placed",
+        "service": "store",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Order has been placed."
+    }
+    showEvent(JSON.stringify(fakeEvent));
+}
+
+function kitchenAcceptFake(){
+    var fakeEvent = {
+        "type": "order-in-preparation",
+        "service": "kitchen",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Your Order has been accepted by the kitchen."
+    }
+    showEvent(JSON.stringify(fakeEvent));
+}
+
+function deliveryFake(){
+    var fakeEvent = {
+        "type": "order-out-for-delivery",
+        "service": "kitchen",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Your Order is out for delivery."
+    }
+    showEvent(JSON.stringify(fakeEvent));
+}
+
+function deliveryUpdateFake(){
+    var fakeEvent = {
+        "type": "order-on-its-way",
+        "service": "delivery",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Your Order 1 mile away"
+    }
+    showEvent(JSON.stringify(fakeEvent));
+    var fakeEvent = {
+        "type": "delivery",
+        "service": "kitchen",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Your Order half mile away"
+    }
+    showEvent(JSON.stringify(fakeEvent));
+}
+
+function completedFake(){
+    var fakeEvent = {
+        "type": "order-completed",
+        "service": "store",
+        "order":{
+            "id": "123-123-123-123-123-123"
+        },
+        "message": "Your has been delivered."
+    }
+    showEvent(JSON.stringify(fakeEvent));
+
+}
+
 function placeOrder() {
     console.log("Placing Order");
-    //Connect to websocket
-    connect();
+    
     //Send Order to store
     fetch("/order", {
         method: "POST",
@@ -59,14 +128,7 @@ function placeOrder() {
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         }
-    })
-        .then((response) => {
-            response.json();
-        }
-        )
-        .then((json) => console.log(json));
-
-
+    });
 
 }
 
@@ -93,34 +155,37 @@ function createItem(detailsImage, text, disabled) {
     return item;
 }
 
+function createEventEntry(eventObject){
+    var eventEntry = "<div>"+
+        "<p>Event from Service: <strong>" + eventObject.service + "</strong></p>" + 
+        "<p>Event Type: <strong>" + eventObject.type + "</strong></p>" + 
+        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" + 
+        "<p>Message: <strong>" + eventObject.message + "</strong></p>" + 
+        "</div>";
+    return eventEntry;
+
+}
+
 function showEvent(event) {
 
     eventObject = JSON.parse(event);
     console.log("Event Type => " + eventObject.type);
 
-    $("#events").append("<tr><td>" + event + "</td></tr>");
+    $("#events").append(createEventEntry(eventObject));
 
 
     if (eventObject.type === "order-placed") {
-        $("#status").empty();
         $("#status").append(createItem("Order.png", "Order Placed", false));
     }
     if (eventObject.type === "order-in-preparation") {
-        $("#status").empty();
-        $("#status").append(createItem("Order.png", "Order Placed", true));
         $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
     }
     if (eventObject.type === "order-out-for-delivery") {
-        $("#status").empty();
-        $("#status").append(createItem("Order.png", "Order Placed", true));
-        $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", true));
+        
         $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
     }
     if (eventObject.type === "order-completed") {
-        $("#status").empty();
-        $("#status").append(createItem("Order.png", "Order Placed", true));
-        $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", true));
-        $("#status").append(createItem("Map.gif", "Your order is out for delivery.", true));
+        
         $("#status").append(createItem("BoxAndDrink.png", "Your order is now complete. Thanks for choosing us!", false));
 
     }
@@ -130,5 +195,10 @@ function showEvent(event) {
 $(function () {
     $("form").on('submit', (e) => e.preventDefault());
     $("#placeOrder").click(() => placeOrder());
+    $("#placeOrderFake").click(() => placeOrderFake());
+    $("#kitchenAcceptFake").click(() => kitchenAcceptFake());
+    $("#deliveryFake").click(() => deliveryFake());
+    $("#deliveryUpdateFake").click(() => deliveryUpdateFake());
+    $("#completedFake").click(() => completedFake());
     $("#disconnect").click(() => disconnect());
 });

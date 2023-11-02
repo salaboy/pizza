@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 
 @SpringBootApplication
-public class PizzaInventoryAppTest {
+public class PizzaDeliveryAppTest {
     public static void main(String[] args) {
-        SpringApplication.from(PizzaInventory::main)
+        SpringApplication.from(PizzaDelivery::main)
                 .with(DaprTestConfiguration.class)
                 .run(args);
     }
