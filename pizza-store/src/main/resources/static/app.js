@@ -159,8 +159,8 @@ function createEventEntry(eventObject){
     var eventEntry = "<div>"+
         "<p>Event from Service: <strong>" + eventObject.service + "</strong></p>" + 
         "<p>Event Type: <strong>" + eventObject.type + "</strong></p>" + 
-        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" + 
         "<p>Message: <strong>" + eventObject.message + "</strong></p>" + 
+        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" + 
         "</div>";
     return eventEntry;
 

@@ -1,12 +1,12 @@
 # Cloud-Native Pizza Delivery system
 
-This repository contains a simple example for a Pizza delivery system using Kubernetes, Dapr and Testcontainers to enable developers with an awesome developer experience.
+This repository contains a simple example for a Pizza Store application using Kubernetes, [Dapr](https://dapr.io) and [Testcontainers](https://testcontainers.com) to enable developers with an awesome developer experience.
 
-You can run this application on any Kubernetes cluster by following the step-by-step insturctions described in this short tutorial. 
+You can run this application on any Kubernetes cluster by following the step-by-step insturctions described in this document. 
 
 ## Installation
 
-If you don't have a Kubernetes Cluster you can install KinD to create a local cluster to run the application. 
+If you don't have a Kubernetes Cluster you can [install KinD](https://kind.sigs.k8s.io/docs/user/quick-start/) to create a local cluster to run the application. 
 
 Once you have KinD installed you can run the following command to create a local Cluster: 
 
@@ -14,7 +14,7 @@ Once you have KinD installed you can run the following command to create a local
 kind create cluster
 ```
 
-Then we will install Dapr into our fresh new cluster by running the following command: 
+Then we will install [Dapr](https://dapr.io) into our fresh new cluster by running the following command: 
 
 ```
 helm repo add dapr https://dapr.github.io/helm-charts/
@@ -54,4 +54,40 @@ To install the application you only need to run the following command:
 ```
 kubectl apply -f k8s/
 ```
+
+This install all the application services. To avoid dealing with Ingresses you can access the application by using `kubectl port-forward`, run to access the application on port `8080`: 
+
+```
+kubectl port-forward svc/pizza-store 8080:80
+```
+
+Then you can point your browser to [`http://localhost:8080`](http://localhost:8080) and you should see: 
+
+![Pizza Store](imgs/pizza-store.png)
+
+## Building from source / changing the services
+
+The application services are written using Java + Spring Boot. These services use the Dapr Java SDK to interact with the Dapr [PubSub](https://docs.dapr.io/getting-started/quickstarts/pubsub-quickstart/) and [Statestore](https://docs.dapr.io/getting-started/quickstarts/statemanagement-quickstart/) APIs. 
+
+To run the services locally you can use the [Testcontainer](https://testcontainaers.com) integration already included in the projects. 
+
+For example you can start a local version of the `pizza-store` service by running the following command inside the `pizza-store/` directory (this requires having Java and [Maven](https://maven.apache.org/) installed locally):
+
+```
+mvn spring-boot:test-run
+```
+
+This, not only start the `pizza-store` service, but it also uses the [Testcontainers + Dapr Spring Boot](https://central.sonatype.com/artifact/io.diagrid.dapr/dapr-spring-boot-starter) integration to configure and wire up a Dapr configuration for local development. In other words, you can now use Dapr outside of Kubernetes, for writing your service tests without the need to know how Dapr is configured. 
+
+
+Once the service is up, you can place orders and simulate other events coming from the Kitchen and Delivery services by sending HTTP requests to the `/events` endpoint. 
+
+Using `httpie` this would look like this: 
+
+```
+http :8080/events Content-Type:application/cloudevents+json < pizza-store/event-in-prep.json
+```
+
+In the Application you should see the event recieved that the order moving forward. 
+
 

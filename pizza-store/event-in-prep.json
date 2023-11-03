@@ -3,6 +3,8 @@
     "type" : "com.salaboy.event",
     "data": {
         "type": "order-in-preparation",
+        "service": "kitchen",
+        "message": "Your Order is in the kitchen.",
         "order": {
             "customer":
                     {

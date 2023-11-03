@@ -8,6 +8,33 @@
   font-weight: normal;
 }
 
+header {
+  display: flex;
+  padding: 5vw;
+  gap: 40px;
+  justify-content: space-between;
+  background-color: var(--vt-c-yellow-dark);
+}
+
+header p {
+  max-width: 800px;
+}
+.container {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+#events > div {
+  margin-bottom: 2rem;
+  border: 1px solid var(--vt-c-white-mute);
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+}
+
+#events > div > p{
+  margin-bottom: 0;
+}
+
 a {
   text-decoration: underline;
   color: var(--color-text);
@@ -23,8 +50,8 @@ a {
 
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
+    padding: 0;
+    margin: 0;
   }
 
   #app {
@@ -199,9 +226,11 @@ a {
 }
 
 .pizza-item {
-    margin: 0.5em;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
+    background-color: white;
+    border-radius: 1rem;
 }
 
 img {
@@ -223,6 +252,19 @@ button {
   margin-top: 1rem;
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.4s ease-out;
+}
+
+button.main {
+  padding: 1rem 2rem;
+  background-color: var(--vt-c-blue-dark); 
+  border-color: var(--vt-c-blue-dark);
+  color: var(--vt-c-yellow-light);
+  font-size: 2rem;
+}
+
+button.main:hover:enabled {
+  box-shadow: 0px 0px 10px var(--vt-c-blue-dark);
+  transition: all 0.1s ease-out;
 }
 
 .amount {

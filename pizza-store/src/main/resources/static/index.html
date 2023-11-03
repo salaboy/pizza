@@ -17,29 +17,26 @@
             enabled. Please enable
             Javascript and reload this page!</h2>
     </noscript>
+    <header>
+        <div class="pizza-place">
+            <h1>Pizza Store</h1>
+            <h2><a href="https://github.com/salaboy/pizza">https://github.com/salaboy/pizza</a></h2>
+        </div>
+        <div class="pizza-order">
+            <h5>Your order:</h5>
+            <p>Name: Salaboy</p>
+            <p>Address: KubeCon NA - Chicago</p>
+            <p>Credit Card: 4444-5555-2222-3333</p>
+            <div class="pizza-item">
+                <img alt="pepperoni" title="pepperoni" src="imgs/PizzaPepperoni.png">Vegan Pepperoni + Ice Tea</img>
+            </div>
+            <button id="placeOrder" class="button main" type="submit">Place Order</button>
+        </div>
+    </header>
     <div id="main-content" class="container">
         <div class="row">
             <div class="col-md-6">
-                <form class="form-inline">
-                    <div class="form-group">
-                        <div class="pizza-item">
-                            <button><img alt="vegan pepperoni" title="vegan pepperoni" src="imgs/PizzaPepperoni.png">
-                                Vegan Pepperoni </button>
-                        </div>
-                        <label for="placeOrder">Order your pizza:</label>
-                        <button id="placeOrder" class="button" type="submit">Place Order</button>
-                        <button id="placeOrderFake" class="button" type="submit">#1 - Place Order Fake</button>
-                        <button id="kitchenAcceptFake" class="button" type="submit">#2 - Kitchen Accept Fake</button>
-                        <button id="deliveryFake" class="button" type="submit">#3 - Order is Out for Delivery Fake</button>
-                        <button id="deliveryUpdateFake" class="button" type="submit">#4 - Order Delivery Update Fake</button>
-                        <button id="completedFake" class="button" type="submit">#5 - Order Completed Fake</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <h1>Order Status</h1>
+                <h2>Order Status</h2>
                 <div class="">
                     <div id="status">
 
@@ -47,7 +44,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <h1>Events</h1>
+                <h2>Events</h2>
                 <div class="">
                     <div id="events">
 

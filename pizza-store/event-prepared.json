@@ -2,7 +2,9 @@
     "specversion" : "1.0",
     "type" : "com.salaboy.event",
     "data": {
-        "type": "order-prepared",
+        "type": "order-on-its-way",
+        "service": "delivery",
+        "message": "Your Order is half mile away from your home.",
         "order": {
             "customer":
                     {

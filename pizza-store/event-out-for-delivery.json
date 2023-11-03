@@ -18,6 +18,8 @@
             "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
             "orderDate":"2023-10-31T18:13:55.571+00:00",
             "status":"delivery"
-        }
+        },
+        "service": "store",
+        "message": "Your Order is ready for delivery."
     }
 }
