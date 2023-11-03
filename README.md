@@ -2,6 +2,8 @@
 
 This repository contains a simple example for a Pizza Store application using Kubernetes, [Dapr](https://dapr.io) and [Testcontainers](https://testcontainers.com) to enable developers with an awesome developer experience.
 
+![](imgs/testcontainers-dapr.png)
+
 You can run this application on any Kubernetes cluster by following the step-by-step insturctions described in this document. 
 
 ## Installation
@@ -82,7 +84,7 @@ This, not only start the `pizza-store` service, but it also uses the [Testcontai
 
 Once the service is up, you can place orders and simulate other events coming from the Kitchen and Delivery services by sending HTTP requests to the `/events` endpoint. 
 
-Using `httpie` this would look like this: 
+Using [`httpie`](https://httpie.io/) this look like this: 
 
 ```
 http :8080/events Content-Type:application/cloudevents+json < pizza-store/event-in-prep.json
@@ -91,3 +93,12 @@ http :8080/events Content-Type:application/cloudevents+json < pizza-store/event-
 In the Application you should see the event recieved that the order moving forward. 
 
 
+# Resources and references
+
+- [Platform engineering on Kubernetes Book](http://mng.bz/jjKP?ref=salaboy.com)
+- [Testcontainers for Go Developers](https://www.atomicjar.com/2023/08/local-development-of-go-applications-with-testcontainers/)
+- [Cloud native local development with Dapr and Testcontainers](https://www.diagrid.io/blog/cloud-native-local-development)
+
+# Feedback / Comments / Contribute
+
+Feel free to create issues or get in touch with us using Issues or via [Twitter @Salaboy](https://twitter.com/salaboy)
