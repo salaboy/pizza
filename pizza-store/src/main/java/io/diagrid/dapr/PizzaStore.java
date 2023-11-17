@@ -51,6 +51,9 @@ public class PizzaStore {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
+  @Value("${PUBLIC_IP:localhost}")
+  private String publicIp;
+
   public static void main(String[] args) {
     SpringApplication.run(PizzaStore.class, args);
 
@@ -59,6 +62,13 @@ public class PizzaStore {
   public PizzaStore(SimpMessagingTemplate simpMessagingTemplate) {
     this.simpMessagingTemplate = simpMessagingTemplate;
   }
+
+  @GetMapping("/server-info")
+  public Info getInfo(){
+    return new Info(publicIp);
+  }
+
+  public record Info(String publicIp){}
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {

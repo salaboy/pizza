@@ -1,6 +1,25 @@
 const stompClient = new StompJs.Client({
 });
 
+
+stompClient.onConnect = (frame) => {
+    setConnected(true);
+    console.log('Connected: ' + frame);
+    stompClient.subscribe('/topic/events', (event) => {
+        console.log(JSON.parse(event.body));
+        showEvent(event.body);
+
+    });
+};
+stompClient.onWebSocketError = (error) => {
+    console.error('Error with websocket', error);
+};
+
+stompClient.onStompError = (frame) => {
+    console.error('Broker reported error: ' + frame.headers['message']);
+    console.error('Additional details: ' + frame.body);
+};
+
 function connect() {
     console.log("Fetching Server Info")
     fetch("/server-info", {
@@ -20,27 +39,12 @@ function connect() {
     }).catch((error) => {
         console.error(`Could not get server-info: ${error}`);
     });
-
+    
 };
 
-stompClient.onConnect = (frame) => {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/events', (event) => {
-        console.log(JSON.parse(event.body));
-        showEvent(event.body);
 
-    });
-};
 
-stompClient.onWebSocketError = (error) => {
-    console.error('Error with websocket', error);
-};
 
-stompClient.onStompError = (frame) => {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
-};
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -53,6 +57,7 @@ function setConnected(connected) {
     }
     $("#events").html("");
 }
+
 
 
 function placeOrderFake() {
@@ -126,6 +131,9 @@ function completedFake() {
 }
 
 function placeOrder() {
+
+    
+
     console.log("Placing Order");
 
     //Send Order to store
@@ -190,7 +198,6 @@ function showEvent(event) {
     console.log("Event Type => " + eventObject.type);
 
     $("#events").append(createEventEntry(eventObject));
-
 
     if (eventObject.type === "order-placed") {
         $("#status").append(createItem("Order.png", "Order Placed", false));
