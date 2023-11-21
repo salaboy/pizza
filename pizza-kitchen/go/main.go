@@ -18,8 +18,8 @@ const (
 )
 
 var (
-	PubSubName  = "pubsub"
-	PubSubTopic = "topic"
+	PubSubName  = os.Getenv("PUB_SUB_NAME")
+	PubSubTopic = os.Getenv("PUB_SUB_TOPIC")
 )
 
 func main() {
@@ -27,6 +27,14 @@ func main() {
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	if PubSubName == "" {
+		PubSubName = "pubsub"
+	}
+
+	if PubSubTopic == "" {
+		PubSubTopic = "pizza-orders"
+	}
 
 	kitchen := NewPizzaKitchen(NewDaprEventEmitter())
 	go kitchen.Serve()

@@ -27,11 +27,9 @@ spec:
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
         - name: PUB_SUB_NAME
-          value: pubsub     
-        - name: PUB_SUB_NAME
-          value: pubsub       
+          value: pubsub
         - name: PUB_SUB_TOPIC
-          value: topic  
+          value: topic
         livenessProbe:
           httpGet:
             path: /actuator/health
