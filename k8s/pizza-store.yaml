@@ -26,12 +26,10 @@ spec:
         env:
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
-        - name: WS_HOST_ENDPOINT
-          value: localhost
+        - name: PUBLIC_IP
+          value: localhost:8080
         - name: STATESTORE_NAME
-          value: statestore
-        - name: PUBSUB_NAME
-          value: pubsub     
+          value: kvstore
         livenessProbe:
           httpGet:
             path: /actuator/health

@@ -18,14 +18,17 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.Metadata;
+import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 @RestController
 public class PizzaKitchen {
 
   private static final String MESSAGE_TTL_IN_SECONDS = "1000";
-  private String PUB_SUB_NAME = "pubsub";
-  private String PUB_SUB_TOPIC = "topic";
+  @Value("${PUB_SUB_NAME:pubsub}")
+  private String PUB_SUB_NAME;
+  @Value("${PUB_SUB_TOPIC:topic}")
+  private String PUB_SUB_TOPIC;
   private static final int MS_IN_SECOND = 1000;
   private static final Random RANDOM = new Random();
 

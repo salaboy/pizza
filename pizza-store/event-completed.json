@@ -1,6 +1,8 @@
 {
     "specversion" : "1.0",
     "type" : "com.salaboy.event",
+    "service": "store",
+    "message": "Your Order has been delivered.",
     "data": {
         "type": "order-completed",
         "order": {

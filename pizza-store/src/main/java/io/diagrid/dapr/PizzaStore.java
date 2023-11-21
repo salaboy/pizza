@@ -33,8 +33,19 @@ public class PizzaStore {
   @Value("${dapr-http.base-url:http://localhost:3500}")
   private String daprHttp;
 
-  private String STATE_STORE_NAME = "statestore";
+  @Value("${STATE_STORE_NAME:kvstore}")
+  private String STATE_STORE_NAME;
   
+  @Value("${PUBLIC_IP:localhost}")
+  private String publicIp;
+
+  @GetMapping("/server-info")
+  public Info getInfo(){
+    return new Info(publicIp);
+  }
+
+  public record Info(String publicIp){}
+
   private String KEY = "orders";
   private static RestTemplate restTemplate;
 

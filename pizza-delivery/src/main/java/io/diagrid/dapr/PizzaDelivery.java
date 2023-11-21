@@ -2,6 +2,8 @@ package io.diagrid.dapr;
 import java.util.Date;
 import java.util.List;
 import static java.util.Collections.singletonMap;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +23,11 @@ import io.dapr.client.domain.Metadata;
 public class PizzaDelivery {
 
   private static final String MESSAGE_TTL_IN_SECONDS = "1000";
-  private String PUB_SUB_NAME = "pubsub";
-  private String PUB_SUB_TOPIC = "topic";
+  
+  @Value("${PUB_SUB_NAME:pubsub}")
+  private String PUB_SUB_NAME;
+  @Value("${PUB_SUB_TOPIC:topic}")
+  private String PUB_SUB_TOPIC;
 
   public static void main(String[] args) {
     SpringApplication.run(PizzaDelivery.class, args);

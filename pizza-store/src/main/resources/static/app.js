@@ -1,6 +1,27 @@
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/ws'
 });
+
+function connect() {
+    console.log("Fetching Server Info")
+    fetch("/server-info", {
+        method: "GET",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    }).then((response) => {
+        console.log("Fetching Response")
+        return response.json();
+    }).then((response) => {
+        var publicURL = 'ws://' + response.publicIp + '/ws';
+        stompClient.brokerURL = publicURL;
+        console.log(publicURL);
+        console.log("Activating client")
+        stompClient.activate();
+    }).catch((error) => {
+        console.error(`Could not get server-info: ${error}`);
+    });
+
+};
 
 stompClient.onConnect = (frame) => {
     setConnected(true);
@@ -33,15 +54,12 @@ function setConnected(connected) {
     $("#events").html("");
 }
 
-function connect() {
-    stompClient.activate();
-}
 
-function placeOrderFake(){
+function placeOrderFake() {
     var fakeEvent = {
         "type": "order-placed",
         "service": "store",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Order has been placed."
@@ -49,11 +67,11 @@ function placeOrderFake(){
     showEvent(JSON.stringify(fakeEvent));
 }
 
-function kitchenAcceptFake(){
+function kitchenAcceptFake() {
     var fakeEvent = {
         "type": "order-in-preparation",
         "service": "kitchen",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Your Order has been accepted by the kitchen."
@@ -61,11 +79,11 @@ function kitchenAcceptFake(){
     showEvent(JSON.stringify(fakeEvent));
 }
 
-function deliveryFake(){
+function deliveryFake() {
     var fakeEvent = {
         "type": "order-out-for-delivery",
         "service": "kitchen",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Your Order is out for delivery."
@@ -73,11 +91,11 @@ function deliveryFake(){
     showEvent(JSON.stringify(fakeEvent));
 }
 
-function deliveryUpdateFake(){
+function deliveryUpdateFake() {
     var fakeEvent = {
         "type": "order-on-its-way",
         "service": "delivery",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Your Order 1 mile away"
@@ -86,7 +104,7 @@ function deliveryUpdateFake(){
     var fakeEvent = {
         "type": "delivery",
         "service": "kitchen",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Your Order half mile away"
@@ -94,11 +112,11 @@ function deliveryUpdateFake(){
     showEvent(JSON.stringify(fakeEvent));
 }
 
-function completedFake(){
+function completedFake() {
     var fakeEvent = {
         "type": "order-completed",
         "service": "store",
-        "order":{
+        "order": {
             "id": "123-123-123-123-123-123"
         },
         "message": "Your has been delivered."
@@ -109,7 +127,7 @@ function completedFake(){
 
 function placeOrder() {
     console.log("Placing Order");
-    
+
     //Send Order to store
     fetch("/order", {
         method: "POST",
@@ -147,20 +165,20 @@ function createItem(detailsImage, text, disabled) {
         item += "<img class='transition' src='imgs/GreenDot.png'/>";
     }
     item += "</div>" +
-            "<div class='details'>" +
-                "<img src='imgs/" + detailsImage + "'/>" +
-                "<p>" + text + "</p>" +
-            "</div>" +
+        "<div class='details'>" +
+        "<img src='imgs/" + detailsImage + "'/>" +
+        "<p>" + text + "</p>" +
+        "</div>" +
         "</div>";
     return item;
 }
 
-function createEventEntry(eventObject){
-    var eventEntry = "<div>"+
-        "<p>Event from Service: <strong>" + eventObject.service + "</strong></p>" + 
-        "<p>Event Type: <strong>" + eventObject.type + "</strong></p>" + 
-        "<p>Message: <strong>" + eventObject.message + "</strong></p>" + 
-        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" + 
+function createEventEntry(eventObject) {
+    var eventEntry = "<div>" +
+        "<p>Event from Service: <strong>" + eventObject.service + "</strong></p>" +
+        "<p>Event Type: <strong>" + eventObject.type + "</strong></p>" +
+        "<p>Message: <strong>" + eventObject.message + "</strong></p>" +
+        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" +
         "</div>";
     return eventEntry;
 
@@ -181,11 +199,11 @@ function showEvent(event) {
         $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
     }
     if (eventObject.type === "order-out-for-delivery") {
-        
+
         $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
     }
     if (eventObject.type === "order-completed") {
-        
+
         $("#status").append(createItem("BoxAndDrink.png", "Your order is now complete. Thanks for choosing us!", false));
 
     }
