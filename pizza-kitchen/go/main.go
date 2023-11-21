@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -95,24 +97,50 @@ func (pk *PizzaKitchen) Serve() {
 
 	r.PUT("/prepare", pk.prepareOrderHandler())
 
-	if err := r.Run(); err != nil {
+	r.GET("/actuator/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "UP"})
+	})
+
+	fmt.Printf("Starting server on port :8080\n")
+
+	if err := r.Run(":8080"); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
 
 func (pk *PizzaKitchen) prepareOrderHandler() func(*gin.Context) {
 	return func(c *gin.Context) {
-		var order Order
-		if err := c.ShouldBindJSON(&order); err != nil {
+		b, err := io.ReadAll(c.Request.Body)
+		if err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
 
+		fmt.Printf("> Received Order: %s\n", b)
+
+		var order Order
+		if err := json.Unmarshal(b, &order); err != nil {
+			fmt.Printf("Error unmarshalling order: %v\n", err)
+
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		// if err := c.ShouldBindJSON(&order); err != nil {
+		// 	c.JSON(400, gin.H{"error": err.Error()})
+		// 	return
+		// }
+
 		go func() {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			fmt.Printf("> Preparing Order: %v\n", order)
+
 			// Emit Event
 			time.Sleep(5 * time.Second)
 			event := Event{Type: OrderInPreparation, Order: order, Service: "kitchen", Message: "The order is now in the kitchen."}
-			pk.emitter.Emit(c.Request.Context(), event)
+			pk.emitter.Emit(ctx, event)
 
 			for _, orderItem := range order.Items {
 				pizzaPrepTime := rand.Intn(15 * msInSecond)
@@ -120,8 +148,10 @@ func (pk *PizzaKitchen) prepareOrderHandler() func(*gin.Context) {
 				time.Sleep(time.Duration(pizzaPrepTime) * time.Millisecond)
 			}
 
+			fmt.Printf("> Order Ready: %v\n", order)
+
 			event = Event{Type: OrderReady, Order: order, Service: "kitchen", Message: "Your pizza is ready and waiting to be delivered."}
-			pk.emitter.Emit(c.Request.Context(), event)
+			pk.emitter.Emit(ctx, event)
 		}()
 
 		c.JSON(200, gin.H{})
@@ -138,12 +168,17 @@ type Event struct {
 type Order struct {
 	ID        string      `json:"id"`
 	Items     []OrderItem `json:"items"`
-	OrderDate time.Time   `json:"orderDate"`
+	OrderDate int64       `json:"orderDate"`
 }
 
 type OrderItem struct {
 	Type   PizzaType `json:"type"`
 	Amount int       `json:"amount"`
+}
+
+type Customer struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type PizzaType string
