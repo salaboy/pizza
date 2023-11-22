@@ -17,7 +17,8 @@ public class PizzaStoreAppTest {
                 .run(args);
     }
 
-    @ImportTestcontainers(DaprLocal.class)
+
+   // @ImportTestcontainers(DaprLocalWithWorkflows.class)
     static class AppTestConfiguration {
 
         @Bean
@@ -29,6 +30,10 @@ public class PizzaStoreAppTest {
             properties.add("dapr-http.base-url", container::getBaseUrl);
             return container;
         }
+
+    
     }
+
+    
 
 }

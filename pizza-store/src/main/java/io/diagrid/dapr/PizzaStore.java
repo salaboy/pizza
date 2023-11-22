@@ -1,9 +1,8 @@
 package io.diagrid.dapr;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+
+import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,14 +16,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
+import io.dapr.workflows.client.DaprWorkflowClient;
+import io.dapr.workflows.runtime.WorkflowRuntime;
+import io.dapr.workflows.runtime.WorkflowRuntimeBuilder;
+import io.diagrid.dapr.model.Event;
+import io.diagrid.dapr.model.EventType;
+import io.diagrid.dapr.model.Order;
+import io.diagrid.dapr.model.Orders;
+import io.diagrid.dapr.workflow.PizzaWorkflow;
+import io.diagrid.dapr.workflow.StoreOrderActivity;
 
 @SpringBootApplication
 @RestController
@@ -36,7 +40,7 @@ public class PizzaStore {
   @Value("${STATE_STORE_NAME:kvstore}")
   private String STATE_STORE_NAME;
   
-  @Value("${PUBLIC_IP:localhost}")
+  @Value("${PUBLIC_IP:localhost:8080}")
   private String publicIp;
 
   @GetMapping("/server-info")
@@ -56,8 +60,23 @@ public class PizzaStore {
 
   }
 
+  private void createWorkflowDefinition(){
+    WorkflowRuntimeBuilder builder = new WorkflowRuntimeBuilder().registerWorkflow(PizzaWorkflow.class);
+    builder.registerActivity(StoreOrderActivity.class);
+    // builder.registerActivity(ProcessPaymentActivity.class);
+    // builder.registerActivity(RequestApprovalActivity.class);
+    // builder.registerActivity(ReserveInventoryActivity.class);
+    // builder.registerActivity(UpdateInventoryActivity.class);
+
+    try (WorkflowRuntime runtime = builder.build()) {
+      System.out.println("Start workflow runtime");
+      runtime.start(false);
+    }
+  }
+
   public PizzaStore(SimpMessagingTemplate simpMessagingTemplate) {
     this.simpMessagingTemplate = simpMessagingTemplate;
+    createWorkflowDefinition();
   }
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
@@ -65,8 +84,8 @@ public class PizzaStore {
     emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
-    if(pizzaEvent.type.equals(EventType.ORDER_READY)){
-      prepareOrderForDelivery(pizzaEvent.order);
+    if(pizzaEvent.type().equals(EventType.ORDER_READY)){
+      prepareOrderForDelivery(pizzaEvent.order());
     }
   }
 
@@ -77,7 +96,7 @@ public class PizzaStore {
   }
 
   private void prepareOrderForDelivery(Order order){
-    store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
+    //store(new Order(order.id(), order.customer(), order.items(), order.orderDate(), Status.delivery));
      // Emit Event
     Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order, "store", "Delivery in progress.");
     emitWSEvent(event);
@@ -95,15 +114,38 @@ public class PizzaStore {
         Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
 
         emitWSEvent(event);
-        // Store Order
-        store(order);
 
-        // Process Order, sent to kitcken
-        callKitchenService(order);
+        
+        
+        startPizzaWorkflow(order);
+        
+        // Store Order
+        // store(order);
+
+        // // Process Order, sent to kitcken
+        // callKitchenService(order);
       }
     }).start();
 
     return ResponseEntity.ok(order);
+
+  }
+
+  private void startPizzaWorkflow(Order order){
+    DaprWorkflowClient workflowClient = new DaprWorkflowClient();
+
+    String instanceId = workflowClient.scheduleNewWorkflow(PizzaWorkflow.class, order);
+    System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
+        instanceId);
+
+    try {
+      workflowClient.waitForInstanceStart(instanceId, Duration.ofSeconds(10), false);
+      System.out.printf("workflow instance %s started%n", instanceId);
+    } catch (TimeoutException e) {
+      System.out.printf("workflow instance %s did not start within 10 seconds%n", instanceId);
+      return;
+    }
+
 
   }
 
@@ -115,105 +157,26 @@ public class PizzaStore {
     return ResponseEntity.ok(orders);
   }
 
-  public record Customer(@JsonProperty String name, @JsonProperty String email) {
-  }
 
-  public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {
-  }
+ 
 
-  public enum PizzaType {
-    pepperoni, margherita, hawaiian, vegetarian
-  }
+  
+  // private void store(Order order) {
+  //   try (DaprClient client = (new DaprClientBuilder()).build()) {
+  //     Orders orders = new Orders(new ArrayList<Order>());
+  //     State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+  //     if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
+  //       orders.orders().addAll(ordersState.getValue().orders());
+  //     }
+  //     orders.orders().add(order);
+  //     // Save state
+  //     client.saveState(STATE_STORE_NAME, KEY, orders).block();
 
-  public enum Status {
-    created, placed, notplaced, instock, notinstock, inpreparation, delivery, completed, failed
-  }
+  //   } catch (Exception ex) {
+  //     ex.printStackTrace();
+  //   }
 
-  public record Event(EventType type, Order order, String service, String message) {
-  }
-
-  public enum EventType {
-
-    ORDER_PLACED("order-placed"),
-    ITEMS_IN_STOCK("items-in-stock"),
-    ITEMS_NOT_IN_STOCK("items-not-in-stock"),
-    ORDER_IN_PREPARATION("order-in-preparation"),
-    ORDER_READY("order-ready"),
-    ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
-    ORDER_ON_ITS_WAY("order-on-its-way"),
-    ORDER_COMPLETED("order-completed");
-
-    private String type;
-
-    EventType(String type) {
-      this.type = type;
-    }
-
-    @JsonValue
-    public String getType() {
-      return type;
-    }
-  }
-
-  public record KitchenResponse(@JsonProperty String message, @JsonProperty String orderId) {
-  }
-
-  private record Orders(@JsonProperty List<Order> orders) {
-  }
-
-  public record Order(@JsonProperty String id, @JsonProperty Customer customer, @JsonProperty List<OrderItem> items,
-      @JsonProperty Date orderDate, @JsonProperty Status status) {
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public Order(String id, Customer customer, List<OrderItem> items, Date orderDate, Status status) {
-      if (id == null) {
-        this.id = UUID.randomUUID().toString();
-      } else {
-        this.id = id;
-      }
-      this.customer = customer;
-      this.items = items;
-      if (orderDate == null) {
-        this.orderDate = new Date();
-      } else {
-        this.orderDate = orderDate;
-      }
-      if (status == null) {
-        this.status = Status.created;
-      } else {
-        this.status = status;
-      }
-    }
-
-    public Order(Customer customer, List<OrderItem> items, Date orderDate, Status status) {
-      this(UUID.randomUUID().toString(), customer, items, orderDate, status);
-    }
-
-    public Order(Customer customer, List<OrderItem> items) {
-      this(UUID.randomUUID().toString(), customer, items, new Date(), Status.created);
-    }
-
-    public Order(Order order) {
-      this(order.id, order.customer, order.items, order.orderDate, order.status);
-    }
-  }
-
-  private void store(Order order) {
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
-      Orders orders = new Orders(new ArrayList<Order>());
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
-      if (ordersState.getValue() != null && ordersState.getValue().orders.isEmpty()) {
-        orders.orders.addAll(ordersState.getValue().orders);
-      }
-      orders.orders.add(order);
-      // Save state
-      client.saveState(STATE_STORE_NAME, KEY, orders).block();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-
-  }
+  // }
 
   private void callKitchenService(Order order) {
     restTemplate = new RestTemplate();
