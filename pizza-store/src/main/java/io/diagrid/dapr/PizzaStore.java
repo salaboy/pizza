@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,7 @@ import io.dapr.client.domain.State;
 
 @SpringBootApplication
 @RestController
+@CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 public class PizzaStore {
 
   @Value("${dapr-http.base-url:http://localhost:3500}")
@@ -122,7 +124,7 @@ public class PizzaStore {
   }
 
   public enum PizzaType {
-    pepperoni, margherita, hawaiian, vegetarian
+    pepperoni, margherita, hawaiian, vegetarian, kubernetescheese, daprcheese, clustertomatoes, diagridpepperoni, distributedolives, opensauce, workflowspread, plantbasedobservability, bindingsbacon
   }
 
   public enum Status {
