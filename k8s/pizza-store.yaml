@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: salaboy/pizza-store:0.1.0
+        image: salaboy/pizza-store:0.1.0-workflows
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS

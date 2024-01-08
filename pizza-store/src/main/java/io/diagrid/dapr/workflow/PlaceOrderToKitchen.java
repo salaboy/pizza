@@ -12,9 +12,6 @@ import io.diagrid.dapr.model.WorkflowPayload;
 
 public class PlaceOrderToKitchen implements WorkflowActivity {
 
-//   @Value("${dapr-http.base-url:http://localhost:3500}")
-//   private String daprHttp;
-
   private static RestTemplate restTemplate;
 
 
@@ -23,7 +20,9 @@ public class PlaceOrderToKitchen implements WorkflowActivity {
         WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
         System.out.println("Placing Order to Kitchen Activity ... ");
         String daprHttp = System.getenv("DAPR_HTTP_ENDPOINT");
-
+        if(daprHttp == null || daprHttp.isEmpty()){
+            daprHttp = "http://localhost:3500";
+        }
         restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");

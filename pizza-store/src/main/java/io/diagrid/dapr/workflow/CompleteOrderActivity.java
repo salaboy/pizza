@@ -1,22 +1,12 @@
 package io.diagrid.dapr.workflow;
 
-import java.util.ArrayList;
-
-import io.dapr.client.DaprClient;
-import io.dapr.client.DaprClientBuilder;
-import io.dapr.client.domain.State;
 import io.dapr.workflows.runtime.WorkflowActivity;
 import io.dapr.workflows.runtime.WorkflowActivityContext;
-import io.diagrid.dapr.model.OrderPayload;
-import io.diagrid.dapr.model.Orders;
 import io.diagrid.dapr.model.WorkflowPayload;
-
-import org.springframework.beans.factory.annotation.Value;
 
 public class CompleteOrderActivity implements WorkflowActivity {
 
-    // @Value("${STATE_STORE_NAME:kvstore}")
-    // private String STATE_STORE_NAME = "kvstore";
+
 
     private String KEY = "orders";
 

@@ -13,8 +13,6 @@ import io.diagrid.dapr.model.WorkflowPayload;
 
 public class StoreOrderActivity implements WorkflowActivity {
 
-    // @Value("${STATE_STORE_NAME:kvstore}")
-    // private String STATE_STORE_NAME = "kvstore";
 
     private String KEY = "orders";
 

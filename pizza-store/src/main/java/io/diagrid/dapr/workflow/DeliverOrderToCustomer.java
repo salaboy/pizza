@@ -1,6 +1,5 @@
 package io.diagrid.dapr.workflow;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
@@ -12,10 +11,6 @@ import io.diagrid.dapr.model.WorkflowPayload;
 
 public class DeliverOrderToCustomer implements WorkflowActivity {
 
-//   @Value("${dapr-http.base-url:http://localhost:3500}")
-//   private String daprHttp;
-//   @Value("${DAPR_API_TOKEN}")
-//   private String API_TOKEN;
   private static RestTemplate restTemplate;
 
 
@@ -25,6 +20,10 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
         System.out.println("Delivering Pizza to Customer Activity ... ");
 
         String daprHttp = System.getenv("DAPR_HTTP_ENDPOINT");
+        if(daprHttp == null || daprHttp.isEmpty()){
+            daprHttp = "http://localhost:3500";
+        }
+
         restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
 

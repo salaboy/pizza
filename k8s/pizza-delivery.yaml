@@ -21,15 +21,13 @@ spec:
     spec:
       containers:
       - name: pizza-delivery-service
-        image: salaboy/pizza-delivery:0.1.0
+        image: salaboy/pizza-delivery:0.1.0-workflows
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
         - name: PUB_SUB_NAME
-          value: pubsub     
-        - name: PUB_SUB_NAME
-          value: pubsub       
+          value: pubsub         
         - name: PUB_SUB_TOPIC
           value: topic    
         livenessProbe:
