@@ -23,11 +23,12 @@
             "request": "launch",
             "mainClass": "io.diagrid.dapr.PizzaStoreAppTest",
             "projectName": "pizza-store",
-            "env": {
-                "DAPR_API_TOKEN": "diagrid://v1/26ee8451-28fd-4268-938d-c80039d94548/11702/pizza/pizza-store/ed474a33-e029-4cb3-a06f-ee8756315f03",
-                "DAPR_GRPC_ENDPOINT": "https://grpc-prj11702.api.cloud.diagrid.io",
-                "DAPR_HTTP_ENDPOINT": "https://http-prj11702.api.cloud.diagrid.io"
-            }
+            // "env": {
+            //     "DAPR_API_TOKEN": "diagrid://v1/26ee8451-28fd-4268-938d-c80039d94548/11702/pizza/pizza-store/ed474a33-e029-4cb3-a06f-ee8756315f03",
+            //     "DAPR_GRPC_ENDPOINT": "https://grpc-prj11702.api.cloud.diagrid.io",
+            //     "DAPR_HTTP_ENDPOINT": "https://http-prj11702.api.cloud.diagrid.io",
+            //     "STATE_STORE_NAME": "kvstore"
+            // }
         }
     ]
 }

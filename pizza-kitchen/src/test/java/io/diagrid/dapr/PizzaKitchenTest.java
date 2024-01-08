@@ -33,7 +33,7 @@ public class PizzaKitchenTest {
     public void testPrepareOrderRequest() throws Exception {
         with().body(new Order(UUID.randomUUID().toString(), 
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1)), 
-                                new Date()))
+                                new Date(), ""))
                                 .contentType(ContentType.JSON)
         .when()
         .request("PUT", "/prepare")

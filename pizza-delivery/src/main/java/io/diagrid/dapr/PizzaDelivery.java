@@ -38,8 +38,29 @@ public class PizzaDelivery {
     new Thread(new Runnable() {
       @Override
       public void run() {
+
+
            // Emit Event
           Event event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is on its way to your address.");
+          emitEvent(event);
+
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 3 miles away.");
+          emitEvent(event);
+
+          try {
+            Thread.sleep(3000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+
+          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 2 miles away.");
           emitEvent(event);
 
           try {
@@ -102,14 +123,14 @@ public class PizzaDelivery {
     }
   }
   
-  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate) {
+  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate, @JsonProperty String workflowId) {
   }
 
   public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {
   }
 
   public enum PizzaType {
-    pepperoni, margherita, hawaiian, vegetarian
+    pepperoni, margherita, hawaiian, vegetarian, kubernetescheese, daprcheese, clustertomatoes, diagridpepperoni, distributedolives, opensauce, workflowspread, plantbasedobservability, bindingsbacon
   }
   
   private void emitEvent(Event event) {

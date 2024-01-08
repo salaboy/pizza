@@ -21,13 +21,18 @@ import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
 import io.dapr.workflows.client.DaprWorkflowClient;
+import io.dapr.workflows.client.WorkflowInstanceStatus;
 import io.dapr.workflows.runtime.WorkflowRuntime;
 import io.dapr.workflows.runtime.WorkflowRuntimeBuilder;
 import io.diagrid.dapr.model.Event;
 import io.diagrid.dapr.model.EventType;
-import io.diagrid.dapr.model.Order;
+import io.diagrid.dapr.model.OrderPayload;
 import io.diagrid.dapr.model.Orders;
+import io.diagrid.dapr.model.WorkflowPayload;
+import io.diagrid.dapr.workflow.CompleteOrderActivity;
+import io.diagrid.dapr.workflow.DeliverOrderToCustomer;
 import io.diagrid.dapr.workflow.PizzaWorkflow;
+import io.diagrid.dapr.workflow.PlaceOrderToKitchen;
 import io.diagrid.dapr.workflow.StoreOrderActivity;
 
 @SpringBootApplication
@@ -48,12 +53,16 @@ public class PizzaStore {
     return new Info(publicIp);
   }
 
+  DaprWorkflowClient workflowClient = new DaprWorkflowClient();
+
   public record Info(String publicIp){}
 
   private String KEY = "orders";
   private static RestTemplate restTemplate;
 
   private final SimpMessagingTemplate simpMessagingTemplate;
+
+  public static WorkflowPayload payload; 
 
   public static void main(String[] args) {
     SpringApplication.run(PizzaStore.class, args);
@@ -63,10 +72,10 @@ public class PizzaStore {
   private void createWorkflowDefinition(){
     WorkflowRuntimeBuilder builder = new WorkflowRuntimeBuilder().registerWorkflow(PizzaWorkflow.class);
     builder.registerActivity(StoreOrderActivity.class);
-    // builder.registerActivity(ProcessPaymentActivity.class);
-    // builder.registerActivity(RequestApprovalActivity.class);
-    // builder.registerActivity(ReserveInventoryActivity.class);
-    // builder.registerActivity(UpdateInventoryActivity.class);
+    builder.registerActivity(PlaceOrderToKitchen.class);
+    builder.registerActivity(DeliverOrderToCustomer.class);
+    builder.registerActivity(CompleteOrderActivity.class);
+  
 
     try (WorkflowRuntime runtime = builder.build()) {
       System.out.println("Start workflow runtime");
@@ -85,8 +94,15 @@ public class PizzaStore {
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
     if(pizzaEvent.type().equals(EventType.ORDER_READY)){
-      prepareOrderForDelivery(pizzaEvent.order());
+        // Emit Event
+        Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
+        emitWSEvent(wsevent);
+        workflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
     }
+    if(pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
+      workflowClient.raiseEvent(pizzaEvent.order().workflowId(), "PizzaDelivered", pizzaEvent.order());
+    }
+
   }
 
   private void emitWSEvent(Event event) {
@@ -95,18 +111,8 @@ public class PizzaStore {
         event);
   }
 
-  private void prepareOrderForDelivery(Order order){
-    //store(new Order(order.id(), order.customer(), order.items(), order.orderDate(), Status.delivery));
-     // Emit Event
-    Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order, "store", "Delivery in progress.");
-    emitWSEvent(event);
-
-    callDeliveryService(order);
-
-  }
-
   @PostMapping("/order")
-  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) throws Exception {
+  public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order) throws Exception {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -115,8 +121,7 @@ public class PizzaStore {
 
         emitWSEvent(event);
 
-        
-        
+
         startPizzaWorkflow(order);
         
         // Store Order
@@ -131,10 +136,10 @@ public class PizzaStore {
 
   }
 
-  private void startPizzaWorkflow(Order order){
-    DaprWorkflowClient workflowClient = new DaprWorkflowClient();
+  private void startPizzaWorkflow(OrderPayload order){
+    payload = new WorkflowPayload(order);
 
-    String instanceId = workflowClient.scheduleNewWorkflow(PizzaWorkflow.class, order);
+    String instanceId = workflowClient.scheduleNewWorkflow(PizzaWorkflow.class, payload);
     System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
         instanceId);
 
@@ -146,6 +151,20 @@ public class PizzaStore {
       return;
     }
 
+    // try {
+    //   WorkflowInstanceStatus workflowStatus = workflowClient.waitForInstanceCompletion(instanceId,
+    //       Duration.ofSeconds(30),
+    //       true);
+        
+    //   if (workflowStatus != null) {
+    //     System.out.printf("workflow instance completed, out is: %s%n",
+    //         workflowStatus.getSerializedOutput());
+    //   } else {
+    //     System.out.printf("workflow instance %s not found%n", instanceId);
+    //   }
+    // } catch (TimeoutException e) {
+    //   System.out.printf("workflow instance %s did not complete within 30 seconds%n", instanceId);
+    // }
 
   }
 
@@ -178,22 +197,22 @@ public class PizzaStore {
 
   // }
 
-  private void callKitchenService(Order order) {
+  private void callKitchenService(OrderPayload order) {
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
-    HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
+    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(order, headers);
     restTemplate.put(
         daprHttp + "/prepare", request);
   }
 
-  private void callDeliveryService(Order order) {
+  private void callDeliveryService(OrderPayload order) {
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
-    HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
+    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(order, headers);
     restTemplate.put(
         daprHttp + "/deliver", request);
   }

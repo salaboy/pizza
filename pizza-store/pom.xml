@@ -33,7 +33,7 @@
         <dependency>
             <groupId>io.diagrid.dapr</groupId>
             <artifactId>dapr-spring-boot-starter</artifactId>
-            <version>0.10.4</version>
+            <version>0.10.5</version>
             <exclusions>
                 <exclusion>            
                     <groupId>io.dapr</groupId>

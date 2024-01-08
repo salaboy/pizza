@@ -38,6 +38,7 @@ public class PizzaKitchen {
 
   @PutMapping("/prepare")
   public ResponseEntity prepareOrder(@RequestBody(required = true) Order order) throws InterruptedException {
+    System.out.println("The kitchen recieved this order: " + order);
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -107,7 +108,7 @@ public class PizzaKitchen {
     }
   }
 
-  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate) {
+  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate, @JsonProperty String workflowId) {
   }
 
 
@@ -118,7 +119,7 @@ public class PizzaKitchen {
   }
 
   public enum PizzaType {
-    pepperoni, margherita, hawaiian, vegetarian
+    pepperoni, margherita, hawaiian, vegetarian, kubernetescheese, daprcheese, clustertomatoes, diagridpepperoni, distributedolives, opensauce, workflowspread, plantbasedobservability, bindingsbacon
   }
 
   public record InventoryRequest(PizzaType pizzaType, int amount) {
