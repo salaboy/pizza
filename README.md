@@ -94,6 +94,14 @@ To check the traces you can access the Jaeger UI by using port-forwarding:
 kubectl port-forward svc/simplest-query 16686
 ```
 
+Access Jaeger by pointing your browser to [http://localhost:16686](http://localhost:16686)
+
+When using interacting with the application you should be able to see the traces of each service and the System Architecture: 
+
+![jaeger](imgs/jaeger.png)
+
+
+
 ## Installing the Application
 
 To install the application you only need to run the following command: 
