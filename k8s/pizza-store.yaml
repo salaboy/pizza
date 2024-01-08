@@ -13,6 +13,7 @@ spec:
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
+        dapr.io/config: "tracing"
       labels:
         app: pizza-store-service
         app.kubernetes.io/name: pizza-store-service

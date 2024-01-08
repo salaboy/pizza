@@ -22,7 +22,7 @@ Then we will install [Dapr](https://dapr.io) into our fresh new cluster by runni
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 helm upgrade --install dapr dapr/dapr \
---version=1.12.0 \
+--version=1.12.3 \
 --namespace dapr-system \
 --create-namespace \
 --wait
@@ -47,6 +47,51 @@ Then:
 ```
 helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "primary.initdb.scriptsConfigMap=pizza-init-sql" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi"
 
+```
+
+## Installing Observability
+
+Based on [official docs with Jaeger](https://docs.dapr.io/operations/observability/tracing/otel-collector/open-telemetry-collector-jaeger/)
+
+Install Cert manager: 
+
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+```
+
+Install Jaeger Operator (https://www.jaegertracing.io/docs/1.49/operator/): 
+
+```
+kubectl create namespace observability
+kubectl create -f https://github.com/jaegertracing/jaeger-operator/releases/download/v1.49.0/jaeger-operator.yaml -n observability 
+
+```
+
+Then create a Jaeger Collector by applying the following resources:
+```
+kubectl apply -f observability/jaeger.yaml
+```
+And then the OpenTelemetry collector for Jaeger: 
+```
+kubectl apply -f observability/open-telemetry-collector-jaeger.yaml
+```
+
+Let's connect this with Dapr by applying the following Configuration (named `tracingz) resources:
+
+```
+kubectl apply -f observability/collector-config-otel.yaml
+```
+
+The last step, is to check that your Dapr applications add the annotations Dapr annotation: 
+
+```
+  dapr.io/config: "tracing"
+```
+
+To check the traces you can access the Jaeger UI by using port-forwarding: 
+
+```
+kubectl port-forward svc/simplest-query 16686
 ```
 
 ## Installing the Application

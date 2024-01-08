@@ -13,6 +13,7 @@ spec:
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
+        dapr.io/config: "tracing"
       labels:
         app: pizza-kitchen-service
         app.kubernetes.io/name: pizza-kitchen-service
@@ -27,9 +28,7 @@ spec:
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
         - name: PUB_SUB_NAME
-          value: pubsub     
-        - name: PUB_SUB_NAME
-          value: pubsub       
+          value: pubsub
         - name: PUB_SUB_TOPIC
           value: topic  
         livenessProbe:
