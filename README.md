@@ -46,7 +46,6 @@ Then:
 
 ```
 helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "primary.initdb.scriptsConfigMap=pizza-init-sql" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi"
-
 ```
 
 ## Installing Observability
@@ -76,7 +75,7 @@ And then the OpenTelemetry collector for Jaeger:
 kubectl apply -f observability/open-telemetry-collector-jaeger.yaml
 ```
 
-Let's connect this with Dapr by applying the following Configuration (named `tracingz) resources:
+Let's connect this with Dapr by applying the following Configuration (named `tracing`) resources:
 
 ```
 kubectl apply -f observability/collector-config-otel.yaml
@@ -100,7 +99,18 @@ When using interacting with the application you should be able to see the traces
 
 ![jaeger](imgs/jaeger.png)
 
+## Installing Tracetest
 
+```
+kubectl create namespace tracetest
+kubectl apply -f tracetest/tracetest.yaml -n tracetest
+```
+
+Get the application URL:
+
+```
+kubectl port-forward svc/tracetest 11633 -n tracetest
+```
 
 ## Installing the Application
 
@@ -119,6 +129,33 @@ kubectl port-forward svc/pizza-store 8080:80
 Then you can point your browser to [`http://localhost:8080`](http://localhost:8080) and you should see: 
 
 ![Pizza Store](imgs/pizza-store.png)
+
+## Testing the Application
+
+To test the application you will use Tracetest either from the UI or CLI.
+
+Endpoint:
+
+```
+POST pizza-store.default.svc.cluster.local:80/order
+```
+
+Body:
+
+```json
+{
+    "customer": {
+      "name": "salaboy",
+      "email": "salaboy@mail.com"
+    },
+    "items": [
+      {
+      "type":"pepperoni",
+      "amount": 1
+      }
+    ]
+}
+```
 
 ## Building from source / changing the services
 
