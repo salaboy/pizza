@@ -31,7 +31,7 @@ data:
       # for full lists of trace exporters that you can use, and how to
       # configure them.
       otlp/jaeger:
-        endpoint: "simplest-collector.default.svc.cluster.local:4317"
+        endpoint: "jaeger-collector.default.svc.cluster.local:4317"
         tls:
           insecure: true
     service:
@@ -84,11 +84,11 @@ spec:
           - "--config=/conf/otel-collector-config.yaml"
         resources:
           limits:
-            cpu: 1
-            memory: 2Gi
+            cpu: "1"
+            memory: "2Gi"
           requests:
-            cpu: 200m
-            memory: 400Mi
+            cpu: "200m"
+            memory: "400Mi"
         ports:
           - containerPort: 4317 # Default endpoint for OTEL receiver.
         volumeMounts:

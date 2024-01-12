@@ -44,8 +44,8 @@ spec:
             cpu: "1"
             memory: "2Gi"
           requests:
-            cpu: "1"
-            memory: "2Gi"
+            cpu: "200m"
+            memory: "400Mi"
         ports:
         - containerPort: 8080
 ---

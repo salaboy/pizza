@@ -42,7 +42,7 @@ data:
       name: Jaeger
       type: jaeger
       jaeger:
-        endpoint: simplest-query.default.svc.cluster.local:16685
+        endpoint: jaeger-query.default.svc.cluster.local:16685
         tls:
           insecure: true
     ---
