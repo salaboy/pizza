@@ -1,0 +1,65 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "env": {
+                "DAPR_HTTP_ENDPOINT": "http://localhost:3500/",
+                "DAPR_GRPC_ENDPOINT": "http://localhost:50001/"
+            }
+        },
+        {
+            "type": "java",
+            "name": "PizzaDelivery",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaDelivery",
+            "projectName": "pizza-delivery"
+        },
+        {
+            "type": "java",
+            "name": "PizzaDeliveryAppTest",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaDeliveryAppTest",
+            "projectName": "pizza-delivery"
+        },
+        {
+            "type": "java",
+            "name": "PizzaKitchen",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaKitchen",
+            "projectName": "pizza-kitchen"
+        },
+        {
+            "type": "java",
+            "name": "PizzaKitchenAppTest",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaKitchenAppTest",
+            "projectName": "pizza-kitchen"
+        },
+        {
+            "type": "java",
+            "name": "PizzaStore",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaStore",
+            "projectName": "pizza-store",
+            "env": {
+                "DAPR_HTTP_ENDPOINT": "http://localhost:3500",
+                "DAPR_GRPC_ENDPOINT": "http://localhost:50001"
+            }
+        },
+        {
+            "type": "java",
+            "name": "PizzaStoreAppTest",
+            "request": "launch",
+            "mainClass": "io.diagrid.dapr.PizzaStoreAppTest",
+            "projectName": "pizza-store"
+        }
+    ]
+}

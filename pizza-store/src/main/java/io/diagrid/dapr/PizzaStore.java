@@ -3,6 +3,7 @@ package io.diagrid.dapr;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,7 +34,7 @@ import io.dapr.client.domain.State;
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 public class PizzaStore {
 
-  @Value("${dapr-http.base-url:http://localhost:3500}")
+  @Value("${DAPR_HTTP_ENDPOINT:http://localhost:3500}")
   private String daprHttp;
 
   @Value("${STATE_STORE_NAME:kvstore}")
@@ -89,7 +91,7 @@ public class PizzaStore {
   }
 
   @PostMapping("/order")
-  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order) throws Exception {
+  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order, Map<String, String> headers) throws Exception {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -223,6 +225,7 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
+    System.out.println("Calling Kitchen service at: " + daprHttp + "/prepare");
     restTemplate.put(
         daprHttp + "/prepare", request);
   }
@@ -233,6 +236,7 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
+    System.out.println("Calling Delivery service at: " + daprHttp + "/deliver");
     restTemplate.put(
         daprHttp + "/deliver", request);
   }
