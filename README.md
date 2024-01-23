@@ -159,6 +159,8 @@ Body:
 }
 ```
 
+You can also import the `tracetest/tests/order-pizza.spec.yaml` file when creating a new test in Tracetest.
+
 ## Building from source / changing the services
 
 The application services are written using Java + Spring Boot. These services use the Dapr Java SDK to interact with the Dapr [PubSub](https://docs.dapr.io/getting-started/quickstarts/pubsub-quickstart/) and [Statestore](https://docs.dapr.io/getting-started/quickstarts/statemanagement-quickstart/) APIs.

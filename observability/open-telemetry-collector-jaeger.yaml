@@ -8,6 +8,7 @@ metadata:
 data:
   otel-collector-config: |
     receivers:
+      zipkin:
       otlp:
         protocols:
           grpc:
@@ -51,10 +52,14 @@ metadata:
     component: otel-collector
 spec:
   ports:
-  - name: otel # Default endpoint for OTEL receiver.
+  - name: otel # Default endpoint for OTEL Collector OTLP receiver.
     port: 4317
     protocol: TCP
     targetPort: 4317
+  - name: zipkin # Default endpoint for Zipkin receiver.
+    port: 9411
+    protocol: TCP
+    targetPort: 9411
   selector:
     component: otel-collector
 ---
@@ -90,7 +95,8 @@ spec:
             cpu: "200m"
             memory: "400Mi"
         ports:
-          - containerPort: 4317 # Default endpoint for OTEL receiver.
+          - containerPort: 4317 # Default endpoint for OTEL Collector OTLP receiver.
+          - containerPort: 9411 # Default endpoint for Zipkin receiver.
         volumeMounts:
           - name: otel-collector-config-vol
             mountPath: /conf
