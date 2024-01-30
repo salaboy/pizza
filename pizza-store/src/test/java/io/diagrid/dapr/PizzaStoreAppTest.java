@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.wiremock.integrations.testcontainers.WireMockContainer;
 
+import io.diagrid.dapr.profiles.DaprBasicProfile;
+
 
 @SpringBootApplication
 public class PizzaStoreAppTest {
@@ -17,7 +19,7 @@ public class PizzaStoreAppTest {
                 .run(args);
     }
 
-    @ImportTestcontainers(DaprLocal.class)
+    @ImportTestcontainers(DaprBasicProfile.class)
     static class AppTestConfiguration {
 
         @Bean

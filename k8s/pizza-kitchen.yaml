@@ -12,7 +12,8 @@ spec:
         dapr.io/app-id: kitchen-service
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
-        dapr.io/log-level: "debug"
+        dapr.io/log-level: "info"
+        dapr.io/config: "tracing"
       labels:
         app: pizza-kitchen-service
         app.kubernetes.io/name: pizza-kitchen-service

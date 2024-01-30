@@ -15,6 +15,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,9 @@ import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
+import io.opentelemetry.context.Context;
+
+import static io.diagrid.dapr.otel.OpenTelemetryConfig.getReactorContext;
 
 @SpringBootApplication
 @RestController
@@ -65,12 +69,12 @@ public class PizzaStore {
   }
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
-  public void receiveEvents(@RequestBody CloudEvent<Event> event) {
+  public void receiveEvents(@RequestBody CloudEvent<Event> event, @RequestAttribute(name = "opentelemetry-context") Context context ) {
     emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
     if(pizzaEvent.type.equals(EventType.ORDER_READY)){
-      prepareOrderForDelivery(pizzaEvent.order);
+      prepareOrderForDelivery(pizzaEvent.order, context);
     }
   }
 
@@ -80,18 +84,18 @@ public class PizzaStore {
         event);
   }
 
-  private void prepareOrderForDelivery(Order order){
-    store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
+  private void prepareOrderForDelivery(Order order, Context context){
+    store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery), context);
      // Emit Event
     Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order, "store", "Delivery in progress.");
     emitWSEvent(event);
 
-    callDeliveryService(order);
+    callDeliveryService(order, context);
 
   }
 
   @PostMapping("/order")
-  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order, Map<String, String> headers) throws Exception {
+  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order, @RequestAttribute(name = "opentelemetry-context") Context context ) throws Exception {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -100,10 +104,10 @@ public class PizzaStore {
 
         emitWSEvent(event);
         // Store Order
-        store(order);
+        store(order, context);
 
         // Process Order, sent to kitcken
-        callKitchenService(order);
+        callKitchenService(order, context);
       }
     }).start();
 
@@ -202,7 +206,7 @@ public class PizzaStore {
     }
   }
 
-  private void store(Order order) {
+  private void store(Order order, Context context ) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       Orders orders = new Orders(new ArrayList<Order>());
       State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
@@ -211,7 +215,7 @@ public class PizzaStore {
       }
       orders.orders.add(order);
       // Save state
-      client.saveState(STATE_STORE_NAME, KEY, orders).block();
+      client.saveState(STATE_STORE_NAME, KEY, orders).contextWrite(getReactorContext(context)).block();
 
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -219,7 +223,8 @@ public class PizzaStore {
 
   }
 
-  private void callKitchenService(Order order) {
+  private void callKitchenService(Order order, Context context) {
+    System.out.println("Context to string: " + context.toString());
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
@@ -230,7 +235,8 @@ public class PizzaStore {
         daprHttp + "/prepare", request);
   }
 
-  private void callDeliveryService(Order order) {
+  private void callDeliveryService(Order order, Context context) {
+    System.out.println("Context to string: " + context.toString());
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");

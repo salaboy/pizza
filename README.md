@@ -22,7 +22,7 @@ Then we will install [Dapr](https://dapr.io) into our fresh new cluster by runni
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 helm upgrade --install dapr dapr/dapr \
---version=1.12.0 \
+--version=1.12.3 \
 --namespace dapr-system \
 --create-namespace \
 --wait
@@ -49,13 +49,63 @@ helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --ve
 
 ```
 
+## Installing Observability (Optional)
+
+Based on [official docs with Jaeger](https://docs.dapr.io/operations/observability/tracing/otel-collector/open-telemetry-collector-jaeger/)
+
+Install Cert manager: 
+
+```
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+```
+
+Install Jaeger Operator (https://www.jaegertracing.io/docs/1.49/operator/): 
+
+```
+kubectl create namespace observability
+kubectl create -f https://github.com/jaegertracing/jaeger-operator/releases/download/v1.49.0/jaeger-operator.yaml -n observability 
+
+```
+
+Then create a Jaeger Collector by applying the following resources:
+```
+kubectl apply -f observability/jaeger.yaml
+```
+And then the OpenTelemetry collector for Jaeger: 
+```
+kubectl apply -f observability/open-telemetry-collector-jaeger.yaml
+```
+
+Let's connect this with Dapr by applying the following Configuration (named `tracingz) resources:
+
+```
+kubectl apply -f observability/collector-config-otel.yaml
+```
+
+To check the traces you can access the Jaeger UI by using port-forwarding: 
+
+```
+kubectl port-forward svc/simplest-query 16686
+```
+
+Access Jaeger by pointing your browser to [http://localhost:16686](http://localhost:16686)
+
+When using interacting with the application you should be able to see the traces of each service and the System Architecture: 
+
+![jaeger](imgs/jaeger.png)
+
+
 ## Installing the Application
+
 
 To install the application you only need to run the following command: 
 
 ```
 kubectl apply -f k8s/
 ```
+
+**Note**: if you installed observability, you need to uncomment the following line for each Dapr Service `dapr.io/config: "tracing"` (in `k8s/pizza-store.yaml`, `k8s/pizza-kitchen.yaml` and `k8s/pizza-delivery.yaml`)
+
 
 This install all the application services. To avoid dealing with Ingresses you can access the application by using `kubectl port-forward`, run to access the application on port `8080`: 
 
