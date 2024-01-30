@@ -85,7 +85,7 @@ kubectl apply -f observability/collector-config-otel.yaml
 To check the traces you can access the Jaeger UI by using port-forwarding: 
 
 ```
-kubectl port-forward svc/simplest-query 16686
+kubectl port-forward svc/jaeger-query 16686
 ```
 
 Access Jaeger by pointing your browser to [http://localhost:16686](http://localhost:16686)

@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: pizza-kitchen-service
-        image: salaboy/pizza-kitchen:0.1.0
+        image: salaboy/pizza-kitchen:0.1.0-observability
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS

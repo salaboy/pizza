@@ -15,6 +15,7 @@
 	<description>Pizza Kitchen Service</description>
 	<properties>
 		<java.version>17</java.version>
+        <opentelemetry.version>0.14.1</opentelemetry.version>
 	</properties>
 	<dependencies>
         <dependency>
@@ -28,7 +29,22 @@
         <dependency>
             <groupId>io.diagrid.dapr</groupId>
             <artifactId>dapr-spring-boot-starter</artifactId>
-            <version>0.10.2</version>
+            <version>0.10.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+            <version>${opentelemetry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -2,12 +2,13 @@ package io.diagrid.dapr;
 import java.util.Date;
 import java.util.List;
 import static java.util.Collections.singletonMap;
-
+import static io.diagrid.dapr.otel.OpenTelemetryConfig.getReactorContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.Metadata;
+import io.opentelemetry.context.Context;
 
 @SpringBootApplication
 @RestController
@@ -34,13 +36,13 @@ public class PizzaDelivery {
   }
 
   @PutMapping("/deliver")
-  public ResponseEntity deliverOrder(@RequestBody(required=true) Order order){
+  public ResponseEntity deliverOrder(@RequestBody(required=true) Order order,  @RequestAttribute(name = "opentelemetry-context") Context context){
     new Thread(new Runnable() {
       @Override
       public void run() {
            // Emit Event
           Event event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is on its way to your address.");
-          emitEvent(event);
+          emitEvent(event, context);
 
           try {
             Thread.sleep(3000);
@@ -49,7 +51,7 @@ public class PizzaDelivery {
           }
 
           event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 1 mile away.");
-          emitEvent(event);
+          emitEvent(event, context);
 
           try {
             Thread.sleep(3000);
@@ -58,7 +60,7 @@ public class PizzaDelivery {
           }
 
           event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 0.5 miles away.");
-          emitEvent(event);
+          emitEvent(event, context);
 
           try {
             Thread.sleep(3000);
@@ -67,7 +69,7 @@ public class PizzaDelivery {
           }
 
           event = new Event(EventType.ORDER_COMPLETED, order, "delivery", "Your order has been delivered.");
-          emitEvent(event);
+          emitEvent(event, context);
          
       }
     }).start();
@@ -112,13 +114,14 @@ public class PizzaDelivery {
     pepperoni, margherita, hawaiian, vegetarian
   }
   
-  private void emitEvent(Event event) {
+  private void emitEvent(Event event, Context context) {
     System.out.println("> Emitting Delivery Event: "+ event.toString());
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       client.publishEvent(PUB_SUB_NAME,
           PUB_SUB_TOPIC,
           event,
-          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
+          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS))
+              .contextWrite(getReactorContext(context)).block();
     } catch (Exception ex) {
       ex.printStackTrace();
     }

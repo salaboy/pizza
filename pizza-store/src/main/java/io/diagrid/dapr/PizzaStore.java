@@ -3,7 +3,7 @@ package io.diagrid.dapr;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,6 +32,7 @@ import io.dapr.client.domain.State;
 import io.opentelemetry.context.Context;
 
 import static io.diagrid.dapr.otel.OpenTelemetryConfig.getReactorContext;
+import static io.diagrid.dapr.otel.OpenTelemetryConfig.addContextToHeaders;
 
 @SpringBootApplication
 @RestController
@@ -116,9 +117,9 @@ public class PizzaStore {
   }
 
   @GetMapping("/order")
-  public ResponseEntity<Orders> getOrders() {
+  public ResponseEntity<Orders> getOrders(@RequestAttribute(name = "opentelemetry-context") Context context) {
 
-    Orders orders = loadOrders();
+    Orders orders = loadOrders(context);
 
     return ResponseEntity.ok(orders);
   }
@@ -209,7 +210,8 @@ public class PizzaStore {
   private void store(Order order, Context context ) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       Orders orders = new Orders(new ArrayList<Order>());
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class)
+                                          .contextWrite(getReactorContext(context)).block();
       if (ordersState.getValue() != null && ordersState.getValue().orders.isEmpty()) {
         orders.orders.addAll(ordersState.getValue().orders);
       }
@@ -229,6 +231,8 @@ public class PizzaStore {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
+    System.out.println("Context: " + getReactorContext(context).toString());
+    addContextToHeaders(context, headers);
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
     System.out.println("Calling Kitchen service at: " + daprHttp + "/prepare");
     restTemplate.put(
@@ -241,15 +245,18 @@ public class PizzaStore {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
+    System.out.println("Context: " + getReactorContext(context).toString());
+    addContextToHeaders(context, headers);
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
     System.out.println("Calling Delivery service at: " + daprHttp + "/deliver");
     restTemplate.put(
         daprHttp + "/deliver", request);
   }
 
-  private Orders loadOrders() {
+  private Orders loadOrders(Context context) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class)
+        .contextWrite(getReactorContext(context)).block();
       return ordersState.getValue();
 
     } catch (Exception ex) {

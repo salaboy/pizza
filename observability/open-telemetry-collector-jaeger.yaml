@@ -8,6 +8,8 @@ metadata:
 data:
   otel-collector-config: |
     receivers:
+      zipkin:
+      
       otlp:
         protocols:
           grpc:
@@ -19,19 +21,8 @@ data:
       zpages:
         endpoint: :55679
     exporters:
-      logging:
-        loglevel: debug
-      # Depending on where you want to export your trace, use the
-      # correct OpenTelemetry trace exporter here.
-      #
-      # Refer to
-      # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter
-      # and
-      # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter
-      # for full lists of trace exporters that you can use, and how to
-      # configure them.
       otlp/jaeger:
-        endpoint: "simplest-collector.default.svc.cluster.local:4317"
+        endpoint: "jaeger-collector.default.svc.cluster.local:4317"
         tls:
           insecure: true
     service:
@@ -40,7 +31,7 @@ data:
         traces:
           receivers: [otlp]
           # List your exporter here.
-          exporters: [otlp/jaeger,logging]
+          exporters: [otlp/jaeger]
 ---
 apiVersion: v1
 kind: Service
@@ -51,10 +42,14 @@ metadata:
     component: otel-collector
 spec:
   ports:
-  - name: otel # Default endpoint for OTEL receiver.
+  - name: otel # Default endpoint for OTEL Collector OTLP receiver.
     port: 4317
     protocol: TCP
     targetPort: 4317
+  - name: zipkin # Default endpoint for Zipkin receiver.
+    port: 9411
+    protocol: TCP
+    targetPort: 9411  
   selector:
     component: otel-collector
 ---
@@ -91,6 +86,7 @@ spec:
             memory: 400Mi
         ports:
           - containerPort: 4317 # Default endpoint for OTEL receiver.
+          - containerPort: 9411 # Default endpoint for Zipkin receiver.
         volumeMounts:
           - name: otel-collector-config-vol
             mountPath: /conf

@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import static java.util.Collections.singletonMap;
@@ -18,7 +19,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.dapr.client.DaprClient;
 import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.Metadata;
+import io.opentelemetry.context.Context;
+
 import org.springframework.beans.factory.annotation.Value;
+import static io.diagrid.dapr.otel.OpenTelemetryConfig.getReactorContext;
 
 @SpringBootApplication
 @RestController
@@ -37,7 +41,7 @@ public class PizzaKitchen {
   }
 
   @PutMapping("/prepare")
-  public ResponseEntity prepareOrder(@RequestBody(required = true) Order order) throws InterruptedException {
+  public ResponseEntity prepareOrder(@RequestBody(required = true) Order order, @RequestAttribute(name = "opentelemetry-context") Context context) throws InterruptedException {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -48,7 +52,7 @@ public class PizzaKitchen {
               e.printStackTrace();
             }
             Event event = new Event(EventType.ORDER_IN_PREPARATION, order, "kitchen", "The order is now in the kitchen.");
-            emitEvent(event);
+            emitEvent(event, context);
             for (OrderItem orderItem : order.items) {
               
               int pizzaPrepTime = RANDOM.nextInt(15 * MS_IN_SECOND);
@@ -60,7 +64,7 @@ public class PizzaKitchen {
               }
             }
             event = new Event(EventType.ORDER_READY, order, "kitchen", "Your pizza is ready and waiting to be delivered.");
-            emitEvent(event);
+            emitEvent(event, context);
       }
     }).start();
     
@@ -69,13 +73,13 @@ public class PizzaKitchen {
 
 
 
-  private void emitEvent(Event event) {
+  private void emitEvent(Event event, Context context) {
     System.out.println("> Emitting Kitchen Event: "+ event.toString());
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       client.publishEvent(PUB_SUB_NAME,
           PUB_SUB_TOPIC,
           event,
-          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
+          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).contextWrite(getReactorContext(context)).block();
     } catch (Exception ex) {
       ex.printStackTrace();
     }

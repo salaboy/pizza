@@ -1,6 +1,6 @@
 package io.diagrid.dapr.otel;
 
-import io.diagrid.dapr.PizzaStore;
+import io.diagrid.dapr.PizzaDelivery;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Tracer;
@@ -41,7 +41,7 @@ public class OpenTelemetryConfig {
 
   @Bean
   public Tracer initTracer(@Autowired OpenTelemetry openTelemetry) {
-    return openTelemetry.getTracer(PizzaStore.class.getCanonicalName());
+    return openTelemetry.getTracer(PizzaDelivery.class.getCanonicalName());
   }
 
   /**
@@ -56,7 +56,7 @@ public class OpenTelemetryConfig {
       ZipkinSpanExporter zipkinExporter =
           ZipkinSpanExporter.builder()
               .setEndpoint(httpUrl + ENDPOINT_V2_SPANS)
-              .setServiceName(PizzaStore.class.getName())
+              .setServiceName(PizzaDelivery.class.getName())
               .build();
 
       SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()

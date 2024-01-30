@@ -29,10 +29,6 @@ spec:
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"
         - name: PUBLIC_IP
           value: localhost:8080
-        - name: COLLECTOR_HOST
-          value: otel-collector.default.svc.cluster.local
-        - name: COLLECTOR_PORT
-          value: 4317  
         - name: STATESTORE_NAME
           value: kvstore
         livenessProbe:
