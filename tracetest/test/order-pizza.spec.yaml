@@ -1,0 +1,13 @@
+type: Test
+spec:
+  id: 6GOXI35IR
+  name: Order Pizza
+  trigger:
+    type: http
+    httpRequest:
+      method: POST
+      url: http://pizza-store.default.svc.cluster.local:80/order
+      body: "{\n    \"customer\": {\n      \"name\": \"salaboy\",\n      \"email\": \"salaboy@mail.com\"\n    },\n    \"items\": [\n      {\n      \"type\":\"pepperoni\",\n      \"amount\": 1\n      }\n    ]\n}"
+      headers:
+      - key: Content-Type
+        value: application/json

@@ -1,0 +1,154 @@
+---
+# Source: tracetest/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tracetest
+  labels:
+    app.kubernetes.io/name: tracetest
+    app.kubernetes.io/instance: tracetest
+    app.kubernetes.io/version: "v0.15.2"
+data:
+  config.yaml: |-
+    poolingConfig:
+      maxWaitTimeForTrace: 30s
+      retryDelay: 5s
+    googleAnalytics:
+      enabled: false
+    postgres:
+      host: postgresql.default.svc.cluster.local
+      user: postgres
+      password: postgres
+      port: 5432
+      params: sslmode=disable
+    telemetry:
+      exporters:
+        collector:
+          exporter:
+            collector:
+              endpoint: otel-collector.default.svc.cluster.local:4317
+            type: collector
+          sampling: 100
+          serviceName: tracetest
+    server:
+      httpPort: 11633
+      otlpGrpcPort: 4317
+      otlpHttpPort: 4318
+      telemetry: null
+  provisioning.yaml: |-
+    ---
+    type: DataStore
+    spec:
+      name: Jaeger
+      type: jaeger
+      jaeger:
+        endpoint: jaeger-query.default.svc.cluster.local:16685
+        tls:
+          insecure: true
+    ---
+    type: Config
+    spec:
+      analyticsEnabled: false
+    ---
+    type: PollingProfile
+    spec:
+      name: Custom Profile
+      strategy: periodic
+      default: true
+      periodic:
+        timeout: 30s
+        retryDelay: 500ms
+
+---
+# Source: tracetest/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracetest
+  labels:
+    app.kubernetes.io/name: tracetest
+    app.kubernetes.io/instance: tracetest
+    app.kubernetes.io/version: "v0.15.2"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 11633
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 4317
+      targetPort: otlp-grpc
+      protocol: TCP
+      name: otlp-grpc
+    - port: 4318
+      targetPort: otlp-http
+      protocol: TCP
+      name: otlp-http
+  selector:
+    app.kubernetes.io/name: tracetest
+    app.kubernetes.io/instance: tracetest
+
+---
+# Source: tracetest/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracetest
+  labels:
+    app.kubernetes.io/name: tracetest
+    app.kubernetes.io/instance: tracetest
+    app.kubernetes.io/version: "v0.15.2"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tracetest
+      app.kubernetes.io/instance: tracetest
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tracetest
+        app.kubernetes.io/instance: tracetest
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: tracetest
+          image: "kubeshop/tracetest:v0.15.2"
+          env:
+          - name: TRACETEST_DEV
+            value: "true"
+          args:
+          - --config
+          - '/app/config/config.yaml'
+          - --provisioning-file
+          - '/app/config/provisioning.yaml'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 11633
+              protocol: TCP
+            - name: otlp-grpc
+              containerPort: 4317
+              protocol: TCP
+            - name: otlp-http
+              containerPort: 4318
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+          - name: config
+            mountPath: /app/config
+      volumes:
+      - name: config
+        configMap:
+          name: tracetest

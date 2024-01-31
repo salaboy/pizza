@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: pizza-delivery-service
-        image: salaboy/pizza-delivery:0.1.0
+        image: salaboy/pizza-delivery:0.1.0-observability
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS
