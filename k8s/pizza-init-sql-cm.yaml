@@ -5,3 +5,4 @@ metadata:
 data:
   init.sql: |- 
     CREATE DATABASE dapr;
+    CREATE DATABASE tracetest;
