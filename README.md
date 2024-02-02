@@ -147,6 +147,47 @@ Body:
 
 You can also import the `tracetest/tests/order-pizza.spec.yaml` file when creating a new test in Tracetest.
 
+```yaml
+# tracetest/tests/order-pizza.spec.yaml
+
+type: Test
+spec:
+  id: VWhpxLpSR
+  name: Order Pizza
+  trigger:
+    type: http
+    httpRequest:
+      method: POST
+      url: http://pizza-store.default.svc.cluster.local:80/order
+      body: "{\n    \"customer\": {\n      \"name\": \"salaboy\",\n      \"email\": \"salaboy@mail.com\"\n    },\n    \"items\": [\n      {\n      \"type\":\"pepperoni\",\n      \"amount\": 1\n      }\n    ]\n}"
+      headers:
+      - key: Content-Type
+        value: application/json
+  specs:
+  - selector: span[tracetest.span.type="general" name="/prepare"]
+    name: Validate Prepare API.
+    assertions:
+    - attr:dapr.status_code  =  200
+    - attr:tracetest.selected_spans.count = 1
+  - selector: span[tracetest.span.type="general" name="/deliver"]
+    name: Validate Deliver API.
+    assertions:
+    - attr:dapr.status_code  =  200
+    - attr:tracetest.selected_spans.count = 1
+  - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+    name: Validate Order API.
+    assertions:
+    - attr:tracetest.response.status = 200
+  - selector: span[tracetest.span.type="database"]
+    name: "All Database Spans: Processing time is less than 100ms"
+    assertions:
+    - attr:tracetest.span.duration < 100ms
+  - selector: span[tracetest.span.type="rpc"]
+    name: "All RPC Spans: Processing time less than 100ms"
+    assertions:
+    - attr:tracetest.span.duration < 100ms
+```
+
 ## Building from source / changing the services
 
 The application services are written using Java + Spring Boot. These services use the Dapr Java SDK to interact with the Dapr [PubSub](https://docs.dapr.io/getting-started/quickstarts/pubsub-quickstart/) and [Statestore](https://docs.dapr.io/getting-started/quickstarts/statemanagement-quickstart/) APIs.

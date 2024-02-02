@@ -1,6 +1,6 @@
 type: Test
 spec:
-  id: 6GOXI35IR
+  id: VWhpxLpSR
   name: Order Pizza
   trigger:
     type: http
@@ -11,3 +11,26 @@ spec:
       headers:
       - key: Content-Type
         value: application/json
+  specs:
+  - selector: span[tracetest.span.type="general" name="/prepare"]
+    name: Validate Prepare API.
+    assertions:
+    - attr:dapr.status_code  =  200
+    - attr:tracetest.selected_spans.count = 1
+  - selector: span[tracetest.span.type="general" name="/deliver"]
+    name: Validate Deliver API.
+    assertions:
+    - attr:dapr.status_code  =  200
+    - attr:tracetest.selected_spans.count = 1
+  - selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+    name: Validate Order API.
+    assertions:
+    - attr:tracetest.response.status = 200
+  - selector: span[tracetest.span.type="database"]
+    name: "All Database Spans: Processing time is less than 100ms"
+    assertions:
+    - attr:tracetest.span.duration < 100ms
+  - selector: span[tracetest.span.type="rpc"]
+    name: "All RPC Spans: Processing time less than 100ms"
+    assertions:
+    - attr:tracetest.span.duration < 100ms
