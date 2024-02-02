@@ -56,8 +56,8 @@ data:
       strategy: periodic
       default: true
       periodic:
-        timeout: 30s
-        retryDelay: 500ms
+        timeout: 10m
+        retryDelay: 15s
 
 ---
 # Source: tracetest/templates/service.yaml
