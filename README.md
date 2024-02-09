@@ -1,6 +1,6 @@
 # Cloud-Native Pizza Delivery system
 
-This repository contains a simple example for a Pizza Store application using Kubernetes, [Dapr](https://dapr.io), [Spring Boot](https://spring.io/projects/spring-boot) and [Testcontainers](https://testcontainers.com) to enable developers with an awesome developer experience.
+This repository contains a simple example for a Pizza Store application using Kubernetes, [Dapr](https://dapr.io), [Spring Boot](https://spring.io/projects/spring-boot) and [Testcontainers](https://testcontainers.com) to enable developers with an awesome developer experience. [You can find a Quarkus implementation of this application here (Thanks to @mcruzdev1!)](https://github.com/mcruzdev/pizza-quarkus)
 
 You can run this application on any Kubernetes cluster by following the step-by-step insturctions described in this document. You can also start each service using just Maven.
 
