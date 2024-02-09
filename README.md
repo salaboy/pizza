@@ -10,6 +10,21 @@ The Pizza Store application simulates placing a Pizza Order that is going to be 
 
 ![Architecture](imgs/architecture.png)
 
+As any other application, these services will need to store and read data from a persistent store such as a Database and exchange messages if a more event-driven approach is needed. 
+
+This application uses PostgreSQL and Kafka, as they are well-known components among developers. 
+
+![Architecture with Infra](imgs/architecture+infra.png)
+
+As you can see in the diagram, if we want to connect to PostgreSQL from the Pizza Store Service we need to add to our applications the PostgreSQL driver that must match with the PostgreSQL instance version that we have available. A Kafka client is required in all the services that are interested in publishing or consuming messages/events. Because you have Drivers and Clients that are sensitive to the available versions on the infrastructure components, the lifecycle of the application is now bound to the lifecycle of these components. 
+
+Adding Dapr to the picture not only breaks these dependencies, but also remove responsabilities from developers of choosing the right Driver/Client and how these need to be configured for the application to work correctly. Dapr provides developers building block APIs such as the StateStore and PubSub API that developer can use without know the details of which infrastructure is going to be connected under the covers. 
+
+![Architecture with Dapr](imgs/architecture+dapr.png)
+
+
+
+
 ## Installation
 
 If you don't have a Kubernetes Cluster you can [install KinD](https://kind.sigs.k8s.io/docs/user/quick-start/) to create a local cluster to run the application. 
