@@ -22,7 +22,7 @@ Adding Dapr to the picture not only breaks these dependencies, but also remove r
 
 ![Architecture with Dapr](imgs/architecture+dapr.png)
 
-
+When using Dapr, developers can trust that the [building block APIs](https://docs.dapr.io/concepts/building-blocks-concept/) are stable, while the teams in charge of the infrastructure can swap versions and services without impacting the application code or behavior. 
 
 
 ## Installation
