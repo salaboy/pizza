@@ -32,11 +32,7 @@
         <dependency>
             <groupId>io.diagrid.dapr</groupId>
             <artifactId>dapr-spring-boot-starter</artifactId>
-            <version>0.10.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry.instrumentation</groupId>
-            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+            <version>0.10.7</version>
         </dependency>
         <dependency>
 			<groupId>com.github.wiremock</groupId>
