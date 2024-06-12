@@ -24,6 +24,12 @@ spec:
         image: salaboy/pizza-delivery:0.1.0
         imagePullPolicy: Always
         env:
+        - name: DAPR_HTTP_ENDPOINT
+          value: <ADD DAPR_HTTP_ENDPOINT>
+        - name: DAPR_GRPC_ENDPOINT
+          value: <ADD DAPR_GRPC_ENDPOINT>
+        - name: DAPR_API_TOKEN
+          value: <ADD DAPR_API_TOKEN>
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"   
         - name: PUB_SUB_NAME
@@ -47,3 +53,15 @@ spec:
             memory: "2Gi"
         ports:
         - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-delivery
+spec:
+  selector:
+    app: pizza-delivery-service
+  ports:
+  - port: 80
+    targetPort: 8080             

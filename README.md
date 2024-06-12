@@ -111,6 +111,26 @@ http :8080/events Content-Type:application/cloudevents+json < pizza-store/event-
 
 In the Application you should see the event recieved that the order moving forward. 
 
+## Diagrid's Conductor to manage Dapr Applications
+
+When you are running Dapr applications at scale, you might want to leverage the observability features provided by Dapr. One way to do so is to use [Diagrid's Conductor SaaS offering](https://www.diagrid.io/conductor). 
+
+Before starting you need to make sure that your cluster has the metrics server installed: 
+
+```
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.5.0/components.yaml
+
+```
+and configured correctly: 
+
+```
+kubectl patch -n kube-system deployment metrics-server --type=json \
+  -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+```
+
+Then, with your Diagrid's Conductor account you can install the Conductor agent in your cluster. The Conductor's agent will recognize your Dapr installation and monitor your applications automatically. If you access Conductors interface you can make sure that your Dapr applications are running securely and efficiently in your clusters. 
+
+![](imgs/conductor.png)
 
 # Resources and references
 
