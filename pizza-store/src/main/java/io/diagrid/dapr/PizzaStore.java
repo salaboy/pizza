@@ -40,7 +40,7 @@ public class PizzaStore {
   @Value("${STATE_STORE_NAME:kvstore}")
   private String STATE_STORE_NAME;
   
-  @Value("${PUBLIC_IP:localhost}")
+  @Value("${PUBLIC_IP:localhost:8080}")
   private String publicIp;
 
   @GetMapping("/server-info")

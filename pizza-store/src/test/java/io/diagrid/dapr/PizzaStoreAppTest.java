@@ -28,7 +28,7 @@ public class PizzaStoreAppTest {
             var container = new WireMockContainer("wiremock/wiremock:3.1.0")
                     .withMappingFromResource("kitchen", "kitchen-service-stubs.json");
 
-            properties.add("dapr-http.base-url", container::getBaseUrl);
+                    properties.add("DAPR_HTTP_ENDPOINT", container::getBaseUrl);
             return container;
         }
     }
