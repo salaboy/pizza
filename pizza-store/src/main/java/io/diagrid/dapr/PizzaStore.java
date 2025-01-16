@@ -3,6 +3,9 @@ package io.diagrid.dapr;
 
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
+
+import io.dapr.spring.workflows.config.EnableDaprWorkflows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,22 +24,16 @@ import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
 import io.dapr.workflows.client.DaprWorkflowClient;
-import io.dapr.workflows.client.WorkflowInstanceStatus;
-import io.dapr.workflows.runtime.WorkflowRuntime;
-import io.dapr.workflows.runtime.WorkflowRuntimeBuilder;
 import io.diagrid.dapr.model.Event;
 import io.diagrid.dapr.model.EventType;
 import io.diagrid.dapr.model.OrderPayload;
 import io.diagrid.dapr.model.Orders;
 import io.diagrid.dapr.model.WorkflowPayload;
-import io.diagrid.dapr.workflow.CompleteOrderActivity;
-import io.diagrid.dapr.workflow.DeliverOrderToCustomer;
 import io.diagrid.dapr.workflow.PizzaWorkflow;
-import io.diagrid.dapr.workflow.PlaceOrderToKitchen;
-import io.diagrid.dapr.workflow.StoreOrderActivity;
 
 @SpringBootApplication
 @RestController
+@EnableDaprWorkflows
 public class PizzaStore {
 
   @Value("${dapr-http.base-url:http://localhost:3500}")
@@ -53,12 +50,18 @@ public class PizzaStore {
     return new Info(publicIp);
   }
 
-  DaprWorkflowClient workflowClient = new DaprWorkflowClient();
+  @Autowired
+  private DaprWorkflowClient daprWorkflowClient;
+
+  @Autowired
+  private DaprClient daprClient;
+
+  @Autowired
+  private RestTemplate restTemplate;
 
   public record Info(String publicIp){}
 
   private String KEY = "orders";
-  private static RestTemplate restTemplate;
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -69,23 +72,8 @@ public class PizzaStore {
 
   }
 
-  private void createWorkflowDefinition(){
-    WorkflowRuntimeBuilder builder = new WorkflowRuntimeBuilder().registerWorkflow(PizzaWorkflow.class);
-    builder.registerActivity(StoreOrderActivity.class);
-    builder.registerActivity(PlaceOrderToKitchen.class);
-    builder.registerActivity(DeliverOrderToCustomer.class);
-    builder.registerActivity(CompleteOrderActivity.class);
-  
-
-    try (WorkflowRuntime runtime = builder.build()) {
-      System.out.println("Start workflow runtime");
-      runtime.start(false);
-    }
-  }
-
   public PizzaStore(SimpMessagingTemplate simpMessagingTemplate) {
     this.simpMessagingTemplate = simpMessagingTemplate;
-    createWorkflowDefinition();
   }
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
@@ -97,10 +85,10 @@ public class PizzaStore {
         // Emit Event
         Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
         emitWSEvent(wsevent);
-        workflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
+        daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
     }
     if(pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
-      workflowClient.raiseEvent(pizzaEvent.order().workflowId(), "PizzaDelivered", pizzaEvent.order());
+      daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "PizzaDelivered", pizzaEvent.order());
     }
 
   }
@@ -139,16 +127,16 @@ public class PizzaStore {
   private void startPizzaWorkflow(OrderPayload order){
     payload = new WorkflowPayload(order);
 
-    String instanceId = workflowClient.scheduleNewWorkflow(PizzaWorkflow.class, payload);
+    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaWorkflow.class, payload);
     System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
         instanceId);
 
     try {
-      workflowClient.waitForInstanceStart(instanceId, Duration.ofSeconds(10), false);
+      daprWorkflowClient.waitForInstanceStart(instanceId, Duration.ofSeconds(10), false);
       System.out.printf("workflow instance %s started%n", instanceId);
     } catch (TimeoutException e) {
       System.out.printf("workflow instance %s did not start within 10 seconds%n", instanceId);
-      return;
+
     }
 
     // try {
@@ -198,7 +186,6 @@ public class PizzaStore {
   // }
 
   private void callKitchenService(OrderPayload order) {
-    restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
@@ -208,7 +195,6 @@ public class PizzaStore {
   }
 
   private void callDeliveryService(OrderPayload order) {
-    restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
@@ -218,15 +204,8 @@ public class PizzaStore {
   }
 
   private Orders loadOrders() {
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
-      return ordersState.getValue();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    return null;
-
+    State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+    return ordersState.getValue();
   }
 
 }

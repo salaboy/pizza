@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4eee7b33-63fb-480c-a5b7-c3746b93d15c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/pizza-store/src/test/java/io/diagrid/dapr/AppTestcontainersConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/PizzaStore.java" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/PizzaStore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/workflow/PlaceOrderToKitchen.java" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/workflow/PlaceOrderToKitchen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/workflow/StoreOrderActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/src/main/java/io/diagrid/dapr/workflow/StoreOrderActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/src/test/java/io/diagrid/dapr/PizzaStoreAppTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/src/test/java/io/diagrid/dapr/PizzaStoreAppTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pizza-store/src/test/java/io/diagrid/dapr/PizzaStoreTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/pizza-store/src/test/java/io/diagrid/dapr/PizzaStoreTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="2pn0vcYXM6BC8FXaMvMYGZQnGiV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.PizzaStoreAppTest.executor": "Debug",
+    "JUnit.All in pizza-store.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "workflows",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.PizzaStoreAppTest">
+    <configuration name="PizzaStoreAppTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="temurin-21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="io.diagrid.dapr.PizzaStoreAppTest" />
+      <module name="pizza-store" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="io.diagrid.dapr.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in pizza-store" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="pizza-store" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.PizzaStoreAppTest" />
+      <item itemvalue="JUnit.All in pizza-store" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.PizzaStoreAppTest" />
+        <item itemvalue="JUnit.All in pizza-store" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4eee7b33-63fb-480c-a5b7-c3746b93d15c" name="Changes" comment="" />
+      <created>1733386763344</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1733386763344</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/dapr/spring/dapr-spring-boot-autoconfigure/0.13.0-SNAPSHOT/dapr-spring-boot-autoconfigure-0.13.0-SNAPSHOT-sources.jar!/io/dapr/spring/boot/autoconfigure/client/DaprClientAutoConfiguration.java</url>
+          <line>80</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/dapr/spring/dapr-spring-boot-autoconfigure/0.13.0-SNAPSHOT/dapr-spring-boot-autoconfigure-0.13.0-SNAPSHOT-sources.jar!/io/dapr/spring/boot/autoconfigure/client/DaprClientAutoConfiguration.java</url>
+          <line>75</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/dapr/spring/dapr-spring-boot-autoconfigure/0.13.0-SNAPSHOT/dapr-spring-boot-autoconfigure-0.13.0-SNAPSHOT-sources.jar!/io/dapr/spring/boot/autoconfigure/client/DaprClientAutoConfiguration.java</url>
+          <line>68</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

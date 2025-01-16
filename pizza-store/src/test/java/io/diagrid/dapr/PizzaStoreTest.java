@@ -1,10 +1,11 @@
 package io.diagrid.dapr;
 
+import io.dapr.springboot.DaprAutoConfiguration;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.diagrid.dapr.model.Customer;
 import io.diagrid.dapr.model.OrderPayload;
@@ -16,16 +17,20 @@ import static io.restassured.RestAssured.with;
 import java.util.Arrays;
 
 
-@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@Testcontainers
+@SpringBootTest(classes= {PizzaStoreAppTest.class, AppTestcontainersConfig.class, DaprAutoConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class PizzaStoreTest {
 
     @LocalServerPort
     private int port;
 
+    @BeforeAll
+    public static void setup(){
+        org.testcontainers.Testcontainers.exposeHostPorts(8080);
+    }
+
     @BeforeEach
-    public void setUp() {
-        RestAssured.port = port;
+    void setUp() {
+        RestAssured.baseURI = "http://localhost:" + 8080;
     }
     
     @Test
@@ -37,8 +42,6 @@ public class PizzaStoreTest {
         .when()
         .request("POST", "/order")
         .then().assertThat().statusCode(200);
-        
-
         
     }
 
