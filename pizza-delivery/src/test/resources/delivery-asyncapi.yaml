@@ -1,0 +1,123 @@
+asyncapi: 3.0.0
+info:
+  title: Pizza Delivery Events
+  version: 1.0.0
+  description: This API allows to track the delivery status of pizza orders.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+defaultContentType: application/json
+channels:
+  deliveryEvents:
+    address: events
+    messages:
+      deliveryEvent:
+        $ref: '#/components/messages/event'
+operations:
+  receiveDeliveryEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/deliveryEvents'
+    messages:
+      - $ref: '#/channels/deliveryEvents/messages/deliveryEvent'
+components:
+  messages:
+    event:
+      payload:
+        $ref: '#/components/schemas/ReceivedEvent'
+        examples:
+          - name: On its way
+            payload:
+              specversion: '1.0'
+              type: com.dapr.event.sent
+              source: local-dapr-app
+              id: 952d739f-5556-4772-8187-c39e18139a88
+              time: '2025-01-29T09:27:15Z'
+              datacontenttype: application/json
+              data:
+                type: order-on-its-way
+                order:
+                  customer:
+                    name: lbroudoux
+                    email: laurent.broudoux@gmail.com
+                  id: 123-456-789
+                  items:
+                    - type: vegetarian
+                      amount: 1
+                  orderDate: 1738142460556
+                message: The order is on its way to your address.
+          - name: Completed
+            payload:
+              specversion: '1.0'
+              type: com.dapr.event.sent
+              source: local-dapr-app
+              id: 952d739f-5556-4772-8187-c39e18139a89
+              time: '2025-01-29T09:29:25Z'
+              data:
+                type: order-completed
+                order:
+                  customer:
+                    name: lbroudoux
+                    email: laurent.broudoux@gmail.com
+                  id: 123-456-789
+                  items:
+                    - type: vegetarian
+                      amount: 1
+                  orderDate: 1738142460556
+                message: Your order has been delivered.
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        orderDate:
+          type: number
+      required:
+        - id
+        - items
+        - orderDate
+      additionalProperties: true
+    OrderItem:
+      type: object
+      properties:
+        type:
+          type: string
+        amount:
+          type: integer
+      required:
+        - type
+        - amount
+    Event:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - order-on-its-way
+            - order-completed
+        order:
+          $ref: '#/components/schemas/Order'
+        service:
+          type: string
+          enum:
+            - delivery
+        message:
+          type: string
+      required:
+        - type
+        - order
+        - service
+        - message
+    ReceivedEvent:
+      type: object
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/cloudevents/spec/v1.0.1/spec.json'
+      properties:
+        data:
+          $ref: '#/components/schemas/Event'
+
