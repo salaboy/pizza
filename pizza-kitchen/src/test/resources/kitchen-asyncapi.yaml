@@ -1,0 +1,122 @@
+asyncapi: 3.0.0
+info:
+  title: Pizza Kitchen Events
+  version: 1.0.0
+  description: This API allows to track the preparation process of pizza orders.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+defaultContentType: application/json
+channels:
+  preparationEvents:
+    address: events
+    messages:
+      preparationEvent:
+        $ref: '#/components/messages/event'
+operations:
+  receivePreparationEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/preparationEvents'
+    messages:
+      - $ref: '#/channels/preparationEvents/messages/preparationEvent'
+components:
+  messages:
+    event:
+      payload:
+        $ref: '#/components/schemas/ReceivedEvent'
+        examples:
+          - name: In preparation
+            payload:
+              specversion: '1.0'
+              type: com.dapr.event.sent
+              source: local-dapr-app
+              id: 952d739f-5556-4772-8187-c39e18139a86
+              time: '2025-01-29T09:27:15Z'
+              datacontenttype: application/json
+              data:
+                type: order-in-preparation
+                order:
+                  customer:
+                    name: lbroudoux
+                    email: laurent.broudoux@gmail.com
+                  id: 123-456-789
+                  items:
+                    - type: vegetarian
+                      amount: 1
+                  orderDate: 1738142460556
+                message: The order is now in the kitchen.
+          - name: Ready
+            payload:
+              specversion: '1.0'
+              type: com.dapr.event.sent
+              source: local-dapr-app
+              id: 952d739f-5556-4772-8187-c39e18139a87
+              time: '2025-01-29T09:29:25Z'
+              data:
+                type: order-ready
+                order:
+                  customer:
+                    name: lbroudoux
+                    email: laurent.broudoux@gmail.com
+                  id: 123-456-789
+                  items:
+                    - type: vegetarian
+                      amount: 1
+                  orderDate: 1738142460556
+                message: Your pizza is ready and waiting to be delivered.
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        orderDate:
+          type: number
+      required:
+        - id
+        - items
+        - orderDate
+      additionalProperties: true
+    OrderItem:
+      type: object
+      properties:
+        type:
+          type: string
+        amount:
+          type: integer
+      required:
+        - type
+        - amount
+    Event:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - order-in-preparation
+            - order-ready
+        order:
+          $ref: '#/components/schemas/Order'
+        service:
+          type: string
+          enum:
+            - kitchen
+        message:
+          type: string
+      required:
+        - type
+        - order
+        - service
+        - message
+    ReceivedEvent:
+      type: object
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/cloudevents/spec/v1.0.1/spec.json'
+      properties:
+        data:
+          $ref: '#/components/schemas/Event'
