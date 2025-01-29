@@ -21,6 +21,3 @@
 go.work
 .DS_Store
 target/
-
-# IntelliJ IDEA
-.idea/
