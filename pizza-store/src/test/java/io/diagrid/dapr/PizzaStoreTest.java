@@ -9,10 +9,8 @@ import io.diagrid.dapr.PizzaStore.Customer;
 import io.diagrid.dapr.PizzaStore.Order;
 import io.diagrid.dapr.PizzaStore.OrderItem;
 import io.diagrid.dapr.PizzaStore.PizzaType;
-import io.diagrid.dapr.PizzaStore.Status;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import static org.assertj.core.api.Assertions.assertThat;
 import static io.restassured.RestAssured.with;
 import java.util.Arrays;
 
@@ -38,9 +36,6 @@ public class PizzaStoreTest {
         .when()
         .request("POST", "/order")
         .then().assertThat().statusCode(200);
-        
-        
-
         
     }
 
