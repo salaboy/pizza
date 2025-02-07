@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.dapr.client.DaprClient;
-import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
 
@@ -33,6 +34,9 @@ import io.dapr.client.domain.State;
 @RestController
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
 public class PizzaStore {
+
+  @Autowired
+  private DaprClient daprClient;
 
   @Value("${DAPR_HTTP_ENDPOINT:http://localhost:3500}")
   private String daprHttp;
@@ -69,7 +73,7 @@ public class PizzaStore {
     emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
-    if(pizzaEvent.type.equals(EventType.ORDER_READY)){
+    if (pizzaEvent.type.equals(EventType.ORDER_READY)){
       prepareOrderForDelivery(pizzaEvent.order);
     }
   }
@@ -97,8 +101,8 @@ public class PizzaStore {
       public void run() {
         // Emit Event
         Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
-
         emitWSEvent(event);
+
         // Store Order
         store(order);
 
@@ -162,7 +166,7 @@ public class PizzaStore {
   public record KitchenResponse(@JsonProperty String message, @JsonProperty String orderId) {
   }
 
-  private record Orders(@JsonProperty List<Order> orders) {
+  protected record Orders(@JsonProperty List<Order> orders) {
   }
 
   public record Order(@JsonProperty String id, @JsonProperty Customer customer, @JsonProperty List<OrderItem> items,
@@ -203,15 +207,15 @@ public class PizzaStore {
   }
 
   private void store(Order order) {
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
+    try {
       Orders orders = new Orders(new ArrayList<Order>());
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+      State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
       if (ordersState.getValue() != null && ordersState.getValue().orders.isEmpty()) {
         orders.orders.addAll(ordersState.getValue().orders);
       }
       orders.orders.add(order);
       // Save state
-      client.saveState(STATE_STORE_NAME, KEY, orders).block();
+      daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
 
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -240,9 +244,9 @@ public class PizzaStore {
         daprHttp + "/deliver", request);
   }
 
-  private Orders loadOrders() {
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
-      State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
+  protected Orders loadOrders() {
+    try {
+      State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
       return ordersState.getValue();
 
     } catch (Exception ex) {

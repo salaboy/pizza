@@ -1,0 +1,179 @@
+asyncapi: 3.0.0
+info:
+  title: Pizza Store Events
+  version: 1.0.0
+  description: This API allows to track the events related to pizza orders.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+defaultContentType: application/json
+channels:
+  orderEvents:
+    address: events
+    messages:
+      orderEvents:
+        $ref: '#/components/messages/event'
+    bindings:
+      ws:
+        method: POST
+operations:
+  receiveOrderEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/orderEvents'
+    messages:
+      - $ref: '#/channels/orderEvents/messages/orderEvent'
+components:
+  messages:
+    event:
+      payload:
+        $ref: '#/components/schemas/ReceivedEvent'
+        examples:
+          - name: Created
+            payload: |-
+              {
+                "specversion" : "1.0",
+                "type" : "com.dapr.event.sent",
+                "data": {
+                  "type": "order-in-preparation",
+                  "service": "kitchen",
+                  "message": "Your Order is in the kitchen.",
+                  "order": {
+                    "customer":
+                      {
+                        "name":"salaboy",
+                        "email":"salaboy@mail.com"
+                      },
+                    "items":[
+                      {
+                        "type":"pepperoni",
+                        "amount":1
+                      }
+                    ],
+                    "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
+                    "orderDate":"2023-10-31T18:13:55.571+00:00",
+                    "status":"inpreparation"
+                  }
+                }
+              }
+          - name: Prepared
+            payload: |-
+              {
+                "specversion" : "1.0",
+                "type" : "com.dapr.event.sent",
+                "data": {
+                  "type": "order-on-its-way",
+                  "service": "delivery",
+                  "message": "Your Order is half mile away from your home.",
+                  "order": {
+                    "customer":
+                      {
+                        "name":"salaboy",
+                        "email":"salaboy@mail.com"
+                      },
+                      "items":[
+                        {
+                          "type":"pepperoni",
+                          "amount":1
+                        }
+                      ],
+                      "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
+                      "orderDate":"2023-10-31T18:13:55.571+00:00",
+                      "status":"delivery"
+                    }
+                }
+              }
+          - name: Completed
+            payload: |-
+              {
+                "specversion" : "1.0",
+                "type" : "com.dapr.event.sent",
+                "data": {
+                  "type": "order-completed",
+                  "service": "store",
+                  "message": "Your Order has been delivered.",
+                  "order": {
+                    "customer":
+                      {
+                        "name":"salaboy",
+                        "email":"salaboy@mail.com"
+                      },
+                    "items":[
+                      {
+                        "type":"pepperoni",
+                        "amount":1
+                      }
+                    ],
+                    "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
+                    "orderDate":"2023-10-31T18:13:55.571+00:00",
+                    "status":"completed"
+                  }
+                }
+              }
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        orderDate:
+          type: string
+        status:
+          type: string
+          enum:
+            - created
+            - inpreparation
+            - delivery
+            - completed
+      required:
+        - id
+        - items
+        - orderDate
+      additionalProperties: true
+    OrderItem:
+      type: object
+      properties:
+        type:
+          type: string
+        amount:
+          type: integer
+      required:
+        - type
+        - amount
+    Event:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - order-placed
+            - order-in-preparation
+            - order-out-for-delivery
+            - order-on-its-way
+            - order-ready
+        order:
+          $ref: '#/components/schemas/Order'
+        service:
+          type: string
+          enum:
+            - store
+            - kitchen
+            - delivery
+        message:
+          type: string
+      required:
+        - type
+        - order
+        - service
+        - message
+    ReceivedEvent:
+      type: object
+      allOf:
+        - $ref: 'https://raw.githubusercontent.com/cloudevents/spec/v1.0.1/spec.json'
+      properties:
+        data:
+          $ref: '#/components/schemas/Event'

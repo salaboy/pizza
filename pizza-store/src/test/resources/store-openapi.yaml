@@ -1,0 +1,104 @@
+openapi: 3.0.2
+info:
+  title: Pizza Store API
+  version: 1.0.0
+  description: This API allows to place and track orders on pizzas
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+paths:
+  /order:
+    post:
+      operationId: placeOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+            examples:
+              salaboy:
+                value: |-
+                  {
+                    "id": "abc-def-ghi",
+                    "customer": {
+                      "name": "salaboy",
+                      "email": "salaboy@mail.com"
+                    },
+                    "items": [
+                      {
+                      "type":"pepperoni",
+                      "amount": 1
+                      }
+                    ]
+                  }
+              lbroudoux:
+                value:
+                  id: 123-456-789
+                  customer:
+                    name: lbroudoux
+                    email: laurent.broudoux@gmail.com
+                  items:
+                    - type: vegetarian
+                      amount: 1
+      responses:
+        '200':
+          description: Order is placed started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                salaboy:
+                  value: |-
+                    {
+                      "id": "abc-def-ghi",
+                      "customer": {
+                        "name": "salaboy",
+                        "email": "salaboy@mail.com"
+                      },
+                      "items": [
+                        {
+                        "type":"pepperoni",
+                        "amount": 1
+                        }
+                      ],
+                      "orderDate": "2025-01-30T18:26:57.805+00:00"
+                    }
+                lbroudoux:
+                  value:
+                    id: 123-456-789
+                    customer:
+                      name: lbroudoux
+                      email: laurent.broudoux@gmail.com
+                    items:
+                      - type: vegetarian
+                        amount: 1
+                    orderDate: "2025-01-30T18:26:57.905+00:00"
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        orderDate:
+          type: string
+      required:
+        - id
+        - items
+      additionalProperties: true
+    OrderItem:
+      type: object
+      properties:
+        type:
+          type: string
+        amount:
+          type: integer
+      required:
+        - type
+        - amount
