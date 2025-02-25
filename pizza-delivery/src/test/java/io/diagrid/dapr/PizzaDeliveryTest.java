@@ -3,6 +3,7 @@ package io.diagrid.dapr;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.junit.Assert.*;
 
@@ -22,14 +23,14 @@ import io.restassured.http.ContentType;
 import static io.restassured.RestAssured.*;
 
 @SpringBootTest(classes=PizzaDeliveryAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@Testcontainers
-public class PizzaDeliveryTest {
+@Import(DaprTestContainersConfig.class)
+class PizzaDeliveryTest {
 
     @Autowired
     private SubscriptionsRestController subscriptionsRestController;
 
     @Test
-    public void testDelivery() throws Exception {
+    void testDelivery() throws Exception {
         with().body(new Order(UUID.randomUUID().toString(), 
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1)), 
                                 new Date()))
@@ -48,7 +49,7 @@ public class PizzaDeliveryTest {
         assertEquals("The content of the cloud event should be the order-out-on-its-way event", EventType.ORDER_ON_ITS_WAY, events.get(2).getData().type());
         assertEquals("The content of the cloud event should be the order-completed event", EventType.ORDER_COMPLETED, events.get(3).getData().type());
 
-      
+
     }
 
 }

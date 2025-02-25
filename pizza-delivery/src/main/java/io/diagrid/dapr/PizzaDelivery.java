@@ -3,6 +3,7 @@ import java.util.Date;
 import java.util.List;
 import static java.util.Collections.singletonMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.dapr.client.DaprClient;
-import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.Metadata;
 
 @SpringBootApplication
@@ -23,7 +23,9 @@ import io.dapr.client.domain.Metadata;
 public class PizzaDelivery {
 
   private static final String MESSAGE_TTL_IN_SECONDS = "1000";
-  
+
+  @Autowired
+  private DaprClient daprClient;
   @Value("${PUB_SUB_NAME:pubsub}")
   private String PUB_SUB_NAME;
   @Value("${PUB_SUB_TOPIC:topic}")
@@ -112,10 +114,10 @@ public class PizzaDelivery {
     pepperoni, margherita, hawaiian, vegetarian
   }
   
-  private void emitEvent(Event event) {
+  protected void emitEvent(Event event) {
     System.out.println("> Emitting Delivery Event: "+ event.toString());
-    try (DaprClient client = (new DaprClientBuilder()).build()) {
-      client.publishEvent(PUB_SUB_NAME,
+    try {
+       daprClient.publishEvent(PUB_SUB_NAME,
           PUB_SUB_TOPIC,
           event,
           singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
