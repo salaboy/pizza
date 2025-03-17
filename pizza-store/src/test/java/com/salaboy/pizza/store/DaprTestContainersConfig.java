@@ -1,4 +1,4 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import io.dapr.testcontainers.Component;
 import io.dapr.testcontainers.DaprContainer;
@@ -80,10 +80,6 @@ public class DaprTestContainersConfig {
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
               .dependsOn(kafkaContainer);
-
-        org.testcontainers.Testcontainers.exposeHostPorts(8080);
-
-        registry.add("DAPR_HTTP_ENDPOINT", daprContainer::getHttpEndpoint);
 
         return daprContainer;
     }

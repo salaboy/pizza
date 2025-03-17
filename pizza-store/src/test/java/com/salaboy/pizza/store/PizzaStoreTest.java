@@ -1,14 +1,13 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import io.diagrid.dapr.PizzaStore.Customer;
-import io.diagrid.dapr.PizzaStore.Order;
-import io.diagrid.dapr.PizzaStore.OrderItem;
-import io.diagrid.dapr.PizzaStore.PizzaType;
-import io.diagrid.dapr.PizzaStore.Status;
+import com.salaboy.pizza.store.PizzaStore.Customer;
+import com.salaboy.pizza.store.PizzaStore.Order;
+import com.salaboy.pizza.store.PizzaStore.OrderItem;
+import com.salaboy.pizza.store.PizzaStore.PizzaType;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import static org.assertj.core.api.Assertions.assertThat;

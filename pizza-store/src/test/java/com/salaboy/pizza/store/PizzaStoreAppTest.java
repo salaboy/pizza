@@ -1,4 +1,4 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,5 +10,6 @@ public class PizzaStoreAppTest {
         SpringApplication.from(PizzaStore::main)
                 .with(DaprTestContainersConfig.class)
                 .run(args);
+        org.testcontainers.Testcontainers.exposeHostPorts(8080);        
     }
 }

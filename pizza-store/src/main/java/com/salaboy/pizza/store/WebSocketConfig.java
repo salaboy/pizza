@@ -1,4 +1,4 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

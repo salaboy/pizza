@@ -1,4 +1,4 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,6 +28,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.dapr.client.DaprClient;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
+import io.dapr.spring.boot.autoconfigure.client.DaprClientProperties;
+import io.dapr.spring.boot.autoconfigure.client.DaprConnectionDetails;
 
 @SpringBootApplication
 @RestController
@@ -38,8 +39,8 @@ public class PizzaStore {
   @Autowired
   private DaprClient daprClient;
 
-  @Value("${DAPR_HTTP_ENDPOINT:http://localhost:3500}")
-  private String daprHttp;
+  @Autowired
+  private DaprConnectionDetails daprConnectionDetails;
 
   @Value("${STATE_STORE_NAME:kvstore}")
   private String STATE_STORE_NAME;
@@ -228,9 +229,8 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Kitchen service at: " + daprHttp + "/prepare");
-    restTemplate.put(
-        daprHttp + "/prepare", request);
+    System.out.println("Calling Kitchen service at: " + daprConnectionDetails.httpEndpoint() + "/prepare");
+    restTemplate.put(daprConnectionDetails.httpEndpoint() + "/prepare", request);
   }
 
   private void callDeliveryService(Order order) {
@@ -239,9 +239,8 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Delivery service at: " + daprHttp + "/deliver");
-    restTemplate.put(
-        daprHttp + "/deliver", request);
+    System.out.println("Calling Delivery service at: " + daprConnectionDetails.httpEndpoint() + "/deliver");
+    restTemplate.put(daprConnectionDetails.httpEndpoint() + "/deliver", request);
   }
 
   protected Orders loadOrders() {

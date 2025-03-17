@@ -1,10 +1,9 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.store;
 
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
-import io.github.microcks.testcontainers.model.UnidirectionalEvent;
 
 import io.dapr.client.DaprClient;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.testcontainers.shaded.org.awaitility.core.ConditionTimeoutException;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
