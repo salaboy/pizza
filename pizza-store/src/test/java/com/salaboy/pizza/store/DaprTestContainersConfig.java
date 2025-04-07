@@ -15,6 +15,7 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @TestConfiguration(proxyBeanMethods = false)
@@ -42,9 +43,16 @@ public class DaprTestContainersConfig {
             .withKafkaConnection(new KafkaConnection("kafka:19092"))
             .withMainArtifacts(
                   "store-openapi.yaml", "store-asyncapi.yaml",
-                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml",
-                  "third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml")
+                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml")
             .withAsyncDependsOn(kafkaContainer);
+
+        // Async events can pollute the experience in spring-boot:test-run,
+        // so we only add them if we are running in pure JUnit tests mode.
+        boolean isSpringTestRunExecution =  Arrays.stream(Thread.currentThread().getStackTrace())
+              .anyMatch(element -> element.getClassName().equals("com.salaboy.pizza.store.PizzaStoreAppTest"));
+        if (!isSpringTestRunExecution) {
+            ensemble.withMainArtifacts("third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml");
+        }
 
         return ensemble;
     }
@@ -74,12 +82,14 @@ public class DaprTestContainersConfig {
                     ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Delivery Events", "1.0.0", "RECEIVE receiveDeliveryEvents"),
                     "/events"))
               .withHttpEndpoint(new HttpEndpoint("kitchen-service",
-                    "http://microcks:8080/rest/Pizza+Kitchen+API/1.0.0"))
+                    "http://microcks:8080" + ensemble.getMicrocksContainer().getRestMockEndpointPath("Pizza Kitchen API", "1.0.0")))
               .withHttpEndpoint(new HttpEndpoint("delivery-service",
-                    "http://microcks:8080/rest/Pizza+Delivery+API/1.0.0"))
+                    "http://microcks:8080" + ensemble.getMicrocksContainer().getRestMockEndpointPath("Pizza Delivery API", "1.0.0")))
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
               .dependsOn(kafkaContainer);
+
+        org.testcontainers.Testcontainers.exposeHostPorts(8080);
 
         return daprContainer;
     }
