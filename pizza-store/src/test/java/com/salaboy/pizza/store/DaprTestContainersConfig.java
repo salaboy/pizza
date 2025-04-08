@@ -11,7 +11,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +42,15 @@ public class DaprTestContainersConfig {
             .withKafkaConnection(new KafkaConnection("kafka:19092"))
             .withMainArtifacts(
                   "store-openapi.yaml", "store-asyncapi.yaml",
-                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml",
-                  "third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml")
+                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml")
             .withAsyncDependsOn(kafkaContainer);
+        // Async events can pollute the experience in spring-boot:test-run,
+        // so we only add them if we are running in pure JUnit tests mode.
+        boolean isSpringTestRunExecution =  Arrays.stream(Thread.currentThread().getStackTrace())
+              .anyMatch(element -> element.getClassName().equals("com.salaboy.pizza.store.PizzaStoreAppTest"));
+        if (!isSpringTestRunExecution) {
+            ensemble.withMainArtifacts("third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml");
+        }
         return ensemble;
     }
 
