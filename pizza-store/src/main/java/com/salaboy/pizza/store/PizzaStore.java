@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -105,10 +106,11 @@ public class PizzaStore {
         emitWSEvent(event);
 
         // Store Order
-        store(order);
+        //store(order);
 
         // Process Order, sent to kitcken
         callKitchenService(order);
+
       }
     }).start();
 
@@ -230,7 +232,10 @@ public class PizzaStore {
     headers.add("dapr-app-id", "kitchen-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
     System.out.println("Calling Kitchen service at: " + daprConnectionDetails.httpEndpoint() + "/prepare");
-    restTemplate.put(daprConnectionDetails.httpEndpoint() + "/prepare", request);
+    ResponseEntity<String> put = restTemplate
+            .exchange(daprConnectionDetails.httpEndpoint() + "/prepare", HttpMethod.PUT, request, String.class);
+    System.out.println("I called the Kitchen Service and the status code is: " + put.getStatusCode());
+
   }
 
   private void callDeliveryService(Order order) {
@@ -240,7 +245,9 @@ public class PizzaStore {
     headers.add("dapr-app-id", "delivery-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
     System.out.println("Calling Delivery service at: " + daprConnectionDetails.httpEndpoint() + "/deliver");
-    restTemplate.put(daprConnectionDetails.httpEndpoint() + "/deliver", request);
+    ResponseEntity<String> put = restTemplate
+            .exchange(daprConnectionDetails.httpEndpoint() + "/deliver", HttpMethod.PUT, request, String.class);
+    System.out.println("I called the Delivery Service and the status code is: " + put.getStatusCode());
   }
 
   protected Orders loadOrders() {
