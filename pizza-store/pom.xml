@@ -15,7 +15,7 @@
   <description>Pizza Online Store</description>
   <properties>
     <java.version>17</java.version>
-    <dapr.java-sdk.version>0.14.0-rc-9</dapr.java-sdk.version>
+    <dapr.java-sdk.version>0.15.0-SNAPSHOT</dapr.java-sdk.version>
   </properties>
   <dependencies>
     <dependency>

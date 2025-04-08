@@ -10,21 +10,17 @@ import com.salaboy.pizza.store.PizzaStore.OrderItem;
 import com.salaboy.pizza.store.PizzaStore.PizzaType;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.springframework.context.annotation.Import;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static io.restassured.RestAssured.with;
 import java.util.Arrays;
 
 
-@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@Import(DaprTestContainersConfig.class)
 class PizzaStoreTest {
 
-    @LocalServerPort
-    private int port;
-
-    @BeforeEach
-    public void setUp() {
-        RestAssured.port = port;
-    }
     
     @Test
     void testPlaceOrder() throws Exception {
@@ -35,8 +31,6 @@ class PizzaStoreTest {
         .when()
         .request("POST", "/order")
         .then().assertThat().statusCode(200);
-        
-        
 
 
     }
