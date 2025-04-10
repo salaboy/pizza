@@ -1,4 +1,4 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.kitchen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.dapr.client.domain.CloudEvent;
-import io.diagrid.dapr.PizzaKitchen.Event;
+import com.salaboy.pizza.kitchen.PizzaKitchen.Event;
 
 @RestController
 public class SubscriptionsRestController {

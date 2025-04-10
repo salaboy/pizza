@@ -1,9 +1,10 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.kitchen;
 
 import java.util.List;
 import java.util.Random;
 import java.util.Date;
 
+import io.dapr.spring.messaging.DaprMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.dapr.client.DaprClient;
-import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.Metadata;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -28,9 +28,8 @@ public class PizzaKitchen {
   private static final String MESSAGE_TTL_IN_SECONDS = "1000";
 
   @Autowired
-  private DaprClient daprClient;
-  @Value("${PUB_SUB_NAME:pubsub}")
-  private String PUB_SUB_NAME;
+  private DaprMessagingTemplate<Event> messagingTemplate;
+
   @Value("${PUB_SUB_TOPIC:topic}")
   private String PUB_SUB_TOPIC;
   private static final int MS_IN_SECOND = 1000;
@@ -42,7 +41,7 @@ public class PizzaKitchen {
 
   @PutMapping("/prepare")
   public ResponseEntity prepareOrder(@RequestBody(required = true) Order order) throws InterruptedException {
-    System.out.println("Receiving a preparation request for order: " + order.id);
+    System.out.println("Receiving a preparation request for order: " + order);
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -77,14 +76,7 @@ public class PizzaKitchen {
 
   protected void emitEvent(Event event) {
     System.out.println("> Emitting Kitchen Event: "+ event.toString());
-    try {
-      daprClient.publishEvent(PUB_SUB_NAME,
-          PUB_SUB_TOPIC,
-          event,
-          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
+    messagingTemplate.send(PUB_SUB_TOPIC, event);
   }
 
   public record Event(EventType type, Order order, String service, String message) {

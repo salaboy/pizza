@@ -17,7 +17,8 @@ import static io.restassured.RestAssured.with;
 import java.util.Arrays;
 
 
-@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        properties = { "tests.mocks=true" })
 @Import(DaprTestContainersConfig.class)
 class PizzaStoreTest {
 

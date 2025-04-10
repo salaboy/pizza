@@ -1,13 +1,13 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.kitchen;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PizzaDeliveryAppTest {
+public class PizzaKitchenAppTest {
 
     public static void main(String[] args) {
-        SpringApplication.from(PizzaDelivery::main)
+        SpringApplication.from(PizzaKitchen::main)
                 .with(DaprTestContainersConfig.class)
                 .run(args);
     }

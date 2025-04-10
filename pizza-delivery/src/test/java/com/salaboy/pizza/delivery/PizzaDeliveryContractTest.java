@@ -1,13 +1,9 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.delivery;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dapr.client.domain.CloudEvent;
-import io.diagrid.dapr.PizzaDelivery.Event;
-import io.diagrid.dapr.PizzaDelivery.EventType;
-import io.diagrid.dapr.PizzaDelivery.Order;
-import io.diagrid.dapr.PizzaDelivery.OrderItem;
 
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.EventMessage;
@@ -30,7 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes=PizzaDeliveryAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes=PizzaDeliveryAppTest.class,
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        properties = { "tests.mocks=true" })
 @Import(DaprTestContainersConfig.class)
 class PizzaDeliveryContractTest {
 
@@ -52,9 +50,9 @@ class PizzaDeliveryContractTest {
             .build();
 
         // Prepare an application Event.
-        Event event = new Event(EventType.ORDER_ON_ITS_WAY,
-            new Order("123-456-789",
-                  List.of(new OrderItem(PizzaDelivery.PizzaType.pepperoni, 1)),
+        PizzaDelivery.Event event = new PizzaDelivery.Event(PizzaDelivery.EventType.ORDER_ON_ITS_WAY,
+            new PizzaDelivery.Order("123-456-789",
+                  List.of(new PizzaDelivery.OrderItem(PizzaDelivery.PizzaType.pepperoni, 1)),
                   new Date()),
             "delivery",
             "The order is on its way to your address.");
@@ -90,7 +88,7 @@ class PizzaDeliveryContractTest {
 
             // Properties from the cloud event message should match the application config and the event.
             assertEquals("1.0", messageMap.get("specversion"));
-            assertEquals("local-dapr-app", messageMap.get("source"));
+            assertEquals("delivery-service", messageMap.get("source"));
             assertEquals("com.dapr.event.sent", messageMap.get("type"));
 
             Map<String, Object> eventMap = (Map<String, Object>) messageMap.get("data");
@@ -99,10 +97,10 @@ class PizzaDeliveryContractTest {
 
             // You can also try to deserialize the message content to a CloudEvent object.
             // We have to ignore the failure on unknown expiration time property.
-            CloudEvent<Event> cloudEvent = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                  .readValue(message.getContent(), new TypeReference<CloudEvent<Event>>() {});
+            CloudEvent<PizzaDelivery.Event> cloudEvent = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                  .readValue(message.getContent(), new TypeReference<CloudEvent<PizzaDelivery.Event>>() {});
             assertEquals("1.0", cloudEvent.getSpecversion());
-            assertEquals("local-dapr-app", cloudEvent.getSource());
+            assertEquals("delivery-service", cloudEvent.getSource());
             assertEquals("com.dapr.event.sent", cloudEvent.getType());
             assertEquals("delivery", cloudEvent.getData().service());
             assertEquals("The order is on its way to your address.", cloudEvent.getData().message());
@@ -118,7 +116,7 @@ class PizzaDeliveryContractTest {
          TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Delivery API:1.0.0")
                .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
-               .testEndpoint("http://host.testcontainers.internal:8080")
+               .testEndpoint("http://host.testcontainers.internal:8082")
                .timeout(Duration.ofSeconds(2))
                .build();
 
@@ -150,7 +148,7 @@ class PizzaDeliveryContractTest {
         TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Delivery API:1.0.0")
                .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
-               .testEndpoint("http://host.testcontainers.internal:8080")
+               .testEndpoint("http://host.testcontainers.internal:8082")
                .timeout(Duration.ofSeconds(2))
                .build();
 

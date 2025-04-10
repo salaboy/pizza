@@ -1,13 +1,13 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.kitchen;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dapr.client.domain.CloudEvent;
-import io.diagrid.dapr.PizzaKitchen.Event;
-import io.diagrid.dapr.PizzaKitchen.EventType;
-import io.diagrid.dapr.PizzaKitchen.Order;
-import io.diagrid.dapr.PizzaKitchen.OrderItem;
+import com.salaboy.pizza.kitchen.PizzaKitchen.Event;
+import com.salaboy.pizza.kitchen.PizzaKitchen.EventType;
+import com.salaboy.pizza.kitchen.PizzaKitchen.Order;
+import com.salaboy.pizza.kitchen.PizzaKitchen.OrderItem;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.EventMessage;
 import io.github.microcks.testcontainers.model.TestRequest;
@@ -29,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes=PizzaKitchenAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes=PizzaKitchenAppTest.class,
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+        properties = { "tests.mocks=true" })
 @Import(DaprTestContainersConfig.class)
 class PizzaKitchenContractTest {
 
@@ -89,7 +91,7 @@ class PizzaKitchenContractTest {
 
             // Properties from the cloud event message should match the application config and the event.
             assertEquals("1.0", messageMap.get("specversion"));
-            assertEquals("local-dapr-app", messageMap.get("source"));
+            assertEquals("kitchen-service", messageMap.get("source"));
             assertEquals("com.dapr.event.sent", messageMap.get("type"));
 
             Map<String, Object> eventMap = (Map<String, Object>) messageMap.get("data");
@@ -101,7 +103,7 @@ class PizzaKitchenContractTest {
             CloudEvent<Event> cloudEvent = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                   .readValue(message.getContent(), new TypeReference<CloudEvent<Event>>() {});
             assertEquals("1.0", cloudEvent.getSpecversion());
-            assertEquals("local-dapr-app", cloudEvent.getSource());
+            assertEquals("kitchen-service", cloudEvent.getSource());
             assertEquals("com.dapr.event.sent", cloudEvent.getType());
             assertEquals("kitchen", cloudEvent.getData().service());
             assertEquals("The order is now in the kitchen.", cloudEvent.getData().message());
@@ -116,7 +118,7 @@ class PizzaKitchenContractTest {
         TestRequest openAPITest = new TestRequest.Builder()
               .serviceId("Pizza Kitchen API:1.0.0")
               .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
-              .testEndpoint("http://host.testcontainers.internal:8080")
+              .testEndpoint("http://host.testcontainers.internal:8081")
               .timeout(Duration.ofSeconds(2))
               .build();
 
@@ -152,7 +154,7 @@ class PizzaKitchenContractTest {
         TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Kitchen API:1.0.0")
                .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
-               .testEndpoint("http://host.testcontainers.internal:8080")
+               .testEndpoint("http://host.testcontainers.internal:8081")
                .timeout(Duration.ofSeconds(2))
                .build();
 

@@ -30,7 +30,7 @@ components:
             payload:
               specversion: '1.0'
               type: com.dapr.event.sent
-              source: local-dapr-app
+              source: kitchen-service
               id: 952d739f-5556-4772-8187-c39e18139a86
               time: '2025-01-29T09:27:15Z'
               datacontenttype: application/json
@@ -50,7 +50,7 @@ components:
             payload:
               specversion: '1.0'
               type: com.dapr.event.sent
-              source: local-dapr-app
+              source: kitchen-service
               id: 952d739f-5556-4772-8187-c39e18139a87
               time: '2025-01-29T09:29:25Z'
               data:

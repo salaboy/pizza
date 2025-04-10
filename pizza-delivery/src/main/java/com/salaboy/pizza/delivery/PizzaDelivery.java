@@ -1,8 +1,9 @@
-package io.diagrid.dapr;
+package com.salaboy.pizza.delivery;
 import java.util.Date;
 import java.util.List;
 import static java.util.Collections.singletonMap;
 
+import io.dapr.spring.messaging.DaprMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -24,12 +25,11 @@ public class PizzaDelivery {
 
   private static final String MESSAGE_TTL_IN_SECONDS = "1000";
 
-  @Autowired
-  private DaprClient daprClient;
-  @Value("${PUB_SUB_NAME:pubsub}")
-  private String PUB_SUB_NAME;
   @Value("${PUB_SUB_TOPIC:topic}")
   private String PUB_SUB_TOPIC;
+
+  @Autowired
+  private DaprMessagingTemplate<Event> messagingTemplate;
 
   public static void main(String[] args) {
     SpringApplication.run(PizzaDelivery.class, args);
@@ -70,7 +70,7 @@ public class PizzaDelivery {
 
           event = new Event(EventType.ORDER_COMPLETED, order, "delivery", "Your order has been delivered.");
           emitEvent(event);
-         
+
       }
     }).start();
 
@@ -103,7 +103,7 @@ public class PizzaDelivery {
       return type;
     }
   }
-  
+
   public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate) {
   }
 
@@ -113,17 +113,10 @@ public class PizzaDelivery {
   public enum PizzaType {
     pepperoni, margherita, hawaiian, vegetarian
   }
-  
+
   protected void emitEvent(Event event) {
     System.out.println("> Emitting Delivery Event: "+ event.toString());
-    try {
-       daprClient.publishEvent(PUB_SUB_NAME,
-          PUB_SUB_TOPIC,
-          event,
-          singletonMap(Metadata.TTL_IN_SECONDS, MESSAGE_TTL_IN_SECONDS)).block();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
+    messagingTemplate.send(PUB_SUB_TOPIC, event);
   }
-  
+
 }
