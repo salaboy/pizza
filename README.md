@@ -2,7 +2,7 @@
 
 This repository contains a simple example for a Pizza Store application using Kubernetes, [Dapr](https://dapr.io), [Spring Boot](https://spring.io/projects/spring-boot) and [Testcontainers](https://testcontainers.com) to enable developers with an awesome developer experience. [You can find a Quarkus implementation of this application here (Thanks to @mcruzdev1!)](https://github.com/mcruzdev/pizza-quarkus)
 
-You can run this application on any Kubernetes cluster by following the step-by-step insturctions described in this document. You can also start each service using just Maven.
+You can run this application on any Kubernetes cluster by following the step-by-step instructions described in this document. You can also start each service using just Maven.
 
 ![Pizza Store](imgs/pizza-store.png)
 
@@ -18,7 +18,7 @@ This application uses PostgreSQL and Kafka, as they are well-known components am
 
 As you can see in the diagram, if we want to connect to PostgreSQL from the Pizza Store Service we need to add to our applications the PostgreSQL driver that must match with the PostgreSQL instance version that we have available. A Kafka client is required in all the services that are interested in publishing or consuming messages/events. Because you have Drivers and Clients that are sensitive to the available versions on the infrastructure components, the lifecycle of the application is now bound to the lifecycle of these components. 
 
-Adding Dapr to the picture not only breaks these dependencies, but also remove responsabilities from developers of choosing the right Driver/Client and how these need to be configured for the application to work correctly. Dapr provides developers building block APIs such as the StateStore and PubSub API that developer can use without know the details of which infrastructure is going to be connected under the covers. 
+Adding Dapr to the picture not only breaks these dependencies, but also remove responsibilities from developers of choosing the right Driver/Client and how these need to be configured for the application to work correctly. Dapr provides developers building block APIs such as the StateStore and PubSub API that developer can use without know the details of which infrastructure is going to be connected under the covers. 
 
 ![Architecture with Dapr](imgs/architecture+dapr.png)
 
@@ -41,7 +41,7 @@ Then we will install [Dapr](https://dapr.io) into our fresh new cluster by runni
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 helm upgrade --install dapr dapr/dapr \
---version=1.13.2 \
+--version=1.14.4 \
 --namespace dapr-system \
 --create-namespace \
 --wait
@@ -95,10 +95,10 @@ To run the services locally you can use the [Testcontainer](https://testcontaina
 For example you can start a local version of the `pizza-store` service by running the following command inside the `pizza-store/` directory (this requires having Java and [Maven](https://maven.apache.org/) installed locally):
 
 ```
-mvn spring-boot:test-run
+mvn -Dspring-boot.run.arguments="--reuse=true" spring-boot:test-run
 ```
 
-This, not only start the `pizza-store` service, but it also uses the [Testcontainers + Dapr Spring Boot](https://central.sonatype.com/artifact/io.diagrid.dapr/dapr-spring-boot-starter) integration to configure and wire up a Dapr configuration for local development. In other words, you can now use Dapr outside of Kubernetes, for writing your service tests without the need to know how Dapr is configured. 
+This, not only start the `pizza-store` service, but it also uses the [Testcontainers + Dapr Spring Boot](https://central.sonatype.com/artifact/io.dapr.spring/dapr-spring-boot-starter) integration to configure and wire up a Dapr configuration for local development. In other words, you can now use Dapr outside of Kubernetes, for writing your service tests without the need to know how Dapr is configured. 
 
 
 Once the service is up, you can place orders and simulate other events coming from the Kitchen and Delivery services by sending HTTP requests to the `/events` endpoint. 
