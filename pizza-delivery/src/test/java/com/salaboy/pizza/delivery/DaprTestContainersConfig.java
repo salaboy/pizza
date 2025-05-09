@@ -67,7 +67,7 @@ public class DaprTestContainersConfig {
     @ServiceConnection
     DaprContainer daprContainer(Network network, Environment env, KafkaContainer kafkaContainer) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
-        daprContainer = new DaprContainer("daprio/daprd")
+        daprContainer = new DaprContainer("daprio/daprd:1.15.4")
             .withAppName("delivery-service")
             .withAppPort(8082)
             .withNetwork(network)
