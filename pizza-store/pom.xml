@@ -8,7 +8,7 @@
     <version>3.4.3</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>io.diagrid.dapr</groupId>
+  <groupId>com.salaboy</groupId>
   <artifactId>pizza-store</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Pizza Online Store</name>

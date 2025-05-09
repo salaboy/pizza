@@ -100,7 +100,7 @@ public class DaprTestContainersConfig {
     @ServiceConnection
     DaprContainer daprContainer(KafkaContainer kafkaContainer, Environment env, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
-        daprContainer = new DaprContainer("daprio/daprd")
+        daprContainer = new DaprContainer("daprio/daprd:1.15.4")
               .withAppName("pizza-store")
               .withAppPort(8080)
               .withNetwork(daprNetwork)
@@ -143,7 +143,7 @@ public class DaprTestContainersConfig {
                     "\"/prepare\": \"/rest/Pizza+Kitchen+API/1.0.0/prepare\""+
                 "}");
 
-      daprContainerKitchen = new DaprContainer("daprio/daprd")
+      daprContainerKitchen = new DaprContainer("daprio/daprd:1.15.4")
                   .withAppName("kitchen-service")
                   .withNetwork(daprNetwork)
                   .withComponent(new Component("routes", "middleware.http.routeralias", "v1", routerMetadata))
@@ -166,7 +166,7 @@ public class DaprTestContainersConfig {
                         "\"/deliver\": \"/rest/Pizza+Delivery+API/1.0.0/deliver\""+
                         "}");
 
-        daprContainerKitchen = new DaprContainer("daprio/daprd")
+        daprContainerKitchen = new DaprContainer("daprio/daprd:1.15.4")
                 .withAppName("delivery-service")
                 .withNetwork(network)
                 .withComponent(new Component("routes", "middleware.http.routeralias", "v1", routerMetadata))

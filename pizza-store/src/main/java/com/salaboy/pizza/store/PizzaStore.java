@@ -231,9 +231,9 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Kitchen service at: " + daprConnectionDetails.httpEndpoint() + "/prepare");
+    System.out.println("Calling Kitchen service at: " + daprConnectionDetails.getHttpEndpoint() + "/prepare");
     ResponseEntity<String> put = restTemplate
-            .exchange(daprConnectionDetails.httpEndpoint() + "/prepare", HttpMethod.PUT, request, String.class);
+            .exchange(daprConnectionDetails.getHttpEndpoint() + "/prepare", HttpMethod.PUT, request, String.class);
     System.out.println("I called the Kitchen Service and the status code is: " + put.getStatusCode());
 
   }
@@ -244,9 +244,9 @@ public class PizzaStore {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
     HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Delivery service at: " + daprConnectionDetails.httpEndpoint() + "/deliver");
+    System.out.println("Calling Delivery service at: " + daprConnectionDetails.getHttpEndpoint() + "/deliver");
     ResponseEntity<String> put = restTemplate
-            .exchange(daprConnectionDetails.httpEndpoint() + "/deliver", HttpMethod.PUT, request, String.class);
+            .exchange(daprConnectionDetails.getHttpEndpoint() + "/deliver", HttpMethod.PUT, request, String.class);
     System.out.println("I called the Delivery Service and the status code is: " + put.getStatusCode());
   }
 
