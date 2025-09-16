@@ -1,11 +1,17 @@
 package com.salaboy.pizza.store;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
+import com.salaboy.pizza.store.model.*;
+import com.salaboy.pizza.store.workflow.PizzaOrderWorkflow;
+import io.dapr.spring.workflows.config.EnableDaprWorkflows;
+import io.dapr.workflows.client.DaprWorkflowClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -35,19 +41,25 @@ import io.dapr.spring.boot.autoconfigure.client.DaprConnectionDetails;
 @SpringBootApplication
 @RestController
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
+@EnableDaprWorkflows
 public class PizzaStore {
 
   @Autowired
   private DaprClient daprClient;
 
   @Autowired
+  private DaprWorkflowClient daprWorkflowClient;
+
+  @Autowired
   private DaprConnectionDetails daprConnectionDetails;
 
   @Value("${STATE_STORE_NAME:kvstore}")
   private String STATE_STORE_NAME;
-  
+
   @Value("${PUBLIC_IP:localhost:8080}")
   private String publicIp;
+
+  public static WorkflowPayload payload;
 
   @GetMapping("/server-info")
   public Info getInfo(){
@@ -75,8 +87,14 @@ public class PizzaStore {
     emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.toString());
     Event pizzaEvent = event.getData();
-    if (pizzaEvent.type.equals(EventType.ORDER_READY)){
-      prepareOrderForDelivery(pizzaEvent.order);
+    if(pizzaEvent.type().equals(EventType.ORDER_READY)){
+      // Emit Event
+      Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
+      emitWSEvent(wsevent);
+      daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
+    }
+    if(pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
+      daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "PizzaDelivered", pizzaEvent.order());
     }
   }
 
@@ -86,18 +104,9 @@ public class PizzaStore {
         event);
   }
 
-  private void prepareOrderForDelivery(Order order){
-    store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
-     // Emit Event
-    Event event = new Event(EventType.ORDER_OUT_FOR_DELIVERY, order, "store", "Delivery in progress.");
-    emitWSEvent(event);
-
-    callDeliveryService(order);
-
-  }
 
   @PostMapping("/order")
-  public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order, Map<String, String> headers) throws Exception {
+  public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order, Map<String, String> headers) throws Exception {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -105,17 +114,26 @@ public class PizzaStore {
         Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
         emitWSEvent(event);
 
-        // Store Order
-        //store(order);
-
-        // Process Order, sent to kitcken
-        callKitchenService(order);
+        startPizzaWorkflow(order);
 
       }
     }).start();
 
     return ResponseEntity.ok(order);
 
+  }
+
+  private void startPizzaWorkflow(OrderPayload order) {
+    payload = new WorkflowPayload(order);
+    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, payload);
+    System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
+            instanceId);
+    try {
+      daprWorkflowClient.waitForInstanceStart(instanceId, Duration.ofSeconds(10), false);
+      System.out.printf("workflow instance %s started%n", instanceId);
+    } catch (TimeoutException e) {
+      System.out.printf("workflow instance %s did not start within 10 seconds%n", instanceId);
+    }
   }
 
   @GetMapping("/order")
@@ -126,97 +144,14 @@ public class PizzaStore {
     return ResponseEntity.ok(orders);
   }
 
-  public record Customer(@JsonProperty String name, @JsonProperty String email) {
-  }
-
-  public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {
-  }
-
-  public enum PizzaType {
-    pepperoni, margherita, hawaiian, vegetarian, kubernetescheese, daprcheese, clustertomatoes, diagridpepperoni, distributedolives, opensauce, workflowspread, plantbasedobservability, bindingsbacon
-  }
-
-  public enum Status {
-    created, placed, notplaced, instock, notinstock, inpreparation, delivery, completed, failed
-  }
-
-  public record Event(EventType type, Order order, String service, String message) {
-  }
-
-  public enum EventType {
-
-    ORDER_PLACED("order-placed"),
-    ITEMS_IN_STOCK("items-in-stock"),
-    ITEMS_NOT_IN_STOCK("items-not-in-stock"),
-    ORDER_IN_PREPARATION("order-in-preparation"),
-    ORDER_READY("order-ready"),
-    ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
-    ORDER_ON_ITS_WAY("order-on-its-way"),
-    ORDER_COMPLETED("order-completed");
-
-    private String type;
-
-    EventType(String type) {
-      this.type = type;
-    }
-
-    @JsonValue
-    public String getType() {
-      return type;
-    }
-  }
-
-  public record KitchenResponse(@JsonProperty String message, @JsonProperty String orderId) {
-  }
-
-  protected record Orders(@JsonProperty List<Order> orders) {
-  }
-
-  public record Order(@JsonProperty String id, @JsonProperty Customer customer, @JsonProperty List<OrderItem> items,
-      @JsonProperty Date orderDate, @JsonProperty Status status) {
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public Order(String id, Customer customer, List<OrderItem> items, Date orderDate, Status status) {
-      if (id == null) {
-        this.id = UUID.randomUUID().toString();
-      } else {
-        this.id = id;
-      }
-      this.customer = customer;
-      this.items = items;
-      if (orderDate == null) {
-        this.orderDate = new Date();
-      } else {
-        this.orderDate = orderDate;
-      }
-      if (status == null) {
-        this.status = Status.created;
-      } else {
-        this.status = status;
-      }
-    }
-
-    public Order(Customer customer, List<OrderItem> items, Date orderDate, Status status) {
-      this(UUID.randomUUID().toString(), customer, items, orderDate, status);
-    }
-
-    public Order(Customer customer, List<OrderItem> items) {
-      this(UUID.randomUUID().toString(), customer, items, new Date(), Status.created);
-    }
-
-    public Order(Order order) {
-      this(order.id, order.customer, order.items, order.orderDate, order.status);
-    }
-  }
-
-  private void store(Order order) {
+  private void store(OrderPayload order) {
     try {
-      Orders orders = new Orders(new ArrayList<Order>());
+      Orders orders = new Orders(new ArrayList<OrderPayload>());
       State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
-      if (ordersState.getValue() != null && ordersState.getValue().orders.isEmpty()) {
-        orders.orders.addAll(ordersState.getValue().orders);
+      if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
+        orders.orders().addAll(ordersState.getValue().orders());
       }
-      orders.orders.add(order);
+      orders.orders().add(order);
       // Save state
       daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
 

@@ -1,5 +1,7 @@
 package com.salaboy.pizza.store;
 
+import com.salaboy.pizza.store.model.OrderPayload;
+import com.salaboy.pizza.store.model.Orders;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
@@ -79,9 +81,9 @@ class PizzaStoreInteractionTest {
                .pollDelay(400, TimeUnit.MILLISECONDS)
                .pollInterval(400, TimeUnit.MILLISECONDS)
                .until(() -> {
-                  PizzaStore.Orders orders = pizzaStore.loadOrders();
+                  Orders orders = pizzaStore.loadOrders();
                   if (orders != null) {
-                     for (PizzaStore.Order order : orders.orders()) {
+                     for (OrderPayload order : orders.orders()) {
                         if ("123-456-789".equals(order.id())) {
                            long newDeliveryInvocations = microcksEnsemble.getMicrocksContainer()
                                  .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
@@ -29,6 +30,10 @@ public class DaprTestContainersConfig {
     private DaprContainer daprContainer;
     private DaprContainer daprContainerKitchen;
 
+    @Bean
+    RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
 
     @Bean
     public Network daprNetwork(Environment env) {
@@ -104,7 +109,7 @@ public class DaprTestContainersConfig {
               .withAppName("pizza-store")
               .withAppPort(8080)
               .withNetwork(daprNetwork)
-              .withComponent(new Component("kvstore", "state.in-memory", "v1", Map.of()))
+              .withComponent(new Component("kvstore", "state.in-memory", "v1", Map.of("actorStateStore", "true" )))
               .withComponent(new Component("pubsub", "pubsub.kafka", "v1",
                     Map.of(
                           "brokers", "kafka:19092",
