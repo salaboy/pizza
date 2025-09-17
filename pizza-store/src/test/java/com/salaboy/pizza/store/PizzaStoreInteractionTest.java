@@ -65,7 +65,7 @@ class PizzaStoreInteractionTest {
       long newKitchenInvocations = microcksEnsemble.getMicrocksContainer()
             .getServiceInvocationsCount("Pizza Kitchen API", "1.0.0");
 
-      //TimeUnit.SECONDS.sleep(30L);
+      TimeUnit.SECONDS.sleep(2L);
       assertTrue(newKitchenInvocations > kitchenInvocations);
    }
 
@@ -77,7 +77,7 @@ class PizzaStoreInteractionTest {
             .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");
 
       try {
-         await().atMost(4, TimeUnit.SECONDS)
+         await().atMost(5, TimeUnit.SECONDS)
                .pollDelay(400, TimeUnit.MILLISECONDS)
                .pollInterval(400, TimeUnit.MILLISECONDS)
                .until(() -> {

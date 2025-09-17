@@ -45,6 +45,7 @@ components:
                     - type: vegetarian
                       amount: 1
                   orderDate: 1738142460556
+                  workflowId: "jkl-iop"
                 message: The order is on its way to your address.
           - name: Completed
             payload:
@@ -64,6 +65,7 @@ components:
                     - type: vegetarian
                       amount: 1
                   orderDate: 1738142460556
+                  workflowId: "jkl-iop"
                 message: Your order has been delivered.
   schemas:
     Order:
@@ -77,10 +79,13 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: number
+        workflowId:
+          type: string
       required:
         - id
         - items
         - orderDate
+        - workflowId
       additionalProperties: true
     OrderItem:
       type: object

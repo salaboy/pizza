@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -59,8 +60,6 @@ public class PizzaStore {
   @Value("${PUBLIC_IP:localhost:8080}")
   private String publicIp;
 
-  public static WorkflowPayload payload;
-
   @GetMapping("/server-info")
   public Info getInfo(){
     return new Info(publicIp);
@@ -85,7 +84,7 @@ public class PizzaStore {
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {
     emitWSEvent(event.getData());
-    System.out.println("Received CloudEvent via Subscription: " + event.toString());
+    System.out.println("Received CloudEvent via Subscription: " + event.getData());
     Event pizzaEvent = event.getData();
     if(pizzaEvent.type().equals(EventType.ORDER_READY)){
       // Emit Event
@@ -106,34 +105,23 @@ public class PizzaStore {
 
 
   @PostMapping("/order")
-  public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order, Map<String, String> headers) throws Exception {
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        // Emit Event
-        Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
-        emitWSEvent(event);
+  public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order) throws Exception {
 
-        startPizzaWorkflow(order);
-
-      }
-    }).start();
+    String instanceId = startPizzaWorkflow(order);
+    OrderPayload processingOrder = new OrderPayload(order.id(), order.customer(), order.items(), order.orderDate(), order.status(), instanceId);
+    // Emit Event
+    Event event = new Event(EventType.ORDER_PLACED, processingOrder, "store", "We received the payment your order is confirmed.");
+    emitWSEvent(event);
 
     return ResponseEntity.ok(order);
 
   }
 
-  private void startPizzaWorkflow(OrderPayload order) {
-    payload = new WorkflowPayload(order);
-    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, payload);
+  private String startPizzaWorkflow(OrderPayload order) {
+    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, new WorkflowPayload(order));
     System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
             instanceId);
-    try {
-      daprWorkflowClient.waitForInstanceStart(instanceId, Duration.ofSeconds(10), false);
-      System.out.printf("workflow instance %s started%n", instanceId);
-    } catch (TimeoutException e) {
-      System.out.printf("workflow instance %s did not start within 10 seconds%n", instanceId);
-    }
+    return instanceId;
   }
 
   @GetMapping("/order")
@@ -144,46 +132,6 @@ public class PizzaStore {
     return ResponseEntity.ok(orders);
   }
 
-  private void store(OrderPayload order) {
-    try {
-      Orders orders = new Orders(new ArrayList<OrderPayload>());
-      State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
-      if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
-        orders.orders().addAll(ordersState.getValue().orders());
-      }
-      orders.orders().add(order);
-      // Save state
-      daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  private void callKitchenService(Order order) {
-    restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "application/json");
-    headers.add("dapr-app-id", "kitchen-service");
-    HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Kitchen service at: " + daprConnectionDetails.getHttpEndpoint() + "/prepare");
-    ResponseEntity<String> put = restTemplate
-            .exchange(daprConnectionDetails.getHttpEndpoint() + "/prepare", HttpMethod.PUT, request, String.class);
-    System.out.println("I called the Kitchen Service and the status code is: " + put.getStatusCode());
-
-  }
-
-  private void callDeliveryService(Order order) {
-    restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "application/json");
-    headers.add("dapr-app-id", "delivery-service");
-    HttpEntity<Order> request = new HttpEntity<Order>(order, headers);
-    System.out.println("Calling Delivery service at: " + daprConnectionDetails.getHttpEndpoint() + "/deliver");
-    ResponseEntity<String> put = restTemplate
-            .exchange(daprConnectionDetails.getHttpEndpoint() + "/deliver", HttpMethod.PUT, request, String.class);
-    System.out.println("I called the Delivery Service and the status code is: " + put.getStatusCode());
-  }
 
   protected Orders loadOrders() {
     try {

@@ -24,12 +24,8 @@ public class PizzaOrderWorkflow implements Workflow {
       WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
       workflowPayload.setWorkflowId(instanceId);
       workflowPayload.setOrder(new OrderPayload(workflowPayload.getOrder(), workflowPayload.getWorkflowId()));
-      try {
-        ctx.callActivity(StoreOrderActivity.class.getName(), workflowPayload).await();
-      } catch (TaskFailedException tfe) {
-        tfe.printStackTrace();
-      }
 
+      ctx.callActivity(StoreOrderActivity.class.getName(), workflowPayload).await();
 
       ctx.callActivity(PlaceOrderToKitchen.class.getName(), workflowPayload).await();
 

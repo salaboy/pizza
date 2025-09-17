@@ -15,7 +15,7 @@
   <description>Pizza Delivery</description>
   <properties>
     <java.version>17</java.version>
-    <dapr.version>1.16.0-rc-2</dapr.version>
+    <dapr.version>1.16.0</dapr.version>
   </properties>
   <dependencies>
     <dependency>

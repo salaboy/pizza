@@ -63,7 +63,8 @@ paths:
                         "amount": 1
                         }
                       ],
-                      "orderDate": "2025-01-30T18:26:57.805+00:00"
+                      "orderDate": "2025-01-30T18:26:57.805+00:00",
+                      "workflowId": "abc-hdc"
                     }
                 lbroudoux:
                   value:
@@ -75,6 +76,7 @@ paths:
                       - type: vegetarian
                         amount: 1
                     orderDate: "2025-01-30T18:26:57.905+00:00"
+                    "workflowId": "jkl-iop"
 components:
   schemas:
     Order:
@@ -87,6 +89,8 @@ components:
           items:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
+          type: string
+        workflowId:
           type: string
       required:
         - id

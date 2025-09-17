@@ -2,6 +2,8 @@ package com.salaboy.pizza.store.workflow;
 
 import com.salaboy.pizza.store.model.OrderPayload;
 import com.salaboy.pizza.store.model.WorkflowPayload;
+import io.dapr.spring.boot.autoconfigure.client.DaprClientProperties;
+import io.dapr.spring.boot.autoconfigure.client.DaprConnectionDetails;
 import io.dapr.workflows.WorkflowActivity;
 import io.dapr.workflows.WorkflowActivityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,25 +16,28 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class PlaceOrderToKitchen implements WorkflowActivity {
 
-  @Autowired
+
   private RestTemplate restTemplate;
 
-  public PlaceOrderToKitchen(RestTemplate restTemplate) {
+  private DaprConnectionDetails daprConnectionDetails;
+
+  public PlaceOrderToKitchen(RestTemplate restTemplate, DaprConnectionDetails daprConnectionDetails) {
     this.restTemplate = restTemplate;
+    this.daprConnectionDetails = daprConnectionDetails;
   }
 
   @Override
   public Object run(WorkflowActivityContext ctx) {
     WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
     System.out.println("Placing Order to Kitchen Activity ... ");
-    String daprHttp = System.getenv("DAPR_HTTP_ENDPOINT");
-    if (daprHttp == null || daprHttp.isEmpty()) {
-      daprHttp = "http://localhost:3500";
-    }
+
+    String daprHttp = daprConnectionDetails.getHttpEndpoint();
+    String daprAPIToken = daprConnectionDetails.getApiToken();
+
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
-    headers.add("dapr-api-token", System.getenv("DAPR_API_TOKEN"));
+    headers.add("dapr-api-token", daprAPIToken);
     HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(workflowPayload.getOrder(), headers);
     restTemplate.put(
             daprHttp + "/prepare", request);

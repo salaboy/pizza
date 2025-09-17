@@ -45,6 +45,7 @@ components:
                     - type: vegetarian
                       amount: 1
                   orderDate: 1738142460556
+                  workflowId: "abc-edf"
                 message: The order is now in the kitchen.
           - name: Ready
             payload:
@@ -64,6 +65,7 @@ components:
                     - type: vegetarian
                       amount: 1
                   orderDate: 1738142460556
+                  workflowId: "jkl-iop"
                 message: Your pizza is ready and waiting to be delivered.
   schemas:
     Order:
