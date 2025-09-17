@@ -56,7 +56,7 @@ class PizzaKitchenContractTest {
         Event event = new Event(EventType.ORDER_IN_PREPARATION,
              new Order("123-456-789",
                   List.of(new OrderItem(PizzaKitchen.PizzaType.pepperoni, 1)),
-                  new Date()),
+                  new Date(), "abc-edf"),
              "kitchen",
              "The order is now in the kitchen.");
 

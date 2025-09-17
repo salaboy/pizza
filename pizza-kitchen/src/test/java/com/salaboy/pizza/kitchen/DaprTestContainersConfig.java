@@ -29,7 +29,7 @@ public class DaprTestContainersConfig {
     private DaprContainer daprContainer;
 
     @Bean
-    public Network daprNetwork(Environment env) {
+    public Network getDaprNetwork(Environment env) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
         if (reuse) {
             Network defaultDaprNetwork = new Network() {
@@ -69,7 +69,9 @@ public class DaprTestContainersConfig {
         daprContainer = new DaprContainer("daprio/daprd:1.16.0")
             .withAppName("kitchen-service")
             .withAppPort(8081)
-            .withNetwork(network).withReusablePlacement(reuse)
+            .withNetwork(network)
+                .withReusablePlacement(reuse)
+                .withReusableScheduler(reuse)
             .withComponent(new Component("pubsub", "pubsub.kafka", "v1",
                   Map.of(
                         "brokers", "kafka:19092",
@@ -79,11 +81,9 @@ public class DaprTestContainersConfig {
                   "pizza-store-subscription",
                   "pubsub", "topic", "/events"))
             .withAppChannelAddress("host.testcontainers.internal")
-            .withDaprLogLevel(DaprLogLevel.DEBUG)
-            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
+//            .withDaprLogLevel(DaprLogLevel.DEBUG)
+//            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
             .dependsOn(kafkaContainer);
-
-        org.testcontainers.Testcontainers.exposeHostPorts(8081);
         return daprContainer;
     }
 

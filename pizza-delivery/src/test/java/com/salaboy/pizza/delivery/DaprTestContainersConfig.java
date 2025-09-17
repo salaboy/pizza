@@ -72,6 +72,7 @@ public class DaprTestContainersConfig {
             .withAppPort(8082)
             .withNetwork(network)
                 .withReusablePlacement(reuse)
+                .withReusableScheduler(reuse)
             .withComponent(new Component("pubsub", "pubsub.kafka", "v1",
                   Map.of(
                         "brokers", "kafka:19092",
@@ -80,12 +81,10 @@ public class DaprTestContainersConfig {
             .withSubscription(new Subscription(
                   "pizza-store-subscription",
                   "pubsub", "topic", "/events"))
-                .withDaprLogLevel(DaprLogLevel.DEBUG)
-                .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
+//                .withDaprLogLevel(DaprLogLevel.DEBUG)
+//                .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
                 .withAppChannelAddress("host.testcontainers.internal")
             .dependsOn(kafkaContainer);
-
-        org.testcontainers.Testcontainers.exposeHostPorts(8082);
         return daprContainer;
     }
 

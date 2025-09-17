@@ -104,7 +104,7 @@ public class PizzaDelivery {
     }
   }
 
-  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate) {
+  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate, @JsonProperty String workflowId) {
   }
 
   public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {

@@ -36,7 +36,7 @@ public class DaprTestContainersConfig {
     }
 
     @Bean
-    public Network daprNetwork(Environment env) {
+    public Network getDaprNetwork(Environment env) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
         if (reuse) {
             Network defaultDaprNetwork = new Network() {
@@ -121,6 +121,7 @@ public class DaprTestContainersConfig {
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
                 .withReusablePlacement(reuse)
+                .withReusableScheduler(reuse)
               .dependsOn(kafkaContainer);
         if (ensemble != null){
             daprContainer
@@ -133,7 +134,6 @@ public class DaprTestContainersConfig {
                             ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Delivery Events", "1.0.0", "RECEIVE receiveDeliveryEvents"),
                             "/events"));
         }
-        org.testcontainers.Testcontainers.exposeHostPorts(8080);
         return daprContainer;
     }
 

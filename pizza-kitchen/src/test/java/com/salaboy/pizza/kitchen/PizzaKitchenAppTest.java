@@ -10,5 +10,6 @@ public class PizzaKitchenAppTest {
         SpringApplication.from(PizzaKitchen::main)
                 .with(DaprTestContainersConfig.class)
                 .run(args);
+        org.testcontainers.Testcontainers.exposeHostPorts(8081);
     }
 }
