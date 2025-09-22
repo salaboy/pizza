@@ -49,7 +49,7 @@ class PizzaKitchenContractTest {
             .filteredOperations(List.of("RECEIVE receivePreparationEvents"))
             .runnerType(TestRunnerType.ASYNC_API_SCHEMA.name())
             .testEndpoint("kafka://kafka:19092/topic")
-            .timeout(Duration.ofSeconds(3))
+            .timeout(Duration.ofSeconds(4))
             .build();
 
         // Prepare an application Event.

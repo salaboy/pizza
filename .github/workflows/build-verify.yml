@@ -15,7 +15,7 @@ on:
 permissions: read-all
 
 jobs:
-  build-install:
+  build-verify:
     runs-on: ubuntu-latest
     permissions:
       contents: read
