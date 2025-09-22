@@ -41,7 +41,6 @@ public class DaprTestContainersConfig {
 
                 @Override
                 public void close() {
-
                 }
 
                 @Override
@@ -81,10 +80,13 @@ public class DaprTestContainersConfig {
             .withSubscription(new Subscription(
                   "pizza-store-subscription",
                   "pubsub", "topic", "/events"))
-//                .withDaprLogLevel(DaprLogLevel.DEBUG)
+                .withDaprLogLevel(DaprLogLevel.DEBUG)   // Necessary to see subscription registration logs from PizzaDeliveryTest.java
 //                .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
                 .withAppChannelAddress("host.testcontainers.internal")
             .dependsOn(kafkaContainer);
+
+        // Necessary to access app HTTP endpoint from tests.
+        org.testcontainers.Testcontainers.exposeHostPorts(8082);
         return daprContainer;
     }
 
@@ -103,7 +105,7 @@ public class DaprTestContainersConfig {
     @Bean
     @ConditionalOnProperty(prefix = "tests", name = "mocks", havingValue = "true")
     MicrocksContainersEnsemble microcksEnsemble(Network network) {
-        return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.11.0-native")
+        return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.12.1-native")
             .withAsyncFeature()
             .withAccessToHost(true)
             .withKafkaConnection(new KafkaConnection("kafka:19092"))
