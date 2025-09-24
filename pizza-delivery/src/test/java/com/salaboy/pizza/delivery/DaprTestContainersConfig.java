@@ -85,8 +85,6 @@ public class DaprTestContainersConfig {
                 .withAppChannelAddress("host.testcontainers.internal")
             .dependsOn(kafkaContainer);
 
-        // Necessary to access app HTTP endpoint from tests.
-        org.testcontainers.Testcontainers.exposeHostPorts(8082);
         return daprContainer;
     }
 
@@ -95,8 +93,7 @@ public class DaprTestContainersConfig {
     KafkaContainer kafkaContainer(Network network, Environment env) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
         kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
-            .withNetwork(network)
-                .withReuse(reuse)
+            .withNetwork(network).withReuse(reuse)
             .withNetworkAliases("kafka")
             .withListener(() -> "kafka:19092");
         return kafkaContainer;
@@ -105,11 +102,14 @@ public class DaprTestContainersConfig {
     @Bean
     @ConditionalOnProperty(prefix = "tests", name = "mocks", havingValue = "true")
     MicrocksContainersEnsemble microcksEnsemble(Network network) {
+        // Necessary to access app HTTP endpoint from tests if we're using microcksç
+        org.testcontainers.Testcontainers.exposeHostPorts(8082);
+
         return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.12.1-native")
-            .withAsyncFeature()
-            .withAccessToHost(true)
-            .withKafkaConnection(new KafkaConnection("kafka:19092"))
-            .withMainArtifacts("delivery-openapi.yaml", "delivery-asyncapi.yaml")
-            .withAsyncDependsOn(kafkaContainer);
+              .withAsyncFeature()
+              .withAccessToHost(true)
+              .withKafkaConnection(new KafkaConnection("kafka:19092"))
+              .withMainArtifacts("delivery-openapi.yaml", "delivery-asyncapi.yaml")
+              .withAsyncDependsOn(kafkaContainer);
     }
 }

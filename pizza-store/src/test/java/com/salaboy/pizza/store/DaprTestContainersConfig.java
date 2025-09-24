@@ -29,6 +29,7 @@ public class DaprTestContainersConfig {
     private MicrocksContainersEnsemble ensemble;
     private DaprContainer daprContainer;
     private DaprContainer daprContainerKitchen;
+    private DaprContainer daprContainerDelivery;
 
     @Bean
     RestTemplate restTemplate(){
@@ -82,6 +83,9 @@ public class DaprTestContainersConfig {
     @Bean
     @ConditionalOnProperty(prefix = "tests", name = "mocks", havingValue = "true")
     MicrocksContainersEnsemble microcksEnsemble(Network network) {
+        // Necessary to access app HTTP endpoint from tests.
+        org.testcontainers.Testcontainers.exposeHostPorts(8080);
+
         ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.12.1-native")
             .withAsyncFeature()
             .withAccessToHost(true)
@@ -90,6 +94,7 @@ public class DaprTestContainersConfig {
                   "store-openapi.yaml", "store-asyncapi.yaml",
                   "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml")
             .withAsyncDependsOn(kafkaContainer);
+
         // Async events can pollute the experience in spring-boot:test-run,
         // so we only add them if we are running in pure JUnit tests mode.
         boolean isSpringTestRunExecution =  Arrays.stream(Thread.currentThread().getStackTrace())
@@ -134,8 +139,6 @@ public class DaprTestContainersConfig {
                           "/events"));
         }
 
-        // Necessary to access app HTTP endpoint from tests.
-        org.testcontainers.Testcontainers.exposeHostPorts(8080);
         return daprContainer;
     }
 
@@ -173,7 +176,7 @@ public class DaprTestContainersConfig {
                         "\"/deliver\": \"/rest/Pizza+Delivery+API/1.0.0/deliver\""+
                         "}");
 
-        daprContainerKitchen = new DaprContainer("daprio/daprd:1.16.0")
+        daprContainerDelivery = new DaprContainer("daprio/daprd:1.16.0")
                 .withAppName("delivery-service")
                 .withNetwork(network)
                 .withComponent(new Component("routes", "middleware.http.routeralias", "v1", routerMetadata))
@@ -182,7 +185,6 @@ public class DaprTestContainersConfig {
                 .withAppChannelAddress("microcks")
                 .withDaprLogLevel(DaprLogLevel.DEBUG)
                 .dependsOn(ensemble);
-        return daprContainerKitchen;
+        return daprContainerDelivery;
     }
-
 }
