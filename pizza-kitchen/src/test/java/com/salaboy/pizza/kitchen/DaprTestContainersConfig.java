@@ -81,7 +81,7 @@ public class DaprTestContainersConfig {
                   "pubsub", "topic", "/events"))
             .withAppChannelAddress("host.testcontainers.internal")
             .withDaprLogLevel(DaprLogLevel.DEBUG)   // Necessary to see subscription registration logs from PizzaKitchenTest.java
-            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
+            //.withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
             .dependsOn(kafkaContainer);
 
         return daprContainer;
