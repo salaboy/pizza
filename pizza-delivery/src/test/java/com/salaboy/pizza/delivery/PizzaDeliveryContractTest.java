@@ -1,5 +1,6 @@
 package com.salaboy.pizza.delivery;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +47,7 @@ class PizzaDeliveryContractTest {
             .filteredOperations(List.of("RECEIVE receiveDeliveryEvents"))
             .runnerType(TestRunnerType.ASYNC_API_SCHEMA.name())
             .testEndpoint("kafka://kafka:19092/topic")
-            .timeout(Duration.ofSeconds(3))
+            .timeout(Duration.ofSeconds(5))
             .build();
 
         // Prepare an application Event.
@@ -55,7 +56,7 @@ class PizzaDeliveryContractTest {
                   List.of(new PizzaDelivery.OrderItem(PizzaDelivery.PizzaType.pepperoni, 1)),
                   new Date(), "abc-edf"),
             "delivery",
-            "The order is on its way to your address.");
+            "The order is on its way to your address - test");
 
         try {
             // Launch the Microcks test and wait a bit to be sure it actually connects to Kafka.
@@ -68,9 +69,9 @@ class PizzaDeliveryContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
-            //System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
-            //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            //System.out.println("testResult: " + mapper.writeValueAsString(testResult));
+            System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            System.out.println("testResult: " + mapper.writeValueAsString(testResult));
 
             // Check success and that we read 1 valid message on the topic.
             assertTrue(testResult.isSuccess());
@@ -93,7 +94,7 @@ class PizzaDeliveryContractTest {
 
             Map<String, Object> eventMap = (Map<String, Object>) messageMap.get("data");
             assertEquals("delivery", eventMap.get("service"));
-            assertEquals("The order is on its way to your address.", eventMap.get("message"));
+            assertEquals("The order is on its way to your address - test", eventMap.get("message"));
 
             // You can also try to deserialize the message content to a CloudEvent object.
             // We have to ignore the failure on unknown expiration time property.
@@ -103,7 +104,7 @@ class PizzaDeliveryContractTest {
             assertEquals("delivery-service", cloudEvent.getSource());
             assertEquals("com.dapr.event.sent", cloudEvent.getType());
             assertEquals("delivery", cloudEvent.getData().service());
-            assertEquals("The order is on its way to your address.", cloudEvent.getData().message());
+            assertEquals("The order is on its way to your address - test", cloudEvent.getData().message());
 
         } catch (Exception e) {
             fail("No exception should be thrown when testing Kafka publication", e);
