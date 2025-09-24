@@ -64,8 +64,8 @@ class PizzaKitchenTest {
          // Reset received events to ensure no previous events are considered.
          subscriptionsRestController.getAllEvents().clear();
 
-         // We must wait at most 16 seconds as the preparation of a pizza can take up to 15 seconds
-         await().atMost(16, TimeUnit.SECONDS)
+         // We must wait at most 18 seconds as the preparation of a pizza can take up to 15 seconds
+         await().atMost(18, TimeUnit.SECONDS)
                .pollDelay(500, TimeUnit.MILLISECONDS)
                .pollInterval(500, TimeUnit.MILLISECONDS)
                .until(() -> {

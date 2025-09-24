@@ -1,5 +1,6 @@
 package com.salaboy.pizza.kitchen;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +59,7 @@ class PizzaKitchenContractTest {
                   List.of(new OrderItem(PizzaKitchen.PizzaType.pepperoni, 1)),
                   new Date(), "abc-edf"),
              "kitchen",
-             "The order is now in the kitchen.");
+             "The order is now in the kitchen - test");
 
         try {
             // Launch the Microcks test and wait a bit to be sure it actually connects to Kafka.
@@ -71,9 +72,9 @@ class PizzaKitchenContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
-            //System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
-            //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            //System.out.println("testResult: " + mapper.writeValueAsString(testResult));
+            System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            System.out.println("testResult: " + mapper.writeValueAsString(testResult));
 
             // Check success and that we read 1 valid message on the topic.
             assertTrue(testResult.isSuccess());
@@ -96,7 +97,7 @@ class PizzaKitchenContractTest {
 
             Map<String, Object> eventMap = (Map<String, Object>) messageMap.get("data");
             assertEquals("kitchen", eventMap.get("service"));
-            assertEquals("The order is now in the kitchen.", eventMap.get("message"));
+            assertEquals("The order is now in the kitchen - test", eventMap.get("message"));
 
             // You can also try to deserialize the message content to a CloudEvent object.
             // We have to ignore the failure on unknown expiration time property.
@@ -106,7 +107,7 @@ class PizzaKitchenContractTest {
             assertEquals("kitchen-service", cloudEvent.getSource());
             assertEquals("com.dapr.event.sent", cloudEvent.getType());
             assertEquals("kitchen", cloudEvent.getData().service());
-            assertEquals("The order is now in the kitchen.", cloudEvent.getData().message());
+            assertEquals("The order is now in the kitchen - test", cloudEvent.getData().message());
         } catch (Exception e) {
             fail("No exception should be thrown when testing Kafka publication", e);
         }
