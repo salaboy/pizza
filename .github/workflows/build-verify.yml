@@ -41,7 +41,7 @@ jobs:
           cd ${{github.workspace}}/pizza-delivery
           mvn -B clean verify
 
-#      - name: Build Store Java component
-#        run: |
-#          cd ${{github.workspace}}/pizza-store
-#          mvn -B clean verify
+      - name: Build Store Java component
+        run: |
+          cd ${{github.workspace}}/pizza-store
+          mvn -B clean verify

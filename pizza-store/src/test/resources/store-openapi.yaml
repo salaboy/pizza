@@ -76,7 +76,7 @@ paths:
                       - type: vegetarian
                         amount: 1
                     orderDate: "2025-01-30T18:26:57.905+00:00"
-                    "workflowId": "jkl-iop"
+                    workflowId: "jkl-iop"
 components:
   schemas:
     Order:

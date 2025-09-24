@@ -1,16 +1,20 @@
 package com.salaboy.pizza.store;
 
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
+import io.github.microcks.testcontainers.model.RequestResponsePair;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,14 +33,14 @@ class PizzaStoreContractTest {
             .serviceId("Pizza Store API:1.0.0")
             .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
             .testEndpoint("http://host.testcontainers.internal:8080")
-            .timeout(Duration.ofSeconds(2))
+            .timeout(Duration.ofSeconds(4))
             .build();
 
       TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(openAPITest);
 
       // You may inspect complete response object with following:
-      //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      //System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
+//      ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+//      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
       assertTrue(testResult.isSuccess());
       // We tested 1 operation (POST /order).

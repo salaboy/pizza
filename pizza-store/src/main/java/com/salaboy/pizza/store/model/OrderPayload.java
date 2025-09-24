@@ -47,4 +47,8 @@ public record OrderPayload(@JsonProperty String id, @JsonProperty Customer custo
   public OrderPayload(OrderPayload order) {
     this(order.id, order.customer, order.items, order.orderDate, order.status, order.workflowId);
   }
+
+  public OrderPayload(OrderPayload order, Status status) {
+    this(order.id, order.customer, order.items, order.orderDate, status, order.workflowId);
+  }
 }

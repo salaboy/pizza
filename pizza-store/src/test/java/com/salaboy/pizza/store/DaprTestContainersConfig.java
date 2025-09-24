@@ -47,7 +47,6 @@ public class DaprTestContainersConfig {
 
                 @Override
                 public void close() {
-
                 }
 
                 @Override
@@ -83,7 +82,7 @@ public class DaprTestContainersConfig {
     @Bean
     @ConditionalOnProperty(prefix = "tests", name = "mocks", havingValue = "true")
     MicrocksContainersEnsemble microcksEnsemble(Network network) {
-        ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.11.0-native")
+        ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.12.1-native")
             .withAsyncFeature()
             .withAccessToHost(true)
             .withKafkaConnection(new KafkaConnection("kafka:19092"))
@@ -120,20 +119,23 @@ public class DaprTestContainersConfig {
                     "pubsub", "topic", "/events"))
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
-                .withReusablePlacement(reuse)
-                .withReusableScheduler(reuse)
+              .withReusablePlacement(reuse)
+              .withReusableScheduler(reuse)
               .dependsOn(kafkaContainer);
         if (ensemble != null){
             daprContainer
                     .withSubscription(new Subscription(
-                    "pizza-kitchen-subscription", "pubsub",
-                    ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Kitchen Events", "1.0.0", "RECEIVE receivePreparationEvents"),
-                    "/events"))
+                          "pizza-kitchen-subscription", "pubsub",
+                          ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Kitchen Events", "1.0.0", "RECEIVE receivePreparationEvents"),
+                          "/events"))
                     .withSubscription(new Subscription(
-                            "pizza-delivery-subscription", "pubsub",
-                            ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Delivery Events", "1.0.0", "RECEIVE receiveDeliveryEvents"),
-                            "/events"));
+                          "pizza-delivery-subscription", "pubsub",
+                          ensemble.getAsyncMinionContainer().getKafkaMockTopic("Pizza Delivery Events", "1.0.0", "RECEIVE receiveDeliveryEvents"),
+                          "/events"));
         }
+
+        // Necessary to access app HTTP endpoint from tests.
+        org.testcontainers.Testcontainers.exposeHostPorts(8080);
         return daprContainer;
     }
 

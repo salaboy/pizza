@@ -61,6 +61,9 @@ class PizzaKitchenTest {
             .then().assertThat().statusCode(200);
 
       try {
+         // Reset received events to ensure no previous events are considered.
+         subscriptionsRestController.getAllEvents().clear();
+
          // We must wait at most 16 seconds as the preparation of a pizza can take up to 15 seconds
          await().atMost(16, TimeUnit.SECONDS)
                .pollDelay(500, TimeUnit.MILLISECONDS)
@@ -68,13 +71,12 @@ class PizzaKitchenTest {
                .until(() -> {
                   List<CloudEvent<PizzaKitchen.Event>> events = subscriptionsRestController.getAllEvents();
                   System.out.println("Delivery Events so far: " + events.size());
+
                   if (events.size() == 2) {
-                     ;
                      assertEquals("The content of the cloud event should be the in preparation event", EventType.ORDER_IN_PREPARATION, events.get(0).getData().type());
                      assertEquals("The content of the cloud event should be the ready event", EventType.ORDER_READY, events.get(1).getData().type());
 
                      return true;
-
                   }
                   return false;
                });

@@ -37,14 +37,15 @@ components:
             data:
               type: order-on-its-way
               order:
+                id: 123-456-789
                 customer:
                   name: lbroudoux
                   email: laurent.broudoux@gmail.com
-                id: 123-456-789
                 items:
                   - type: vegetarian
                     amount: 1
                 orderDate: 1738142460556
+                workflowId: 123-456-789-wkf
               message: The order is on its way to your address.
         - name: Completed
           payload:
@@ -56,14 +57,15 @@ components:
             data:
               type: order-completed
               order:
+                id: 123-456-789
                 customer:
                   name: lbroudoux
                   email: laurent.broudoux@gmail.com
-                id: 123-456-789
                 items:
                   - type: vegetarian
                     amount: 1
                 orderDate: 1738142460556
+                workflowId: 123-456-789-wkf
               message: Your order has been delivered.
   schemas:
     Order:
@@ -77,10 +79,13 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: number
+        workflowId:
+          type: string
       required:
         - id
         - items
         - orderDate
+        - workflowId
       additionalProperties: true
     OrderItem:
       type: object

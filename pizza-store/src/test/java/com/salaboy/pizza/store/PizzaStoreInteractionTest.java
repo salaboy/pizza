@@ -1,5 +1,7 @@
 package com.salaboy.pizza.store;
 
+import com.salaboy.pizza.store.model.Customer;
+import com.salaboy.pizza.store.model.OrderItem;
 import com.salaboy.pizza.store.model.OrderPayload;
 import com.salaboy.pizza.store.model.Orders;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
@@ -7,7 +9,12 @@ import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
 import io.github.microcks.testcontainers.model.TestRunnerType;
 
+import com.salaboy.pizza.store.model.PizzaType;
+import com.salaboy.pizza.store.model.Status;
+import com.salaboy.pizza.store.model.WorkflowPayload;
+import com.salaboy.pizza.store.workflow.PizzaOrderWorkflow;
 import io.dapr.client.DaprClient;
+import io.dapr.workflows.client.DaprWorkflowClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +22,9 @@ import org.springframework.context.annotation.Import;
 import org.testcontainers.shaded.org.awaitility.core.ConditionTimeoutException;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +42,8 @@ class PizzaStoreInteractionTest {
    PizzaStore pizzaStore;
    @Autowired
    DaprClient daprClient;
+   @Autowired
+   DaprWorkflowClient daprWorkflowClient;
 
    @Test
    void testKitchenPrepareIsCalledAfterOrderIsPlaced() throws Exception {
@@ -43,7 +55,7 @@ class PizzaStoreInteractionTest {
             .serviceId("Pizza Store API:1.0.0")
             .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
             .testEndpoint("http://host.testcontainers.internal:8080")
-            .timeout(Duration.ofSeconds(2))
+            .timeout(Duration.ofSeconds(4))
             .build();
 
       TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(openAPITest);
@@ -76,7 +88,20 @@ class PizzaStoreInteractionTest {
       long deliveryInvocations = microcksEnsemble.getMicrocksContainer()
             .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");
 
+      // Initialize a workflow for events we're expecting.
+      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class,
+            new WorkflowPayload(
+                  new OrderPayload(
+                        "123-456-789-ready",
+                        new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
+                        List.of(new OrderItem(PizzaType.vegetarian, 1)),
+                        Date.from(Instant.ofEpochMilli(1738142460556L)),
+                        Status.created,
+                        "123-456-789-ready-wkf")
+            ),
+            "123-456-789-ready-wkf");
       try {
+         // Now wait until the "123-456-789 order-ready" event is received and processed by the store.
          await().atMost(5, TimeUnit.SECONDS)
                .pollDelay(400, TimeUnit.MILLISECONDS)
                .pollInterval(400, TimeUnit.MILLISECONDS)
@@ -84,10 +109,13 @@ class PizzaStoreInteractionTest {
                   Orders orders = pizzaStore.loadOrders();
                   if (orders != null) {
                      for (OrderPayload order : orders.orders()) {
-                        if ("123-456-789".equals(order.id())) {
+                        if ("123-456-789-ready".equals(order.id()) && order.status() == Status.delivery) {
+                           // Wait a second, ensuring the async workflow step is done.
+                           TimeUnit.MILLISECONDS.sleep(500L);
+
+                           // Now check that the delivery service has been invoked.
                            long newDeliveryInvocations = microcksEnsemble.getMicrocksContainer()
                                  .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");
-
                            assertTrue(newDeliveryInvocations > deliveryInvocations);
                            return true;
                         }
