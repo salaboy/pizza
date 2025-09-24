@@ -85,6 +85,12 @@ public class DaprTestContainersConfig {
                 .withAppChannelAddress("host.testcontainers.internal")
             .dependsOn(kafkaContainer);
 
+        // Necessary to access app HTTP endpoint from tests.
+        boolean mocks = env.getProperty("tests.mocks", Boolean.class, false);
+        if (mocks) {
+            org.testcontainers.Testcontainers.exposeHostPorts(8082);
+        }
+
         return daprContainer;
     }
 
@@ -102,9 +108,6 @@ public class DaprTestContainersConfig {
     @Bean
     @ConditionalOnProperty(prefix = "tests", name = "mocks", havingValue = "true")
     MicrocksContainersEnsemble microcksEnsemble(Network network) {
-        // Necessary to access app HTTP endpoint from tests if we're using microcksç
-        org.testcontainers.Testcontainers.exposeHostPorts(8082);
-
         return new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.12.1-native")
               .withAsyncFeature()
               .withAccessToHost(true)
