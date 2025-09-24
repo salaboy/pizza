@@ -31,13 +31,14 @@ jobs:
           architecture: x64
           cache: maven
 
-      - name: Pull container images we need
+      - name: Pull container images
         run: |
           docker pull confluentinc/cp-kafka:7.5.0
           docker pull daprio/daprd:1.16.0
           docker pull daprio/placement:1.16.0
           docker pull daprio/scheduler:1.16.0
           docker pull quay.io/microcks/microcks-uber:1.12.1-native
+          docker pull quay.io/microcks/microcks-uber-async-minion:1.12.1
 
       - name: Build Kitchen Java component
         run: |

@@ -47,9 +47,7 @@ class PizzaKitchenTest {
    void setUp() {
       RestAssured.baseURI = "http://localhost:" + 8081;
       // Ensure the subscriptions are registered
-      Wait.forLogMessage(SUBSCRIPTION_MESSAGE_PATTERN, 1)
-         .withStartupTimeout(Duration.ofSeconds(90))
-            .waitUntilReady(daprContainer);
+      Wait.forLogMessage(SUBSCRIPTION_MESSAGE_PATTERN, 1).waitUntilReady(daprContainer);
    }
 
    @Test
