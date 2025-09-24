@@ -60,6 +60,9 @@ class PizzaDeliveryTest {
 
 
       try {
+         // Reset received events to ensure no previous events are considered.
+         subscriptionsRestController.getAllEvents().clear();
+
          // We must wait at most 10 seconds as the delivery of a pizza can take up to 9 seconds
          await().atMost(10, TimeUnit.SECONDS)
                .pollDelay(500, TimeUnit.MILLISECONDS)
