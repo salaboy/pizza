@@ -107,7 +107,9 @@ public class PizzaDelivery {
   public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate, @JsonProperty String workflowId) {
   }
 
-  public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {
+  public record OrderItem(@JsonProperty String category,
+                          @JsonProperty String name,
+                          @JsonProperty int amount) {
   }
 
   public enum PizzaType {

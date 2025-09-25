@@ -53,7 +53,7 @@ class PizzaDeliveryContractTest {
         // Prepare an application Event.
         PizzaDelivery.Event event = new PizzaDelivery.Event(PizzaDelivery.EventType.ORDER_ON_ITS_WAY,
             new PizzaDelivery.Order("123-456-789",
-                  List.of(new PizzaDelivery.OrderItem(PizzaDelivery.PizzaType.pepperoni, 1)),
+                  List.of(new PizzaDelivery.OrderItem("pizza", PizzaDelivery.PizzaType.pepperoni.name(), 1)),
                   new Date(), "abc-edf"),
             "delivery",
             "The order is on its way to your address - test");

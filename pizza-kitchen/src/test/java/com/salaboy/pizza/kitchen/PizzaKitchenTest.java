@@ -54,7 +54,7 @@ class PizzaKitchenTest {
    void testPrepareOrderRequest() throws Exception {
 
       with().body(new Order(UUID.randomUUID().toString(),
-                  Arrays.asList(new OrderItem(PizzaType.pepperoni, 1)),
+                  Arrays.asList(new OrderItem("pizza", PizzaType.pepperoni.name(), 1)),
                   new Date(), "abc-def"))
             .contentType(ContentType.JSON)
             .when()

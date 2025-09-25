@@ -51,7 +51,7 @@ class PizzaDeliveryTest {
    @Test
    void testDelivery() throws Exception {
       with().body(new PizzaDelivery.Order(UUID.randomUUID().toString(),
-                  Arrays.asList(new PizzaDelivery.OrderItem(PizzaDelivery.PizzaType.pepperoni, 1)),
+                  Arrays.asList(new PizzaDelivery.OrderItem("pizza", PizzaDelivery.PizzaType.pepperoni.name(), 1)),
                   new Date(), "abc-edf"))
             .contentType(ContentType.JSON)
             .when()

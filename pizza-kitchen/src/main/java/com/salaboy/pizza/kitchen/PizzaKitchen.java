@@ -57,7 +57,7 @@ public class PizzaKitchen {
             for (OrderItem orderItem : order.items) {
               
               int pizzaPrepTime = RANDOM.nextInt(15 * MS_IN_SECOND);
-              System.out.println("Preparing this " + orderItem.type + " pizza will take: " + pizzaPrepTime);
+              System.out.println("Preparing this " + orderItem.category() + " pizza will take: " + pizzaPrepTime);
               try {
                 Thread.sleep(pizzaPrepTime);
               } catch (InterruptedException e) {
@@ -112,7 +112,9 @@ public class PizzaKitchen {
   public record KitchenResponse(@JsonProperty String message, @JsonProperty String orderId) {
   }
 
-  public record OrderItem(@JsonProperty PizzaType type, @JsonProperty int amount) {
+  public record OrderItem( @JsonProperty String category,
+                           @JsonProperty String name,
+                           @JsonProperty int amount) {
   }
 
   public enum PizzaType {
