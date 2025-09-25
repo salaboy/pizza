@@ -11,7 +11,6 @@ import io.github.microcks.testcontainers.model.TestRunnerType;
 
 import com.salaboy.pizza.store.model.PizzaType;
 import com.salaboy.pizza.store.model.Status;
-import com.salaboy.pizza.store.model.WorkflowPayload;
 import com.salaboy.pizza.store.workflow.PizzaOrderWorkflow;
 import io.dapr.client.DaprClient;
 import io.dapr.workflows.client.DaprWorkflowClient;
@@ -90,16 +89,15 @@ class PizzaStoreInteractionTest {
 
       // Initialize a workflow for events we're expecting.
       daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class,
-            new WorkflowPayload(
+
                   new OrderPayload(
                         "123-456-789-ready",
                         new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
-                        List.of(new OrderItem(PizzaType.vegetarian, 1)),
+                        List.of(new OrderItem("pizza", PizzaType.vegetarian.name(), 1)),
                         Date.from(Instant.ofEpochMilli(1738142460556L)),
                         Status.created,
                         "123-456-789-ready-wkf")
-            ),
-            "123-456-789-ready-wkf");
+            );
       try {
          // Now wait until the "123-456-789 order-ready" event is received and processed by the store.
          await().atMost(5, TimeUnit.SECONDS)

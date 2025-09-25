@@ -1,9 +1,7 @@
 package com.salaboy.pizza.store.workflow;
 
-import com.salaboy.pizza.store.PizzaStore;
 import com.salaboy.pizza.store.model.OrderPayload;
 import com.salaboy.pizza.store.model.Orders;
-import com.salaboy.pizza.store.model.WorkflowPayload;
 import io.dapr.client.DaprClient;
 import io.dapr.client.domain.State;
 import io.dapr.workflows.WorkflowActivity;
@@ -25,8 +23,9 @@ public class StoreOrderActivity implements WorkflowActivity {
 
   @Override
   public Object run(WorkflowActivityContext ctx) {
-    WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
     System.out.println("Store Order Activity ... ");
+    OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
+
     //String STATE_STORE_NAME = System.getenv("STATE_STORE_NAME");
     String STATE_STORE_NAME = "kvstore";
 
@@ -35,8 +34,8 @@ public class StoreOrderActivity implements WorkflowActivity {
     if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
       orders.orders().addAll(ordersState.getValue().orders());
     }
-    System.out.println("Order at first activity: " + workflowPayload.getOrder());
-    orders.orders().add(workflowPayload.getOrder());
+    System.out.println("Order at first activity: " + orderPayload);
+    orders.orders().add(orderPayload);
     // Save state
     daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
 

@@ -1,7 +1,9 @@
 package com.salaboy.pizza.store.workflow;
 
-import com.salaboy.pizza.store.model.OrderPayload;
-import com.salaboy.pizza.store.model.WorkflowPayload;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.salaboy.pizza.store.model.*;
 import io.dapr.durabletask.TaskFailedException;
 import io.dapr.workflows.Workflow;
 import io.dapr.workflows.WorkflowStub;
@@ -9,6 +11,8 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class PizzaOrderWorkflow implements Workflow {
@@ -17,27 +21,23 @@ public class PizzaOrderWorkflow implements Workflow {
     return ctx -> {
       Logger logger = ctx.getLogger();
       String instanceId = ctx.getInstanceId();
-      logger.info("Starting Workflow: " + ctx.getName());
-      logger.info("Instance ID: " + instanceId);
-      logger.info("Current Orchestration Time: " + ctx.getCurrentInstant());
+      logger.info("Starting Workflow: {}", ctx.getName());
+      logger.info("Instance ID: {}", instanceId);
+      logger.info("Current Orchestration Time: {}", ctx.getCurrentInstant());
 
-      WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
-      workflowPayload.setWorkflowId(instanceId);
-      workflowPayload.setOrder(new OrderPayload(workflowPayload.getOrder(), workflowPayload.getWorkflowId()));
+      OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
 
-      ctx.callActivity(StoreOrderActivity.class.getName(), workflowPayload).await();
+      ctx.callActivity(StoreOrderActivity.class.getName(), orderPayload).await();
 
-      ctx.callActivity(PlaceOrderToKitchen.class.getName(), workflowPayload).await();
+      ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
 
       ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
 
-      ctx.callActivity(DeliverOrderToCustomer.class.getName(), workflowPayload).await();
+      ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayload).await();
 
       ctx.waitForExternalEvent("PizzaDelivered", Duration.ofMinutes(10), OrderPayload.class).await();
 
-      //ctx.callActivity(CompleteOrderActivity.class.getName(), workflowPayload).await();
-
-      ctx.complete(workflowPayload.getOrder());
+      ctx.complete(orderPayload);
 
     };
   }

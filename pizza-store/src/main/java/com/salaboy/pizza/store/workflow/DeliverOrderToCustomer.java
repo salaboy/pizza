@@ -1,7 +1,6 @@
 package com.salaboy.pizza.store.workflow;
 
 import com.salaboy.pizza.store.model.OrderPayload;
-import com.salaboy.pizza.store.model.WorkflowPayload;
 import io.dapr.spring.boot.autoconfigure.client.DaprConnectionDetails;
 import io.dapr.workflows.WorkflowActivity;
 import io.dapr.workflows.WorkflowActivityContext;
@@ -24,7 +23,7 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
 
   @Override
   public Object run(WorkflowActivityContext ctx) {
-    WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
+    OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
     System.out.println("Delivering Pizza to Customer Activity ... ");
 
     String daprHttp = daprConnectionDetails.getHttpEndpoint();
@@ -35,7 +34,7 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "delivery-service");
     headers.add("dapr-api-token", daprAPIToken);
-    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(workflowPayload.getOrder(), headers);
+    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(orderPayload, headers);
     restTemplate.put(
             daprHttp + "/deliver", request);
 

@@ -125,6 +125,19 @@ function completedFake() {
 
 }
 
+function placeOrderPrompt(){
+    console.log("Placing Order with Prompt: " + $("textarea#prompt").val());
+
+    var prompt = "{ \"prompt\": \"" + $("textarea#prompt").val() +  "\"}";
+    //Send Order to store
+        fetch("/prompt", {
+            method: "POST",
+            body: prompt,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+}
 function placeOrder() {
     console.log("Placing Order");
 
@@ -213,6 +226,7 @@ function showEvent(event) {
 $(function () {
     $("form").on('submit', (e) => e.preventDefault());
     $("#placeOrder").click(() => placeOrder());
+    $("#placeOrderPrompt").click(() => placeOrderPrompt());
     $("#placeOrderFake").click(() => placeOrderFake());
     $("#kitchenAcceptFake").click(() => kitchenAcceptFake());
     $("#deliveryFake").click(() => deliveryFake());

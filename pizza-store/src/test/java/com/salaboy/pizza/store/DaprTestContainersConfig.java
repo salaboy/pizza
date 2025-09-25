@@ -12,8 +12,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.DockerModelRunnerContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
@@ -34,6 +36,20 @@ public class DaprTestContainersConfig {
     @Bean
     RestTemplate restTemplate(){
         return new RestTemplate();
+    }
+
+    @Bean
+    DockerModelRunnerContainer socat() {
+        return new DockerModelRunnerContainer("alpine/socat:1.8.0.1");
+    }
+
+    @Bean
+    DynamicPropertyRegistrar properties(DockerModelRunnerContainer dmr) {
+        return (registrar) -> {
+            registrar.add("spring.ai.openai.base-url", dmr::getOpenAIEndpoint);
+            registrar.add("spring.ai.openai.api-key", () -> "test-api-key");
+            registrar.add("spring.ai.openai.chat.options.model", () -> "ai/gemma3");
+        };
     }
 
     @Bean

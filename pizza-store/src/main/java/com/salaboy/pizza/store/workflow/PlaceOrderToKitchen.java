@@ -1,12 +1,9 @@
 package com.salaboy.pizza.store.workflow;
 
 import com.salaboy.pizza.store.model.OrderPayload;
-import com.salaboy.pizza.store.model.WorkflowPayload;
-import io.dapr.spring.boot.autoconfigure.client.DaprClientProperties;
 import io.dapr.spring.boot.autoconfigure.client.DaprConnectionDetails;
 import io.dapr.workflows.WorkflowActivity;
 import io.dapr.workflows.WorkflowActivityContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -28,7 +25,7 @@ public class PlaceOrderToKitchen implements WorkflowActivity {
 
   @Override
   public Object run(WorkflowActivityContext ctx) {
-    WorkflowPayload workflowPayload = ctx.getInput(WorkflowPayload.class);
+    OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
     System.out.println("Placing Order to Kitchen Activity ... ");
 
     String daprHttp = daprConnectionDetails.getHttpEndpoint();
@@ -38,7 +35,7 @@ public class PlaceOrderToKitchen implements WorkflowActivity {
     headers.add("Content-Type", "application/json");
     headers.add("dapr-app-id", "kitchen-service");
     headers.add("dapr-api-token", daprAPIToken);
-    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(workflowPayload.getOrder(), headers);
+    HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(orderPayload, headers);
     restTemplate.put(
             daprHttp + "/prepare", request);
 

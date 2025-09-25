@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import com.salaboy.pizza.store.model.*;
+import com.salaboy.pizza.store.workflow.PizzaOrderAgenticWorkflow;
 import com.salaboy.pizza.store.workflow.PizzaOrderWorkflow;
 import io.dapr.spring.workflows.config.EnableDaprWorkflows;
 import io.dapr.workflows.client.DaprWorkflowClient;
@@ -117,8 +118,24 @@ public class PizzaStore {
     return ResponseEntity.ok(processingOrder);
   }
 
+  @PostMapping("/prompt")
+  public ResponseEntity<String> placeOrder(@RequestBody(required = true) String prompt) throws Exception {
+    String instanceId = startPizzaWorkflowPrompt(prompt);
+    return ResponseEntity.ok(instanceId);
+  }
+
+
+  private String startPizzaWorkflowPrompt(String prompt) {
+
+    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderAgenticWorkflow.class, prompt);
+    System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
+                       instanceId);
+    return instanceId;
+  }
+
+
   private String startPizzaWorkflow(OrderPayload order) {
-    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, new WorkflowPayload(order));
+    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, order);
     System.out.println("Scheduled new PizzaOrderWorkflow instance with ID: " + instanceId);
     return instanceId;
   }
