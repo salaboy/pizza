@@ -169,6 +169,24 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+function createItemWithInfo(text, disabled){
+    var item = "<div class='item animate'>" +
+        "<div class='green-dot'>";
+    if (disabled) {
+        item += "<img class='disabled transition' src='imgs/GreenDot.png'/>";
+    } else {
+        item += "<img class='transition' src='imgs/GreenDot.png'/>";
+    }
+    item += "</div>" +
+        "<div class='details'>" +
+        "<img src='imgs/" + detailsImage + "'/>" +
+        "<p>" + text + "</p>" +
+        "</div>" +
+        "</div>";
+    return item;
+
+}
+
 function createItem(detailsImage, text, disabled) {
     var item = "<div class='item animate'>" +
         "<div class='green-dot'>";
@@ -204,9 +222,12 @@ function showEvent(event) {
 
     $("#events").append(createEventEntry(eventObject));
 
+    if (eventObject.type === "order-processed-by-ai") {
+        $("#status").append(createItem("Robot.png", "Doing AI stuff", false));
+    }
 
     if (eventObject.type === "order-placed") {
-        $("#status").append(createItem("Order.png", "Order Placed", false));
+        $("#status").append(createItem("Order.png", "Order Placed" + JSON.stringify(eventObject.order), false));
     }
     if (eventObject.type === "order-in-preparation") {
         $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));

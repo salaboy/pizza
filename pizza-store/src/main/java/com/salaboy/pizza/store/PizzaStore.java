@@ -92,7 +92,6 @@ public class PizzaStore {
       // Emit Event
       Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
       emitWSEvent(wsevent);
-      saveOrder(new OrderPayload(pizzaEvent.order(), Status.delivery));
       daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
     }
     if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
@@ -113,7 +112,6 @@ public class PizzaStore {
     // Emit Event
     Event event = new Event(EventType.ORDER_PLACED, processingOrder, "store", "We received the payment your order is confirmed.");
     emitWSEvent(event);
-
     System.out.println("Returning processing order: " + processingOrder);
     return ResponseEntity.ok(processingOrder);
   }
@@ -126,7 +124,6 @@ public class PizzaStore {
 
 
   private String startPizzaWorkflowPrompt(String prompt) {
-
     String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderAgenticWorkflow.class, prompt);
     System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
                        instanceId);
@@ -157,19 +154,4 @@ public class PizzaStore {
     return null;
   }
 
-  protected void saveOrder(OrderPayload order) {
-    try {
-      Orders orders = new Orders(new ArrayList<OrderPayload>());
-      State<Orders> ordersState = daprClient.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
-      if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
-        orders.orders().addAll(ordersState.getValue().orders());
-      }
-      orders.orders().add(order);
-      // Save state
-      daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
 }

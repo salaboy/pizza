@@ -87,22 +87,22 @@ class PizzaStoreInteractionTest {
       long deliveryInvocations = microcksEnsemble.getMicrocksContainer()
             .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");
 
+      String customWorkflowId = "123-456-789-ready-wkf";
+      OrderPayload initialOrder = new OrderPayload(
+              "123-456-789-ready",
+              new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
+              List.of(new OrderItem("pizza", PizzaType.vegetarian.name(), 1)),
+              Date.from(Instant.ofEpochMilli(1738142460556L)),
+              Status.created,
+              "123-456-789-ready-wkf");
       // Initialize a workflow for events we're expecting.
-      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class,
+      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, initialOrder, customWorkflowId);
 
-                  new OrderPayload(
-                        "123-456-789-ready",
-                        new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
-                        List.of(new OrderItem("pizza", PizzaType.vegetarian.name(), 1)),
-                        Date.from(Instant.ofEpochMilli(1738142460556L)),
-                        Status.created,
-                        "123-456-789-ready-wkf")
-            );
       try {
          // Now wait until the "123-456-789 order-ready" event is received and processed by the store.
-         await().atMost(5, TimeUnit.SECONDS)
-               .pollDelay(400, TimeUnit.MILLISECONDS)
-               .pollInterval(400, TimeUnit.MILLISECONDS)
+         await().atMost(15, TimeUnit.SECONDS)
+               .pollDelay(500, TimeUnit.MILLISECONDS)
+               .pollInterval(500, TimeUnit.MILLISECONDS)
                .until(() -> {
                   Orders orders = pizzaStore.loadOrders();
                   if (orders != null) {

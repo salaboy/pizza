@@ -16,6 +16,7 @@ public class StoreOrderActivity implements WorkflowActivity {
   @Autowired
   private DaprClient daprClient;
   private String KEY = "orders";
+  private final String STATE_STORE_NAME = "kvstore";
 
   public StoreOrderActivity(DaprClient daprClient) {
     this.daprClient = daprClient;

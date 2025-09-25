@@ -31,7 +31,9 @@ public class PizzaOrderWorkflow implements Workflow {
 
       ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
 
-      ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
+      OrderPayload orderFromTheKitchen = ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
+
+      ctx.callActivity(StoreOrderActivity.class.getName(), new OrderPayload(orderFromTheKitchen, Status.delivery)).await();
 
       ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayload).await();
 
