@@ -27,7 +27,8 @@ paths:
                     },
                     "items": [
                       {
-                      "type":"pepperoni",
+                      "category":"pizza",
+                      "name":"pepperoni",
                       "amount": 1
                       }
                     ]
@@ -39,7 +40,8 @@ paths:
                     name: lbroudoux
                     email: laurent.broudoux@gmail.com
                   items:
-                    - type: vegetarian
+                    - name: vegetarian
+                      category: pizza
                       amount: 1
       responses:
         '200':
@@ -59,7 +61,8 @@ paths:
                       },
                       "items": [
                         {
-                        "type":"pepperoni",
+                        "name":"pepperoni",
+                        "category": "pizza",
                         "amount": 1
                         }
                       ],
@@ -73,7 +76,8 @@ paths:
                       name: lbroudoux
                       email: laurent.broudoux@gmail.com
                     items:
-                      - type: vegetarian
+                      - name: vegetarian
+                        category: pizza
                         amount: 1
                     orderDate: "2025-01-30T18:26:57.905+00:00"
                     workflowId: "jkl-iop"
@@ -99,10 +103,13 @@ components:
     OrderItem:
       type: object
       properties:
-        type:
+        category:
+          type: string
+        name:
           type: string
         amount:
           type: integer
       required:
-        - type
+        - name
+        - category
         - amount

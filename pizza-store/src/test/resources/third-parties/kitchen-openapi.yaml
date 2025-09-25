@@ -27,7 +27,8 @@ paths:
                     },
                     "items": [
                       {
-                      "type":"pepperoni",
+                      "name":"pepperoni",
+                      "category": "pizza",
                       "amount": 1
                       }
                     ],
@@ -40,7 +41,8 @@ paths:
                     name: lbroudoux
                     email: laurent.broudoux@gmail.com
                   items:
-                    - type: vegetarian
+                    - name: vegetarian
+                      category: "pizza"
                       amount: 1
                   orderDate: 1738142460556
       responses:
@@ -70,10 +72,13 @@ components:
     OrderItem:
       type: object
       properties:
-        type:
+        name:
+          type: string
+        category:
           type: string
         amount:
           type: integer
       required:
-        - type
+        - name
+        - category
         - amount

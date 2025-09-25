@@ -42,7 +42,8 @@ components:
                   name: lbroudoux
                   email: laurent.broudoux@gmail.com
                 items:
-                  - type: vegetarian
+                  - name: vegetarian
+                    category: pizza
                     amount: 1
                 orderDate: 1738142460556
                 workflowId: 123-456-789-wkf
@@ -62,7 +63,8 @@ components:
                   name: lbroudoux
                   email: laurent.broudoux@gmail.com
                 items:
-                  - type: vegetarian
+                  - name: vegetarian
+                    category: pizza
                     amount: 1
                 orderDate: 1738142460556
                 workflowId: 123-456-789-wkf
@@ -90,12 +92,15 @@ components:
     OrderItem:
       type: object
       properties:
-        type:
+        name:
+          type: string
+        category:
           type: string
         amount:
           type: integer
       required:
-        - type
+        - name
+        - category
         - amount
     Event:
       type: object
