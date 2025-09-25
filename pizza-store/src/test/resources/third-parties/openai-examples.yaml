@@ -1,0 +1,42 @@
+# yaml-language-server: $schema= https://microcks.io/schemas/APIExamples-v1alpha1-schema.json
+apiVersion: mocks.microcks.io/v1alpha1
+kind: APIExamples
+metadata:
+  name: OpenAI API
+  version: '2.3.0'
+operations:
+  'POST /v1/chat/completions':
+    Pepperoni and Beer Order:
+      request:
+        headers:
+          Accept: application/json
+        body: |-
+          {
+            "model": "gpt-4.1-2025-04-14",
+            "messages": [
+              {
+                "role": "user",
+                "content": "I would like to order a pepperoni pizza and a beer"
+              }
+            ]
+          }
+      response:
+        mediaType: application/json
+        body: |-
+          {
+            "id": "chatcmpl-AyPNinnUqUDYo9SAdA52NobMflmj2",
+            "object": "chat.completion",
+            "created": 1741569952,
+            "model": "gpt-4.1-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "[{\"category\": \"pizza\", \"name\": \"pepperoni\", \"amount\": 1}, { \"category\": \"drink\", \"name\": \"Beer\", \"amount\": 1}]",
+                  "tool_calls": null,
+                  "function_call": null
+                }
+              }
+            ]
+          }

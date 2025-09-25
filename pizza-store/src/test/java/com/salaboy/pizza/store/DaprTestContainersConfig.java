@@ -108,7 +108,10 @@ public class DaprTestContainersConfig {
             .withKafkaConnection(new KafkaConnection("kafka:19092"))
             .withMainArtifacts(
                   "store-openapi.yaml", "store-asyncapi.yaml",
-                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml")
+                  "third-parties/kitchen-openapi.yaml", "third-parties/delivery-openapi.yaml",
+                  "third-parties/openai-openapi.yaml")
+            .withSecondaryArtifacts("third-parties/openai-examples.yaml")
+            .withMicrocksEnv("MAX_UPLOAD_FILE_SIZE", "4MB")         // To allow openai-openapi.yaml file upload because it's > 2MB.
             .withAsyncDependsOn(kafkaContainer);
 
         // Async events can pollute the experience in spring-boot:test-run,
@@ -119,6 +122,16 @@ public class DaprTestContainersConfig {
             ensemble.withMainArtifacts("third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml");
         }
         return ensemble;
+    }
+
+    @Bean
+    public DynamicPropertyRegistrar properties(KafkaContainer kafkaContainer, @Nullable MicrocksContainersEnsemble ensemble) {
+        return (registrar) -> {
+            if (ensemble != null) {
+                registrar.add("spring.ai.openai.base-url", () -> ensemble.getMicrocksContainer().getRestMockEndpoint("OpenAI API", "2.3.0"));
+                registrar.add("spring.ai.ollama.base-url", () -> ensemble.getMicrocksContainer().getRestMockEndpoint("OpenAI API", "2.3.0"));
+            }
+        };
     }
 
     @Bean
