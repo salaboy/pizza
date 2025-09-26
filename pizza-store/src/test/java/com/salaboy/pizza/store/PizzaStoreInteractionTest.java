@@ -4,6 +4,8 @@ import com.salaboy.pizza.store.model.Customer;
 import com.salaboy.pizza.store.model.OrderItem;
 import com.salaboy.pizza.store.model.OrderPayload;
 import com.salaboy.pizza.store.model.Orders;
+
+import io.github.microcks.testcontainers.Assertions;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.TestRequest;
 import io.github.microcks.testcontainers.model.TestResult;
@@ -14,6 +16,7 @@ import com.salaboy.pizza.store.model.Status;
 import com.salaboy.pizza.store.workflow.PizzaOrderWorkflow;
 import io.dapr.client.DaprClient;
 import io.dapr.workflows.client.DaprWorkflowClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +47,18 @@ class PizzaStoreInteractionTest {
    @Autowired
    DaprWorkflowClient daprWorkflowClient;
 
+   @BeforeEach
+   void setup() {
+      try {
+         daprWorkflowClient.terminateWorkflow("abc-def-ghi-new", "Test setup cleanup");
+         daprWorkflowClient.terminateWorkflow("123-456-789-new", "Test setup cleanup");
+         daprWorkflowClient.purgeInstance("abc-def-ghi-new");
+         daprWorkflowClient.purgeInstance("123-456-789-new");
+      } catch (Throwable t) {
+         // Exception is ok, workflow may not exist.
+      }
+   }
+
    @Test
    void testKitchenPrepareIsCalledAfterOrderIsPlaced() throws Exception {
       long kitchenInvocations = microcksEnsemble.getMicrocksContainer()
@@ -59,11 +74,7 @@ class PizzaStoreInteractionTest {
 
       TestResult testResult = microcksEnsemble.getMicrocksContainer().testEndpoint(openAPITest);
 
-      // You may inspect complete response object with following:
-      //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      //System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
-
-      assertTrue(testResult.isSuccess());
+      Assertions.assertSuccess(testResult);
       // We tested 1 operation (POST /order).
       assertEquals(1, testResult.getTestCaseResults().size());
       // We tested with 2 samples (salaboy and lbroudoux).
@@ -76,7 +87,6 @@ class PizzaStoreInteractionTest {
       long newKitchenInvocations = microcksEnsemble.getMicrocksContainer()
             .getServiceInvocationsCount("Pizza Kitchen API", "1.0.0");
 
-      TimeUnit.SECONDS.sleep(2L);
       assertTrue(newKitchenInvocations > kitchenInvocations);
    }
 

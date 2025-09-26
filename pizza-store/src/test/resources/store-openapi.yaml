@@ -20,7 +20,7 @@ paths:
               salaboy:
                 value: |-
                   {
-                    "id": "abc-def-ghi",
+                    "id": "abc-def-ghi-new",
                     "customer": {
                       "name": "salaboy",
                       "email": "salaboy@mail.com"
@@ -35,7 +35,7 @@ paths:
                   }
               lbroudoux:
                 value:
-                  id: 123-456-789
+                  id: 123-456-789-new
                   customer:
                     name: lbroudoux
                     email: laurent.broudoux@gmail.com

@@ -9,6 +9,8 @@ import com.salaboy.pizza.kitchen.PizzaKitchen.Event;
 import com.salaboy.pizza.kitchen.PizzaKitchen.EventType;
 import com.salaboy.pizza.kitchen.PizzaKitchen.Order;
 import com.salaboy.pizza.kitchen.PizzaKitchen.OrderItem;
+
+import io.github.microcks.testcontainers.Assertions;
 import io.github.microcks.testcontainers.MicrocksContainersEnsemble;
 import io.github.microcks.testcontainers.model.EventMessage;
 import io.github.microcks.testcontainers.model.TestRequest;
@@ -72,12 +74,8 @@ class PizzaKitchenContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
-            System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
-            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            System.out.println("testResult: " + mapper.writeValueAsString(testResult));
-
             // Check success and that we read 1 valid message on the topic.
-            assertTrue(testResult.isSuccess());
+            Assertions.assertSuccess(testResult);
             assertFalse(testResult.getTestCaseResults().isEmpty());
             assertEquals(1, testResult.getTestCaseResults().get(0).getTestStepResults().size());
 
