@@ -52,7 +52,7 @@ class PizzaDeliveryTest {
    void testDelivery() throws Exception {
       with().body(new PizzaDelivery.Order(UUID.randomUUID().toString(),
                   Arrays.asList(new PizzaDelivery.OrderItem("pizza", PizzaDelivery.PizzaType.pepperoni.name(), 1)),
-                  new Date(), "abc-edf"))
+                  new Date()))
             .contentType(ContentType.JSON)
             .when()
             .request("PUT", "/deliver")

@@ -67,7 +67,6 @@ components:
                     category: pizza
                     amount: 1
                 orderDate: 1738142460556
-                workflowId: 123-456-789-ready-wkf
               message: Your pizza is ready and waiting to be delivered.
   schemas:
     Order:

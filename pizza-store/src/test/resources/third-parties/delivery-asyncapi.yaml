@@ -46,7 +46,6 @@ components:
                     category: pizza
                     amount: 1
                 orderDate: 1738142460556
-                workflowId: 123-456-789-wkf
               message: The order is on its way to your address.
         - name: Completed
           payload:
@@ -67,7 +66,6 @@ components:
                     category: pizza
                     amount: 1
                 orderDate: 1738142460556
-                workflowId: 123-456-789-wkf
               message: Your order has been delivered.
   schemas:
     Order:
@@ -81,13 +79,10 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: number
-        workflowId:
-          type: string
       required:
         - id
         - items
         - orderDate
-        - workflowId
       additionalProperties: true
     OrderItem:
       type: object

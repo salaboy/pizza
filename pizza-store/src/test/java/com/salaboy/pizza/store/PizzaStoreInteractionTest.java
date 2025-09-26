@@ -87,16 +87,15 @@ class PizzaStoreInteractionTest {
       long deliveryInvocations = microcksEnsemble.getMicrocksContainer()
             .getServiceInvocationsCount("Pizza Delivery API", "1.0.0");
 
-      String customWorkflowId = "123-456-789-ready-wkf";
+
       OrderPayload initialOrder = new OrderPayload(
               "123-456-789-ready",
               new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
               List.of(new OrderItem("pizza", PizzaType.vegetarian.name(), 1)),
               Date.from(Instant.ofEpochMilli(1738142460556L)),
-              Status.created,
-              "123-456-789-ready-wkf");
+              Status.created);
       // Initialize a workflow for events we're expecting.
-      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, initialOrder, customWorkflowId);
+      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, initialOrder, initialOrder.id());
 
       try {
          // Now wait until the "123-456-789 order-ready" event is received and processed by the store.

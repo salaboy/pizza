@@ -52,7 +52,6 @@ components:
                     ],
                     "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
                     "orderDate":"2023-10-31T18:13:55.571+00:00",
-                    "workflowId": "abc-edf",
                     "status":"inpreparation"
                   }
                 }
@@ -80,7 +79,6 @@ components:
                       ],
                       "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
                       "orderDate":"2023-10-31T18:13:55.571+00:00",
-                      "workflowId": "abc-edf",
                       "status":"delivery"
                     }
                 }
@@ -108,7 +106,6 @@ components:
                     ],
                     "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
                     "orderDate":"2023-10-31T18:13:55.571+00:00",
-                    "workflowId": "abc-edf",
                     "status":"completed"
                   }
                 }
@@ -125,8 +122,6 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: string
-        workflowId:
-          type: string
         status:
           type: string
           enum:
@@ -138,7 +133,6 @@ components:
         - id
         - items
         - orderDate
-        - workflowId
       additionalProperties: true
     OrderItem:
       type: object

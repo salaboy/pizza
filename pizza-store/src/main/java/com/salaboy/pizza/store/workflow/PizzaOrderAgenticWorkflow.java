@@ -29,43 +29,37 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
       logger.info("Instance ID: {}", instanceId);
       logger.info("Current Orchestration Time: {}", ctx.getCurrentInstant());
 
-      String customerPrompt = ctx.getInput(String.class);
+      OrderPayload orderPayloadWithPrompt = ctx.getInput(OrderPayload.class);
 
       OrderItem[] orderItems = ctx.callActivity(CreateOrderFromPrompt.class.getName(),
-                customerPrompt,
+                orderPayloadWithPrompt.prompt(),
                 OrderItem[].class).await();
 
+      OrderPayload orderPayloadWithItems = new OrderPayload(orderPayloadWithPrompt,
+              Arrays.stream(orderItems).toList());
 
-      OrderPayload orderPayload = new OrderPayload("id-123",
-              new Customer("salaboy", "salaboy@mail.com"),
-              Arrays.stream(orderItems).toList(),
-              new Date(),
-              Status.created,
-              instanceId);
+      ctx.callActivity(ConfirmOrderPlaced.class.getName(), orderPayloadWithItems).await();
 
-
-      ctx.callActivity(ConfirmOrderPlaced.class.getName(), orderPayload).await();
-
-      ctx.callActivity(StoreOrderActivity.class.getName(), orderPayload).await();
+      ctx.callActivity(StoreOrderActivity.class.getName(), orderPayloadWithItems).await();
 
       boolean requiresCooking = false;
-      if(!orderPayload.items().isEmpty()){
-        for(OrderItem oi : orderPayload.items()){
+      if(!orderPayloadWithItems.items().isEmpty()){
+        for(OrderItem oi : orderPayloadWithItems.items()){
           if(oi.category().equals("pizza")){
             requiresCooking = true;
           }
         }
       }
       if(requiresCooking){
-        ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
+        ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayloadWithItems).await();
         ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
       }
 
-      ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayload).await();
+      ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayloadWithItems).await();
 
       ctx.waitForExternalEvent("PizzaDelivered", Duration.ofMinutes(10), OrderPayload.class).await();
 
-      ctx.complete(orderPayload);
+      ctx.complete(orderPayloadWithItems);
 
     };
   }

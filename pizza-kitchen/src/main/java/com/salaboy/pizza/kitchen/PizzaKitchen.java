@@ -105,7 +105,9 @@ public class PizzaKitchen {
     }
   }
 
-  public record Order(@JsonProperty String id, @JsonProperty List<OrderItem> items, @JsonProperty Date orderDate, @JsonProperty String workflowId) {
+  public record Order(@JsonProperty String id,
+                      @JsonProperty List<OrderItem> items,
+                      @JsonProperty Date orderDate) {
   }
 
 

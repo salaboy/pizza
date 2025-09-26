@@ -39,7 +39,7 @@ class PizzaStoreTest {
   void testPlaceOrder() throws Exception {
 
     with().body(new OrderPayload(new Customer("salaboy", "salaboy@mail.com"),
-                    Arrays.asList(new OrderItem("pizza",PizzaType.pepperoni.name(), 1)), ""))
+                    Arrays.asList(new OrderItem("pizza",PizzaType.pepperoni.name(), 1))))
             .contentType(ContentType.JSON)
             .when()
             .request("POST", "/order")

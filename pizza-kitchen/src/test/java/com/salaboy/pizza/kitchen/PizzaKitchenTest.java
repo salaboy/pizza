@@ -55,7 +55,7 @@ class PizzaKitchenTest {
 
       with().body(new Order(UUID.randomUUID().toString(),
                   Arrays.asList(new OrderItem("pizza", PizzaType.pepperoni.name(), 1)),
-                  new Date(), "abc-def"))
+                  new Date()))
             .contentType(ContentType.JSON)
             .when()
             .request("PUT", "/prepare")

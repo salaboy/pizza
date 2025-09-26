@@ -92,10 +92,10 @@ public class PizzaStore {
       // Emit Event
       Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
       emitWSEvent(wsevent);
-      daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "KitchenDone", pizzaEvent.order());
+        daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "KitchenDone", pizzaEvent.order());
     }
     if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
-      daprWorkflowClient.raiseEvent(pizzaEvent.order().workflowId(), "PizzaDelivered", pizzaEvent.order());
+      daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "PizzaDelivered", pizzaEvent.order());
     }
   }
 
@@ -107,34 +107,22 @@ public class PizzaStore {
 
   @PostMapping("/order")
   public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order) throws Exception {
-    String instanceId = startPizzaWorkflow(order);
-    OrderPayload processingOrder = new OrderPayload(order.id(), order.customer(), order.items(), order.orderDate(), order.status(), instanceId);
+    startPizzaWorkflow(order);
     // Emit Event
-    Event event = new Event(EventType.ORDER_PLACED, processingOrder, "store", "We received the payment your order is confirmed.");
+    Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
     emitWSEvent(event);
-    System.out.println("Returning processing order: " + processingOrder);
-    return ResponseEntity.ok(processingOrder);
+    return ResponseEntity.ok(order);
   }
-
-  @PostMapping("/prompt")
-  public ResponseEntity<String> placeOrder(@RequestBody(required = true) String prompt) throws Exception {
-    String instanceId = startPizzaWorkflowPrompt(prompt);
-    return ResponseEntity.ok(instanceId);
-  }
-
-
-  private String startPizzaWorkflowPrompt(String prompt) {
-    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderAgenticWorkflow.class, prompt);
-    System.out.printf("scheduled new workflow instance of OrderProcessingWorkflow with instance ID: %s%n",
-                       instanceId);
-    return instanceId;
-  }
-
 
   private String startPizzaWorkflow(OrderPayload order) {
-    String instanceId = daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, order);
-    System.out.println("Scheduled new PizzaOrderWorkflow instance with ID: " + instanceId);
-    return instanceId;
+    if(order.prompt() == null || order.prompt().isEmpty()) {
+      System.out.println("Scheduled new PizzaOrderWorkflow instance with ID: " + order.id());
+      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, order, order.id());
+    }else{
+      System.out.println("Scheduled new PizzaOrderAgenticWorkflow instance with ID: " + order.id());
+      daprWorkflowClient.scheduleNewWorkflow(PizzaOrderAgenticWorkflow.class, order, order.id());
+    }
+    return order.id();
   }
 
   @GetMapping("/order")

@@ -32,8 +32,7 @@ paths:
                       "amount": 1
                       }
                     ],
-                    "orderDate": 1738142460555,
-                    "workflowId": "abc-edf"
+                    "orderDate": 1738142460555
                   }
               lbroudoux:
                 value:
@@ -46,7 +45,6 @@ paths:
                       category: pizza
                       amount: 1
                   orderDate: 1738142460556
-                  workflowId: "jkl-iop"
       responses:
         '200':
           description: Delivery started
@@ -66,13 +64,10 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: number
-        workflowId:
-          type: string
       required:
         - id
         - items
         - orderDate
-        - workflowId
       additionalProperties: true
     OrderItem:
       type: object
