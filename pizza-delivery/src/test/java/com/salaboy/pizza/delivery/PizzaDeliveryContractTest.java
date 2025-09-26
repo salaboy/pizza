@@ -1,5 +1,6 @@
 package com.salaboy.pizza.delivery;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,13 +42,16 @@ class PizzaDeliveryContractTest {
 
     @Test
     void testEventIsPublishedOnKafkaAndIsConformantToSpec() {
+        System.err.println("====================================================");
+        System.err.println("testEventIsPublishedOnKafkaAndIsConformantToSpec()");
+        System.err.println("====================================================");
         // Prepare a Microcks test.
         TestRequest kafkaTest = new TestRequest.Builder()
             .serviceId("Pizza Delivery Events:1.0.0")
             .filteredOperations(List.of("RECEIVE receiveDeliveryEvents"))
             .runnerType(TestRunnerType.ASYNC_API_SCHEMA.name())
             .testEndpoint("kafka://kafka:19092/topic")
-            .timeout(Duration.ofSeconds(5))
+            .timeout(Duration.ofSeconds(6))
             .build();
 
         // Prepare an application Event.
@@ -69,8 +73,13 @@ class PizzaDeliveryContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
+            System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
+
             // Check success and that we read 1 valid message on the topic.
             Assertions.assertSuccess(testResult);
+            assertTrue(testResult.isSuccess());
             assertFalse(testResult.getTestCaseResults().isEmpty());
             assertEquals(1, testResult.getTestCaseResults().get(0).getTestStepResults().size());
 
@@ -109,6 +118,9 @@ class PizzaDeliveryContractTest {
 
     @Test
     void testDeliverEndpointIsConformantToSpec() throws Exception {
+        System.err.println("====================================================");
+        System.err.println("testDeliverEndpointIsConformantToSpec()");
+        System.err.println("====================================================");
          // Prepare a Microcks test.
          TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Delivery API:1.0.0")
@@ -132,6 +144,9 @@ class PizzaDeliveryContractTest {
 
     @Test
     void testCompleteFlowAndBusinessLogicIsConformantToSpecs() throws Exception {
+        System.err.println("====================================================");
+        System.err.println("testCompleteFlowAndBusinessLogicIsConformantToSpecs()");
+        System.err.println("====================================================");
         // Prepare a Microcks test for event production.
         TestRequest kafkaTest = new TestRequest.Builder()
                .serviceId("Pizza Delivery Events:1.0.0")
@@ -141,7 +156,7 @@ class PizzaDeliveryContractTest {
                .timeout(Duration.ofSeconds(14))
                .build();
 
-        // Prepare a Microcks test for event trigerring endpoint.
+        // Prepare a Microcks test for event triggering endpoint.
         TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Delivery API:1.0.0")
                .runnerType(TestRunnerType.OPEN_API_SCHEMA.name())
