@@ -36,6 +36,7 @@ components:
             datacontenttype: application/json
             data:
               type: order-in-preparation
+              service: kitchen
               order:
                 id: 123-456-789
                 customer:
@@ -46,7 +47,6 @@ components:
                     category: pizza
                     amount: 1
                 orderDate: 1738142460556
-                workflowId: 123-456-789-wkf
               message: The order is now in the kitchen.
         - name: Ready
           payload:
@@ -57,8 +57,9 @@ components:
             time: '2025-01-29T09:29:25Z'
             data:
               type: order-ready
+              service: kitchen
               order:
-                id: 123-456-789-ready
+                id: 123-456-789
                 customer:
                   name: lbroudoux
                   email: laurent.broudoux@gmail.com

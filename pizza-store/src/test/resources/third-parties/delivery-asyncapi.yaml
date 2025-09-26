@@ -36,6 +36,7 @@ components:
             datacontenttype: application/json
             data:
               type: order-on-its-way
+              service: delivery
               order:
                 id: 123-456-789
                 customer:
@@ -56,6 +57,7 @@ components:
             time: '2025-01-29T09:29:25Z'
             data:
               type: order-completed
+              service: delivery
               order:
                 id: 123-456-789
                 customer:

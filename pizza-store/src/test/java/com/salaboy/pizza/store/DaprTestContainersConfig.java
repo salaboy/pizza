@@ -139,8 +139,8 @@ public class DaprTestContainersConfig {
                     "pubsub", "topic", "/events"))
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
-              .withReusablePlacement(true)
-              .withReusableScheduler(true)
+                .withReusableScheduler(true)
+                .withReusablePlacement(true)
               .dependsOn(kafkaContainer);
         if (ensemble != null){
             daprContainer

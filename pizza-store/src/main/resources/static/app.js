@@ -27,7 +27,7 @@ stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/events', (event) => {
-        console.log(JSON.parse(event.body));
+        //console.log(JSON.parse(event.body));
         showEvent(event.body);
 
     });
@@ -233,9 +233,8 @@ function showEvent(event) {
     eventObject = JSON.parse(event);
 
     if(currentOrderId == eventObject.order.id){
-         console.log("Event Type => " + eventObject.type);
-
-        currentOrderLastState = eventObject.type;
+        console.log("Event Type => " + eventObject.type);
+        console.log(" currentOrderLastState=> " + currentOrderLastState);
 
         if (eventObject.type === "order-processed-by-ai") {
             $("#status").append(createItem("Robot.png", "Doing AI stuff with your pizza order", false));
@@ -248,7 +247,11 @@ function showEvent(event) {
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
         }
-        if (eventObject.type === "order-in-preparation" && currentOrderLastState === "order-placed") {
+        if (eventObject.type === "order-ready" && currentOrderLastState === "order-placed"){
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
+        if (eventObject.type === "order-in-preparation" && currentOrderLastState === "order-ready") {
             $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
@@ -259,7 +262,13 @@ function showEvent(event) {
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
         }
-        if (eventObject.type === "order-completed" && currentOrderLastState === "order-out-for-delivery" ) {
+
+        if (eventObject.type === "order-on-its-way" && currentOrderLastState === "order-out-for-delivery" ) {
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
+
+        if (eventObject.type === "order-completed" && currentOrderLastState === "order-on-its-way" ) {
 
             $("#status").append(createItem("BoxAndDrink.png", "Your order is now complete. Thanks for choosing us!", false));
             currentOrderLastState = eventObject.type;
@@ -267,7 +276,7 @@ function showEvent(event) {
 
         }
     }else{
-           console.log("Discarding event for order: " + eventObject.order.id + " as current order is: " + currentOrderId);
+           console.log("Discarding event ("+eventObject.type+") for order: " + eventObject.order.id + " as current order is: " + currentOrderId);
     }
 
 }
