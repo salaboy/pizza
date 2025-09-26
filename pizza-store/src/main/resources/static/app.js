@@ -42,6 +42,9 @@ stompClient.onStompError = (frame) => {
     console.error('Additional details: ' + frame.body);
 };
 
+var currentOrderId = "";
+var currentOrderLastState = "";
+
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
@@ -128,7 +131,7 @@ function completedFake() {
 function placeOrderPrompt(){
     console.log("Placing Order with Prompt: " + $("textarea#prompt").val());
     console.log("With OrderId: " + $("input#orderId").val());
-
+    currentOrderId = $("input#orderId").val();
     //Send Order to store
         fetch("/order", {
             method: "POST",
@@ -148,6 +151,7 @@ function placeOrderPrompt(){
 function placeOrder() {
     console.log("Placing Order");
     console.log("With OrderId: " + $("input#orderId").val());
+    currentOrderId = $("input#orderId").val();
     //Send Order to store
     fetch("/order", {
         method: "POST",
@@ -225,29 +229,45 @@ function createEventEntry(eventObject) {
 
 function showEvent(event) {
 
+
     eventObject = JSON.parse(event);
-    console.log("Event Type => " + eventObject.type);
 
-    $("#events").append(createEventEntry(eventObject));
+    if(currentOrderId == eventObject.order.id){
+         console.log("Event Type => " + eventObject.type);
 
-    if (eventObject.type === "order-processed-by-ai") {
-        $("#status").append(createItem("Robot.png", "Doing AI stuff with your pizza order", false));
-    }
+        currentOrderLastState = eventObject.type;
 
-    if (eventObject.type === "order-placed") {
-        $("#status").append(createItem("Order.png", "Order Placed" + JSON.stringify(eventObject.order), false));
-    }
-    if (eventObject.type === "order-in-preparation") {
-        $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
-    }
-    if (eventObject.type === "order-out-for-delivery") {
+        if (eventObject.type === "order-processed-by-ai") {
+            $("#status").append(createItem("Robot.png", "Doing AI stuff with your pizza order", false));
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
 
-        $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
-    }
-    if (eventObject.type === "order-completed") {
+        if (eventObject.type === "order-placed") {
+            $("#status").append(createItem("Order.png", "Order Placed" + JSON.stringify(eventObject.order), false));
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
+        if (eventObject.type === "order-in-preparation" && currentOrderLastState === "order-placed") {
+            $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
+        if (eventObject.type === "order-out-for-delivery" && currentOrderLastState === "order-in-preparation" ) {
 
-        $("#status").append(createItem("BoxAndDrink.png", "Your order is now complete. Thanks for choosing us!", false));
+            $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+        }
+        if (eventObject.type === "order-completed" && currentOrderLastState === "order-out-for-delivery" ) {
 
+            $("#status").append(createItem("BoxAndDrink.png", "Your order is now complete. Thanks for choosing us!", false));
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+
+        }
+    }else{
+           console.log("Discarding event for order: " + eventObject.order.id + " as current order is: " + currentOrderId);
     }
 
 }

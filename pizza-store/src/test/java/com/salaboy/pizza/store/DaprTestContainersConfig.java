@@ -103,11 +103,11 @@ public class DaprTestContainersConfig {
 
         // Async events can pollute the experience in spring-boot:test-run,
         // so we only add them if we are running in pure JUnit tests mode.
-        boolean isSpringTestRunExecution =  Arrays.stream(Thread.currentThread().getStackTrace())
-              .anyMatch(element -> element.getClassName().equals("com.salaboy.pizza.store.PizzaStoreAppTest"));
-        if (!isSpringTestRunExecution) {
-            ensemble.withMainArtifacts("third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml");
-        }
+//        boolean isSpringTestRunExecution =  Arrays.stream(Thread.currentThread().getStackTrace())
+//              .anyMatch(element -> element.getClassName().equals("com.salaboy.pizza.store.PizzaStoreAppTest"));
+//        if (!isSpringTestRunExecution) {
+        ensemble.withMainArtifacts("third-parties/kitchen-asyncapi.yaml", "third-parties/delivery-asyncapi.yaml");
+        //}
         return ensemble;
     }
 
