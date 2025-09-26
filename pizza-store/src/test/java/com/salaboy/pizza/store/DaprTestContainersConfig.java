@@ -123,8 +123,7 @@ public class DaprTestContainersConfig {
 
     @Bean
     @ServiceConnection
-    DaprContainer daprContainer(KafkaContainer kafkaContainer, Environment env, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
-        boolean reuse = env.getProperty("reuse", Boolean.class, false);
+    DaprContainer daprContainer(KafkaContainer kafkaContainer, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
         daprContainer = new DaprContainer("daprio/daprd:1.16.0")
               .withAppName("pizza-store")
               .withAppPort(8080)
@@ -140,8 +139,8 @@ public class DaprTestContainersConfig {
                     "pubsub", "topic", "/events"))
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
-              .withReusablePlacement(reuse)
-              .withReusableScheduler(reuse)
+              .withReusablePlacement(true)
+              .withReusableScheduler(true)
               .dependsOn(kafkaContainer);
         if (ensemble != null){
             daprContainer
@@ -176,6 +175,8 @@ public class DaprTestContainersConfig {
                   .withConfiguration(new Configuration("app-middleware", null, appHttpPipeline))
                   .withAppPort(8080)
                   .withAppChannelAddress("microcks")
+                  .withReusableScheduler(true)
+                  .withReusablePlacement(true)
                   .withDaprLogLevel(DaprLogLevel.DEBUG)
                   .dependsOn(ensemble);
       return daprContainerKitchen;
@@ -199,6 +200,8 @@ public class DaprTestContainersConfig {
                 .withConfiguration(new Configuration("app-middleware", null, appHttpPipeline))
                 .withAppPort(8080)
                 .withAppChannelAddress("microcks")
+                .withReusableScheduler(true)
+                .withReusablePlacement(true)
                 .withDaprLogLevel(DaprLogLevel.DEBUG)
                 .dependsOn(ensemble);
         return daprContainerDelivery;

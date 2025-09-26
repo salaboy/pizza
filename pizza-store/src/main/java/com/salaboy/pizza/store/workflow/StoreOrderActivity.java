@@ -35,7 +35,6 @@ public class StoreOrderActivity implements WorkflowActivity {
     if (ordersState.getValue() != null && ordersState.getValue().orders().isEmpty()) {
       orders.orders().addAll(ordersState.getValue().orders());
     }
-    System.out.println("Order at first activity: " + orderPayload);
     orders.orders().add(orderPayload);
     // Save state
     daprClient.saveState(STATE_STORE_NAME, KEY, orders).block();
