@@ -32,7 +32,7 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
       OrderPayload orderPayloadWithPrompt = ctx.getInput(OrderPayload.class);
 
       OrderItem[] orderItems = ctx.callActivity(CreateOrderFromPrompt.class.getName(),
-                orderPayloadWithPrompt.prompt(),
+                orderPayloadWithPrompt,
                 OrderItem[].class).await();
 
       OrderPayload orderPayloadWithItems = new OrderPayload(orderPayloadWithPrompt,

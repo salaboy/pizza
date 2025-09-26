@@ -127,12 +127,19 @@ function completedFake() {
 
 function placeOrderPrompt(){
     console.log("Placing Order with Prompt: " + $("textarea#prompt").val());
+    console.log("With OrderId: " + $("input#orderId").val());
 
-    var prompt = "{ \"prompt\": \"" + $("textarea#prompt").val() +  "\"}";
     //Send Order to store
-        fetch("/prompt", {
+        fetch("/order", {
             method: "POST",
-            body: prompt,
+            body: JSON.stringify({
+                              id: $("input#orderId").val(),
+                              customer: {
+                                  name: "salaboy",
+                                  email: "salaboy@mail.com",
+                              },
+                              prompt: $("textarea#prompt").val()
+                          }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -140,11 +147,12 @@ function placeOrderPrompt(){
 }
 function placeOrder() {
     console.log("Placing Order");
-
+    console.log("With OrderId: " + $("input#orderId").val());
     //Send Order to store
     fetch("/order", {
         method: "POST",
         body: JSON.stringify({
+            id: $("input#orderId").val(),
             customer: {
                 name: "salaboy",
                 email: "salaboy@mail.com",

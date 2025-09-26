@@ -107,10 +107,9 @@ public class PizzaStore {
 
   @PostMapping("/order")
   public ResponseEntity<OrderPayload> placeOrder(@RequestBody(required = true) OrderPayload order) throws Exception {
+
     startPizzaWorkflow(order);
-    // Emit Event
-    Event event = new Event(EventType.ORDER_PLACED, order, "store", "We received the payment your order is confirmed.");
-    emitWSEvent(event);
+
     return ResponseEntity.ok(order);
   }
 

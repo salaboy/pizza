@@ -16,7 +16,7 @@ public record OrderPayload(@JsonProperty String id,
 
   @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
   public OrderPayload(String id, Customer customer, List<OrderItem> items, String prompt, Date orderDate, Status status) {
-    if (id == null) {
+    if (id == null || id.isEmpty()) {
       this.id = UUID.randomUUID().toString();
     } else {
       this.id = id;

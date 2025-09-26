@@ -27,6 +27,8 @@ public class PizzaOrderWorkflow implements Workflow {
 
       OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
 
+      ctx.callActivity(ConfirmOrderPlaced.class.getName(), orderPayload).await();
+
       ctx.callActivity(StoreOrderActivity.class.getName(), orderPayload).await();
 
       ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
