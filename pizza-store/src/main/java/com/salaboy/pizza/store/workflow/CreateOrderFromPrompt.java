@@ -65,8 +65,8 @@ public class CreateOrderFromPrompt implements WorkflowActivity {
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
-				//Event event = new Event(EventType.ORDER_PLACED, orderPayload, "store", "We received the payment your order is confirmed.");
-        //emitWSEvent(new Event("", ));
+				Event event = new Event(EventType.ORDER_PROCESSED_BY_AI, null, "store", "An LLM is processing your pizza order :) .");
+        emitWSEvent(event);
 			}
 		});
 

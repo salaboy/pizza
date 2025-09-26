@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EventType {
 
+  ORDER_PROCESSED_BY_AI("order-processed-by-ai"),
   ORDER_PLACED("order-placed"),
   ITEMS_IN_STOCK("items-in-stock"),
   ITEMS_NOT_IN_STOCK("items-not-in-stock"),

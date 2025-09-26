@@ -223,7 +223,7 @@ function showEvent(event) {
     $("#events").append(createEventEntry(eventObject));
 
     if (eventObject.type === "order-processed-by-ai") {
-        $("#status").append(createItem("Robot.png", "Doing AI stuff", false));
+        $("#status").append(createItem("Robot.png", "Doing AI stuff with your pizza order", false));
     }
 
     if (eventObject.type === "order-placed") {
