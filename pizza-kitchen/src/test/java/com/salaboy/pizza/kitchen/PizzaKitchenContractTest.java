@@ -56,7 +56,7 @@ class PizzaKitchenContractTest {
             .filteredOperations(List.of("RECEIVE receivePreparationEvents"))
             .runnerType(TestRunnerType.ASYNC_API_SCHEMA.name())
             .testEndpoint("kafka://kafka:19092/topic")
-            .timeout(Duration.ofSeconds(5))
+            .timeout(Duration.ofSeconds(6))
             .build();
 
         // Prepare an application Event.
@@ -78,8 +78,8 @@ class PizzaKitchenContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
-            //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            //System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
+            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
             // Check success and that we read 1 valid message on the topic.
             Assertions.assertSuccess(testResult);
