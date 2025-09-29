@@ -53,6 +53,27 @@ components:
             specversion: '1.0'
             type: com.dapr.event.sent
             source: local-dapr-app
+            id: 952d739f-5556-4772-8187-c39e18139a86
+            time: '2025-01-29T09:29:24Z'
+            data:
+              type: order-ready
+              service: kitchen
+              order:
+                id: 789-456-123
+                customer:
+                  name: lbroudoux
+                  email: laurent.broudoux@gmail.com
+                items:
+                  - name: vegetarian
+                    category: pizza
+                    amount: 1
+                orderDate: 1738142460555
+              message: Your pizza is ready and waiting to be delivered.
+        - name: Ready
+          payload:
+            specversion: '1.0'
+            type: com.dapr.event.sent
+            source: local-dapr-app
             id: 952d739f-5556-4772-8187-c39e18139a87
             time: '2025-01-29T09:29:25Z'
             data:
@@ -81,13 +102,10 @@ components:
             $ref: '#/components/schemas/OrderItem'
         orderDate:
           type: number
-        workflowId:
-          type: string
       required:
         - id
         - items
         - orderDate
-        - workflowId
       additionalProperties: true
     OrderItem:
       type: object

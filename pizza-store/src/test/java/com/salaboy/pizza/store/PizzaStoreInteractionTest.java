@@ -99,16 +99,16 @@ class PizzaStoreInteractionTest {
 
 
       OrderPayload initialOrder = new OrderPayload(
-              "123-456-789-ready",
+              "789-456-123",
               new Customer("lbroudoux", "laurent.broudoux@gmail.com"),
               List.of(new OrderItem("pizza", PizzaType.vegetarian.name(), 1)),
-              Date.from(Instant.ofEpochMilli(1738142460556L)),
+              Date.from(Instant.ofEpochMilli(1738142460557L)),
               Status.created);
       // Initialize a workflow for events we're expecting.
       daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, initialOrder, initialOrder.id());
 
       try {
-         // Now wait until the "123-456-789 order-ready" event is received and processed by the store.
+         // Now wait until the "789-456-123" event is received and processed by the store.
          await().atMost(15, TimeUnit.SECONDS)
                .pollDelay(500, TimeUnit.MILLISECONDS)
                .pollInterval(500, TimeUnit.MILLISECONDS)
@@ -116,7 +116,7 @@ class PizzaStoreInteractionTest {
                   Orders orders = pizzaStore.loadOrders();
                   if (orders != null) {
                      for (OrderPayload order : orders.orders()) {
-                        if ("123-456-789-ready".equals(order.id()) && order.status() == Status.delivery) {
+                        if ("789-456-123".equals(order.id()) && order.status() == Status.delivery) {
                            // Wait a second, ensuring the async workflow step is done.
                            TimeUnit.MILLISECONDS.sleep(500L);
 

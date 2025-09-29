@@ -46,6 +46,10 @@ class PizzaKitchenContractTest {
 
     @Test
     void testEventIsPublishedOnKafkaAndIsConformantToSpec() {
+        System.err.println("====================================================");
+        System.err.println("testEventIsPublishedOnKafkaAndIsConformantToSpec()");
+        System.err.println("====================================================");
+
         // Prepare a Microcks test.
         TestRequest kafkaTest = new TestRequest.Builder()
             .serviceId("Pizza Kitchen Events:1.0.0")
@@ -73,6 +77,9 @@ class PizzaKitchenContractTest {
 
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
+
+            //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            //System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
             // Check success and that we read 1 valid message on the topic.
             Assertions.assertSuccess(testResult);
@@ -106,13 +113,18 @@ class PizzaKitchenContractTest {
             assertEquals("com.dapr.event.sent", cloudEvent.getType());
             assertEquals("kitchen", cloudEvent.getData().service());
             assertEquals("The order is now in the kitchen - test", cloudEvent.getData().message());
+
         } catch (Exception e) {
             fail("No exception should be thrown when testing Kafka publication", e);
         }
     }
 
     @Test
-    void testDeliverEndpointIsConformantToSpec() throws Exception {
+    void testPrepareEndpointIsConformantToSpec() throws Exception {
+        System.err.println("====================================================");
+        System.err.println("testPrepareEndpointIsConformantToSpec()");
+        System.err.println("====================================================");
+
         // Prepare a Microcks test.
         TestRequest openAPITest = new TestRequest.Builder()
               .serviceId("Pizza Kitchen API:1.0.0")
@@ -134,12 +146,16 @@ class PizzaKitchenContractTest {
         assertEquals(2, testResult.getTestCaseResults().get(0).getTestStepResults().size());
 
         // We should wait here to avoid in-flight messages to be seen by other tests.
-        // 20 seconcs because of PizzaKitchen implemenetation (5000 + 15000).
+        // 20 seconds because of PizzaKitchen implementation (5000 + 15000).
         TimeUnit.SECONDS.sleep(20L);
     }
 
     @Test
     void testCompleteFlowAndBusinessLogicIsConformantToSpecs() throws Exception {
+        System.err.println("====================================================");
+        System.err.println("testCompleteFlowAndBusinessLogicIsConformantToSpecs()");
+        System.err.println("====================================================");
+
         // Prepare a Microcks test for event production.
         TestRequest kafkaTest = new TestRequest.Builder()
               .serviceId("Pizza Kitchen Events:1.0.0")

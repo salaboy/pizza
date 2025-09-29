@@ -220,12 +220,14 @@ function createEventEntry(eventObject) {
 
 }
 
-function showEvent(event) {
+let waiting = false;
+
+async function showEvent(event) {
 
 
     eventObject = JSON.parse(event);
 
-    if(currentOrderId == eventObject.order.id){
+    if (currentOrderId == eventObject.order.id && !waiting){
         console.log("Event Type => " + eventObject.type + " -> currentOrderLastState=> " + currentOrderLastState);
 
          if (eventObject.type === "ai-down") {
@@ -255,6 +257,11 @@ function showEvent(event) {
             $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
+            waiting = true;
+            //console.log("Simulating waiting for kitchen to prepare the order");
+            await new Promise(r => setTimeout(r, 1000));
+            //console.log("Kitchen should have prepared the order by now");
+            waiting = false;
             return;
         }
 
@@ -271,10 +278,14 @@ function showEvent(event) {
         }
 
         if (eventObject.type === "order-out-for-delivery" && currentOrderLastState === "order-ready" ) {
-
             $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
+            waiting = true;
+            //console.log("Simulating waiting for delivery to get to you");
+            await new Promise(r => setTimeout(r, 1000));
+            //console.log("Delivery should be almost there by now");
+            waiting = false;
             return;
         }
 
@@ -285,9 +296,9 @@ function showEvent(event) {
         }
 
          if (eventObject.type === "order-on-its-way" && currentOrderLastState === "order-on-its-way" ) {
-                    currentOrderLastState = eventObject.type;
-                    $("#events").append(createEventEntry(eventObject));
-                    return;
+            currentOrderLastState = eventObject.type;
+            $("#events").append(createEventEntry(eventObject));
+            return;
          }
 
         if (eventObject.type === "order-completed" && currentOrderLastState === "order-on-its-way" ) {

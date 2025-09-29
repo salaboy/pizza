@@ -45,6 +45,7 @@ class PizzaDeliveryContractTest {
         System.err.println("====================================================");
         System.err.println("testEventIsPublishedOnKafkaAndIsConformantToSpec()");
         System.err.println("====================================================");
+
         // Prepare a Microcks test.
         TestRequest kafkaTest = new TestRequest.Builder()
             .serviceId("Pizza Delivery Events:1.0.0")
@@ -73,9 +74,9 @@ class PizzaDeliveryContractTest {
             // Get the Microcks test result.
             TestResult testResult = testResultFuture.get();
 
-            System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
-            ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
+            //System.err.println(microcksEnsemble.getAsyncMinionContainer().getLogs());
+            //ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            //System.out.println("testResult: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
 
             // Check success and that we read 1 valid message on the topic.
             Assertions.assertSuccess(testResult);
@@ -121,6 +122,7 @@ class PizzaDeliveryContractTest {
         System.err.println("====================================================");
         System.err.println("testDeliverEndpointIsConformantToSpec()");
         System.err.println("====================================================");
+
          // Prepare a Microcks test.
          TestRequest openAPITest = new TestRequest.Builder()
                .serviceId("Pizza Delivery API:1.0.0")
@@ -140,6 +142,10 @@ class PizzaDeliveryContractTest {
          assertEquals(1, testResult.getTestCaseResults().size());
          // We tested with 2 samples (salaboy and lbroudoux).
          assertEquals(2, testResult.getTestCaseResults().get(0).getTestStepResults().size());
+
+        // We should wait here to avoid in-flight messages to be seen by other tests.
+        // 10 seconds because of PizzaKitchen implementation (3 x 3000).
+         TimeUnit.SECONDS.sleep(10L);
     }
 
     @Test
@@ -147,6 +153,7 @@ class PizzaDeliveryContractTest {
         System.err.println("====================================================");
         System.err.println("testCompleteFlowAndBusinessLogicIsConformantToSpecs()");
         System.err.println("====================================================");
+
         // Prepare a Microcks test for event production.
         TestRequest kafkaTest = new TestRequest.Builder()
                .serviceId("Pizza Delivery Events:1.0.0")

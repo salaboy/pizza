@@ -88,14 +88,18 @@ public class PizzaStore {
     System.out.println("Received CloudEvent via Subscription: " + event.getData());
     Event pizzaEvent = event.getData();
 
-    if (pizzaEvent.type().equals(EventType.ORDER_READY)){
-      // Emit Event
-      Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
-      emitWSEvent(wsevent);
+    try {
+      if (pizzaEvent.type().equals(EventType.ORDER_READY)) {
+        // Emit Event
+        Event wsevent = new Event(EventType.ORDER_OUT_FOR_DELIVERY, pizzaEvent.order(), "store", "Delivery in progress.");
+        emitWSEvent(wsevent);
         daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "KitchenDone", pizzaEvent.order());
-    }
-    if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)){
-      daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "PizzaDelivered", pizzaEvent.order());
+      }
+      if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)) {
+        daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "PizzaDelivered", pizzaEvent.order());
+      }
+    } catch (Exception e) {
+      System.err.println("Exception raised while processing event: " + e.getMessage());
     }
   }
 

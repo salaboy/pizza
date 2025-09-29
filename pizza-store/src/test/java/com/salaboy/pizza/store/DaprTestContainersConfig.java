@@ -79,7 +79,8 @@ public class DaprTestContainersConfig {
         kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
             .withNetwork(daprNetwork)
             .withNetworkAliases("kafka")
-            .withListener(() -> "kafka:19092").withReuse(reuse);
+            .withListener(() -> "kafka:19092")
+            .withReuse(reuse);
         return kafkaContainer;
     }
 
@@ -123,7 +124,8 @@ public class DaprTestContainersConfig {
 
     @Bean
     @ServiceConnection
-    DaprContainer daprContainer(KafkaContainer kafkaContainer, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
+    DaprContainer daprContainer(KafkaContainer kafkaContainer, Environment env, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
+        boolean reuse = env.getProperty("reuse", Boolean.class, false);
         daprContainer = new DaprContainer("daprio/daprd:1.16.0")
               .withAppName("pizza-store")
               .withAppPort(8080)
@@ -139,8 +141,8 @@ public class DaprTestContainersConfig {
                     "pubsub", "topic", "/events"))
               .withAppChannelAddress("host.testcontainers.internal")
               .withDaprLogLevel(DaprLogLevel.DEBUG)
-                .withReusableScheduler(true)
-                .withReusablePlacement(true)
+              .withReusableScheduler(reuse)
+              .withReusablePlacement(reuse)
               .dependsOn(kafkaContainer);
         if (ensemble != null){
             daprContainer
