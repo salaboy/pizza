@@ -45,27 +45,29 @@ public class PizzaKitchen {
     new Thread(new Runnable() {
       @Override
       public void run() {
-            System.out.println("Starting the preparation for order: " + order.id);
-            // Emit Event
-            try {
-              Thread.sleep(5000);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
-            }
-            Event event = new Event(EventType.ORDER_IN_PREPARATION, order, "kitchen", "The order is now in the kitchen.");
-            emitEvent(event);
-            for (OrderItem orderItem : order.items) {
-              
+        System.out.println("Starting the preparation for order: " + order.id);
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        for (OrderItem orderItem : order.items) {
+          if(orderItem.category.equals("pizza")) {
+            for(int i = 0 ; i < orderItem.amount(); i ++) {
               int pizzaPrepTime = RANDOM.nextInt(15 * MS_IN_SECOND);
               System.out.println("Preparing this " + orderItem.category() + " pizza will take: " + pizzaPrepTime);
+              Event eventInPrep = new Event(EventType.ORDER_IN_PREPARATION, order, "kitchen", "The pizza " + orderItem.name() + " is now the oven for: " + pizzaPrepTime + " ms.");
+              emitEvent(eventInPrep);
               try {
                 Thread.sleep(pizzaPrepTime);
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
             }
-            event = new Event(EventType.ORDER_READY, order, "kitchen", "Your pizza is ready and waiting to be delivered.");
-            emitEvent(event);
+          }
+        }
+        Event eventReady = new Event(EventType.ORDER_READY, order, "kitchen", "Your pizza is ready and waiting to be delivered.");
+        emitEvent(eventReady);
       }
     }).start();
     
@@ -84,14 +86,11 @@ public class PizzaKitchen {
 
   public enum EventType {
 
-    ORDER_PLACED("order-placed"),
-    ITEMS_IN_STOCK("items-in-stock"),
-    ITEMS_NOT_IN_STOCK("items-not-in-stock"),
+
     ORDER_IN_PREPARATION("order-in-preparation"),
-    ORDER_READY("order-ready"),
-    ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
-    ORDER_ON_ITS_WAY("order-on-its-way"),
-    ORDER_COMPLETED("order-completed");
+    ORDER_READY("order-ready");
+
+
 
     private String type;
 

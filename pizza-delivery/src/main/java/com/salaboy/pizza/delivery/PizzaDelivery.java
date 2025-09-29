@@ -50,7 +50,7 @@ public class PizzaDelivery {
             e.printStackTrace();
           }
 
-          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 1 mile away.");
+          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 1 km away.");
           emitEvent(event);
 
           try {
@@ -59,7 +59,7 @@ public class PizzaDelivery {
             e.printStackTrace();
           }
 
-          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 0.5 miles away.");
+          event = new Event(EventType.ORDER_ON_ITS_WAY, order, "delivery", "The order is 0.5 km away.");
           emitEvent(event);
 
           try {
@@ -83,12 +83,6 @@ public class PizzaDelivery {
 
   public enum EventType {
 
-    ORDER_PLACED("order-placed"),
-    ITEMS_IN_STOCK("items-in-stock"),
-    ITEMS_NOT_IN_STOCK("items-not-in-stock"),
-    ORDER_IN_PREPARATION("order-in-preparation"),
-    ORDER_READY("order-ready"),
-    ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
     ORDER_ON_ITS_WAY("order-on-its-way"),
     ORDER_COMPLETED("order-completed");
 

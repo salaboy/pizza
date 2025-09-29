@@ -77,9 +77,6 @@ public class DaprTestContainersConfig {
                         "brokers", "kafka:19092",
                         "authType", "none"
                   )))
-            .withSubscription(new Subscription(
-                  "pizza-store-subscription",
-                  "pubsub", "topic", "/events"))
                 .withDaprLogLevel(DaprLogLevel.DEBUG)   // Necessary to see subscription registration logs from PizzaDeliveryTest.java
 //                .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
                 .withAppChannelAddress("host.testcontainers.internal")
@@ -88,6 +85,9 @@ public class DaprTestContainersConfig {
         // Necessary to access app HTTP endpoint from tests.
         boolean mocks = env.getProperty("tests.mocks", Boolean.class, false);
         if (mocks) {
+            daprContainer.withSubscription(new Subscription(
+                  "pizza-store-subscription",
+                  "pubsub", "topic", "/events"));
             org.testcontainers.Testcontainers.exposeHostPorts(8082);
         }
 

@@ -31,9 +31,16 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
 
       OrderPayload orderPayloadWithPrompt = ctx.getInput(OrderPayload.class);
 
-      OrderItem[] orderItems = ctx.callActivity(CreateOrderFromPrompt.class.getName(),
+
+      OrderItem[] orderItems = null;
+      try {
+        orderItems = ctx.callActivity(CreateOrderFromPrompt.class.getName(),
                 orderPayloadWithPrompt,
                 OrderItem[].class).await();
+
+      } catch (TaskFailedException tfe) {
+        ctx.callActivity(ReportOrderProcessingIssue.class.getName(), orderPayloadWithPrompt).await();
+      }
 
       OrderPayload orderPayloadWithItems = new OrderPayload(orderPayloadWithPrompt,
               Arrays.stream(orderItems).toList());
@@ -43,14 +50,14 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
       ctx.callActivity(StoreOrderActivity.class.getName(), orderPayloadWithItems).await();
 
       boolean requiresCooking = false;
-      if(!orderPayloadWithItems.items().isEmpty()){
-        for(OrderItem oi : orderPayloadWithItems.items()){
-          if(oi.category().equals("pizza")){
+      if (!orderPayloadWithItems.items().isEmpty()) {
+        for (OrderItem oi : orderPayloadWithItems.items()) {
+          if (oi.category().equals("pizza")) {
             requiresCooking = true;
           }
         }
       }
-      if(requiresCooking){
+      if (requiresCooking) {
         ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayloadWithItems).await();
         ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
       }

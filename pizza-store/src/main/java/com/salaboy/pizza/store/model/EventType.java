@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum EventType {
 
   ORDER_PROCESSED_BY_AI("order-processed-by-ai"),
+  AI_IS_DOWN_OR_TOO_EXPENSIVE("ai-down"),
   ORDER_PLACED("order-placed"),
   ITEMS_IN_STOCK("items-in-stock"),
   ITEMS_NOT_IN_STOCK("items-not-in-stock"),
@@ -13,6 +14,7 @@ public enum EventType {
   ORDER_OUT_FOR_DELIVERY("order-out-for-delivery"),
   ORDER_ON_ITS_WAY("order-on-its-way"),
   ORDER_COMPLETED("order-completed");
+
 
   private String type;
 
