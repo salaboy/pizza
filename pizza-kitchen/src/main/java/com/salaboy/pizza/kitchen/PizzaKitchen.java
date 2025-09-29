@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import static java.util.Collections.singletonMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,11 +53,11 @@ public class PizzaKitchen {
           throw new RuntimeException(e);
         }
         for (OrderItem orderItem : order.items) {
-          if(orderItem.category.equals("pizza")) {
-            for(int i = 0 ; i < orderItem.amount(); i ++) {
+          if (orderItem.category.equals("pizza")) {
+            for (int i = 0; i < orderItem.amount(); i++) {
               int pizzaPrepTime = RANDOM.nextInt(15 * MS_IN_SECOND);
-              System.out.println("Preparing this " + orderItem.category() + " pizza will take: " + pizzaPrepTime);
-              Event eventInPrep = new Event(EventType.ORDER_IN_PREPARATION, order, "kitchen", "The pizza " + orderItem.name() + " is now the oven for: " + pizzaPrepTime + " ms.");
+              System.out.println("Preparing this " + orderItem.category() + " (" + (i + 1) + "/" + orderItem.amount() + ") pizza will take: " + pizzaPrepTime);
+              Event eventInPrep = new Event(EventType.ORDER_IN_PREPARATION, order, "kitchen", "Your " + orderItem.name() + " pizza (" + (i + 1) + "/" + orderItem.amount() + ") is now the oven for: " + pizzaPrepTime + " ms.");
               emitEvent(eventInPrep);
               try {
                 Thread.sleep(pizzaPrepTime);
@@ -70,14 +71,13 @@ public class PizzaKitchen {
         emitEvent(eventReady);
       }
     }).start();
-    
+
     return ResponseEntity.ok().build();
   }
 
 
-
   protected void emitEvent(Event event) {
-    System.out.println("> Emitting Kitchen Event: "+ event.toString());
+    System.out.println("> Emitting Kitchen Event: " + event.toString());
     messagingTemplate.send(PUB_SUB_TOPIC, event);
   }
 
@@ -89,7 +89,6 @@ public class PizzaKitchen {
 
     ORDER_IN_PREPARATION("order-in-preparation"),
     ORDER_READY("order-ready");
-
 
 
     private String type;
@@ -113,9 +112,9 @@ public class PizzaKitchen {
   public record KitchenResponse(@JsonProperty String message, @JsonProperty String orderId) {
   }
 
-  public record OrderItem( @JsonProperty String category,
-                           @JsonProperty String name,
-                           @JsonProperty int amount) {
+  public record OrderItem(@JsonProperty String category,
+                          @JsonProperty String name,
+                          @JsonProperty int amount) {
   }
 
   public enum PizzaType {
