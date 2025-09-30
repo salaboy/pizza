@@ -1,6 +1,12 @@
 const stompClient = new StompJs.Client({
 });
 
+
+let waiting = false;
+var currentOrderId = "";
+var currentOrderLastState = "";
+var bag = new Map();
+var bagObject = [];
 function connect() {
     console.log("Fetching Server Info")
     fetch("/server-info", {
@@ -41,9 +47,6 @@ stompClient.onStompError = (frame) => {
     console.error('Broker reported error: ' + frame.headers['message']);
     console.error('Additional details: ' + frame.body);
 };
-
-var currentOrderId = "";
-var currentOrderLastState = "";
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -153,6 +156,12 @@ async function placeOrderPrompt(){
     $("input#orderId").val(currentOrderId);
 }
 
+function emptyCart() {
+  bagObject = [];
+  bag = new Map();
+  createBag();
+}
+
 async function placeOrder() {
     console.log("Placing Order");
     console.log("With OrderId: " + $("input#orderId").val());
@@ -166,13 +175,7 @@ async function placeOrder() {
                 name: "salaboy",
                 email: "salaboy@mail.com",
             },
-            items: [
-                {
-                    "name": "pepperoni",
-                    "category": "pizza",
-                    "amount": 1,
-                }
-            ]
+            items: bagObject
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -191,6 +194,53 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+function addVegetarianToBag(){
+    if(!bag.has("vegetarian")){
+      bag.set("vegetarian", 1);
+    } else{
+      bag.set("vegetarian", bag.get("vegetarian") + 1);
+    }
+    console.log("Bag Vegetarian:" + bag.get("vegetarian"));
+    createBag();
+}
+
+function addDietCockToBag(){
+    if(!bag.has("dietcoke")){
+      bag.set("dietcoke", 1);
+    } else{
+      bag.set("dietcoke", bag.get("dietcoke") + 1);
+    }
+    console.log("Bag dietcoke:" + bag.get("dietcoke"));
+    createBag();
+
+}
+
+function addPepperoniToBag(){
+    if(!bag.has("pepperoni")){
+          bag.set("pepperoni", 1);
+        } else{
+          bag.set("pepperoni", bag.get("pepperoni") + 1);
+        }
+
+        console.log("Bag pepperoni:" + bag.get("pepperoni"));
+        createBag();
+}
+
+function createBag(){
+    bagObject = [];
+    if(bag.has("pepperoni")){
+        bagObject.push({ name: "pepperoni", category: "pizza", amount: bag.get("pepperoni")});
+    }
+    if(bag.has("vegetarian")){
+        bagObject.push({ name: "vegetarian", category: "pizza", amount: bag.get("vegetarian")});
+    }
+    if(bag.has("dietcoke")){
+        bagObject.push({ name: "dietcoke", category: "drink", amount: bag.get("dietcoke")});
+    }
+    console.log(bagObject);
+    $("#bag").empty();
+    $("#bag").append("BAG: " + JSON.stringify(bagObject));
+}
 
 function createItem(detailsImage, text, disabled) {
     var item = "<div class='item animate'>" +
@@ -220,7 +270,7 @@ function createEventEntry(eventObject) {
 
 }
 
-let waiting = false;
+
 
 async function showEvent(event) {
 
@@ -315,9 +365,13 @@ async function showEvent(event) {
 
 }
 
+
+
 $(function () {
     $("form").on('submit', (e) => e.preventDefault());
     $("#placeOrder").click(() => placeOrder());
+    $("#emptyCart").click(() => emptyCart());
+
     $("#placeOrderPrompt").click(() => placeOrderPrompt());
     $("#placeOrderFake").click(() => placeOrderFake());
     $("#kitchenAcceptFake").click(() => kitchenAcceptFake());
@@ -325,4 +379,8 @@ $(function () {
     $("#deliveryUpdateFake").click(() => deliveryUpdateFake());
     $("#completedFake").click(() => completedFake());
     $("#disconnect").click(() => disconnect());
+    $("#pepperoni-add").click(() => addPepperoniToBag());
+    $("#vegetarian-add").click(() => addVegetarianToBag());
+    $("#dietcoke-add").click(() => addDietCockToBag());
+
 });

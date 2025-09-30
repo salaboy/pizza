@@ -19,15 +19,34 @@
     </noscript>
     <header>
         <div class="pizza-place">
-            <h1>Pizza Store</h1>
-            <h2><a href="https://github.com/salaboy/pizza">https://github.com/salaboy/pizza</a></h2>
+            <h2>Cloud Native Pizza Store</h2>
+            <h4><a href="https://github.com/salaboy/pizza">github.com/salaboy/pizza</a></h4>
         </div>
-
         <div class="pizza-order">
             <h5>Order Id:</h5>
             <div class="pizza-item">
                 <input id="orderId"></input>
             </div>
+        </div>
+        <div class="pizza-order">
+            <h5>Place order:</h5>
+            <div>
+                <p>Pepperoni</p>
+                <button id="pepperoni-add">Add 🍕</button>
+            </div>
+            <div>
+                <p>Vegetarian</p>
+                <button id="vegetarian-add">Add 🥒</button>
+            </div>
+            <div>
+                <p>Diet Cocke</p>
+                <button id="dietcoke-add">Add 🥤</button>
+            </div>
+            <div id="bag">
+
+            </div>
+            <button id="placeOrder" class="button main" type="submit">Place Order</button>
+            <button id="emptyCart" class="button main" type="submit">Empty Cart</button>
         </div>
         <div class="pizza-order">
             <h5>Type your order</h5>
@@ -37,14 +56,7 @@
             </div>
             <button id="placeOrderPrompt" class="button main" type="submit">Sent prompt</button>
         </div>
-        <div class="pizza-order">
-            <h5>Your order:</h5>
-            <p>Name: Salaboy</p>
-            <div class="pizza-item">
-                <img alt="pepperoni" title="pepperoni" src="imgs/PizzaPepperoni.png">Vegan Pepperoni + Ice Tea</img>
-            </div>
-            <button id="placeOrder" class="button main" type="submit">Place Order</button>
-        </div>
+
     </header>
     <div id="main-content" class="container">
         <div class="row">
