@@ -26,7 +26,7 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
     OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
     System.out.println("Delivering Pizza to Customer Activity ... ");
 
-    String daprHttp = daprConnectionDetails.getHttpEndpoint() + ":" + daprConnectionDetails.getHttpPort();
+    String daprHttp = daprConnectionDetails.getHttpEndpoint();
     String daprAPIToken = daprConnectionDetails.getApiToken();
 
     HttpHeaders headers = new HttpHeaders();

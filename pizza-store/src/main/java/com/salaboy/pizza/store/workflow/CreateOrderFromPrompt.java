@@ -14,6 +14,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,11 +77,11 @@ public class CreateOrderFromPrompt implements WorkflowActivity {
     });
 
 
-    return this.chatClient.prompt()
+    return Arrays.stream(this.chatClient.prompt()
             .user(u -> u.text(DEFAULT_ORDER_PROMPT)
                     .param("prompt", orderPayload.prompt()))
             .call()
-            .entity(OrderItem[].class);
+            .entity(OrderItem[].class));
 
   }
 

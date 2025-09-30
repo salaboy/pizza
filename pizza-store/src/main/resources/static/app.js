@@ -136,17 +136,18 @@ async function placeOrderPrompt(){
     console.log("Placing Order with Prompt: " + $("textarea#prompt").val());
     console.log("With OrderId: " + $("input#orderId").val());
     currentOrderId = $("input#orderId").val();
+    var order = {
+                                              customer: {
+                                                  name: "salaboy",
+                                                  email: "salaboy@mail.com",
+                                              },
+                                              prompt: $("textarea#prompt").val()
+                                          }
+    currentOrderId && (order.id = currentOrderId);
     //Send Order to store
     const response = await fetch("/order", {
             method: "POST",
-            body: JSON.stringify({
-                              id: $("input#orderId").val(),
-                              customer: {
-                                  name: "salaboy",
-                                  email: "salaboy@mail.com",
-                              },
-                              prompt: $("textarea#prompt").val()
-                          }),
+            body: JSON.stringify(order),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
@@ -167,17 +168,20 @@ async function placeOrder() {
     console.log("Placing Order");
     console.log("With OrderId: " + $("input#orderId").val());
     currentOrderId = $("input#orderId").val();
+
+    var order = {
+                   customer: {
+                      name: "salaboy",
+                      email: "salaboy@mail.com",
+                   },
+                   items: bagObject
+    };
+
+    currentOrderId && (order.id = currentOrderId);
     //Send Order to store
     const response = await fetch("/order", {
         method: "POST",
-        body: JSON.stringify({
-            id: $("input#orderId").val(),
-            customer: {
-                name: "salaboy",
-                email: "salaboy@mail.com",
-            },
-            items: bagObject
-        }),
+        body: JSON.stringify(order),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
         }

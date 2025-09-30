@@ -33,11 +33,6 @@ public class DaprTestContainersConfig {
     private DaprContainer daprContainerKitchen;
     private DaprContainer daprContainerDelivery;
 
-    @Bean
-    RestTemplate restTemplate(){
-        return new RestTemplate();
-    }
-
 
     @Bean
     public Network getDaprNetwork(Environment env) {
