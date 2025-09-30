@@ -8,3 +8,5 @@ spec:
   metadata:
   - name: connectionString
     value: "host=postgresql.default.svc.cluster.local user=postgres password=postgres port=5432 connect_timeout=10 database=dapr"
+  - name: actorStateStore
+    value: "true"  

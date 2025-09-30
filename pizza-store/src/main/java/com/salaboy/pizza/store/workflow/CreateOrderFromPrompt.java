@@ -35,6 +35,8 @@ public class CreateOrderFromPrompt implements WorkflowActivity {
           	
           Prompt: {prompt}
 
+          If the item name is diet coke, or cola diet use "dietcoke" for name.
+          
           Return your response in this JSON format, but with the correct items obtained from the prompt:
           [
           	\\{
@@ -44,7 +46,7 @@ public class CreateOrderFromPrompt implements WorkflowActivity {
           	\\},
           	\\{
           	"category": "drink",
-          	"name": "Beer",
+          	"name": "beer",
           	"amount: 1
           	\\}
           ]

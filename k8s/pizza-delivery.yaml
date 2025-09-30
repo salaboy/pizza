@@ -21,9 +21,11 @@ spec:
     spec:
       containers:
       - name: pizza-delivery-service
-        image: salaboy/pizza-delivery:0.1.0
+        image: salaboy/pizza-delivery:1.0.0-agentic-amd64
         imagePullPolicy: Always
         env:
+        - name: SERVER_PORT
+          value: "8080"
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"   
         - name: PUB_SUB_NAME

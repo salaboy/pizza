@@ -28,7 +28,7 @@ public class PlaceOrderToKitchen implements WorkflowActivity {
     OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
     System.out.println("Placing Order to Kitchen Activity ... ");
 
-    String daprHttp = daprConnectionDetails.getHttpEndpoint();
+    String daprHttp = daprConnectionDetails.getHttpEndpoint() + ":" + daprConnectionDetails.getHttpPort();
     String daprAPIToken = daprConnectionDetails.getApiToken();
 
     HttpHeaders headers = new HttpHeaders();
@@ -36,6 +36,9 @@ public class PlaceOrderToKitchen implements WorkflowActivity {
     headers.add("dapr-app-id", "kitchen-service");
     headers.add("dapr-api-token", daprAPIToken);
     HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(orderPayload, headers);
+
+    System.out.println("Sending request via Dapr to URL: " + daprHttp + "/prepare");
+
     restTemplate.put(
             daprHttp + "/prepare", request);
 

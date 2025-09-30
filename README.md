@@ -41,7 +41,7 @@ Then we will install [Dapr](https://dapr.io) into our fresh new cluster by runni
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 helm upgrade --install dapr dapr/dapr \
---version=1.14.4 \
+--version=1.16.0 \
 --namespace dapr-system \
 --create-namespace \
 --wait
@@ -52,7 +52,7 @@ helm upgrade --install dapr dapr/dapr \
 We will be using Kafka for sending messages between services: 
 
 ```
-helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka --version 22.1.5 --set "provisioning.topics[0].name=events-topic" --set "provisioning.topics[0].partitions=1" --set "persistence.size=1Gi" 
+helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka --version 22.1.5 --set "provisioning.topics[0].name=events-topic" --set "provisioning.topics[0].partitions=1" --set "persistence.size=1Gi" --set "image.repository=bitnamilegacy/kafka"
 ```
 
 We will be using PostgreSQL as our persistent store, but before installing the PostgreSQL Chart run:
@@ -64,7 +64,7 @@ kubectl apply -f k8s/pizza-init-sql-cm.yaml
 Then: 
 
 ```
-helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "primary.initdb.scriptsConfigMap=pizza-init-sql" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi"
+helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "primary.initdb.scriptsConfigMap=pizza-init-sql" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi" --set "image.repository=bitnamilegacy/postgresql"
 
 ```
 

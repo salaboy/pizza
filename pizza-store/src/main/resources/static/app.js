@@ -7,6 +7,7 @@ var currentOrderId = "";
 var currentOrderLastState = "";
 var bag = new Map();
 var bagObject = [];
+var bagEmojis = [];
 function connect() {
     console.log("Fetching Server Info")
     fetch("/server-info", {
@@ -204,7 +205,7 @@ function addVegetarianToBag(){
     createBag();
 }
 
-function addDietCockToBag(){
+function addDietCokeToBag(){
     if(!bag.has("dietcoke")){
       bag.set("dietcoke", 1);
     } else{
@@ -226,20 +227,48 @@ function addPepperoniToBag(){
         createBag();
 }
 
+function addBeerToBag(){
+    if(!bag.has("beer")){
+          bag.set("beer", 1);
+        } else{
+          bag.set("beer", bag.get("beer") + 1);
+        }
+
+        console.log("Bag beer:" + bag.get("beer"));
+        createBag();
+}
+
 function createBag(){
     bagObject = [];
+    bagEmojis = [];
     if(bag.has("pepperoni")){
         bagObject.push({ name: "pepperoni", category: "pizza", amount: bag.get("pepperoni")});
+        for(let i = 0; i < bag.get("pepperoni"); i ++){
+          bagEmojis.push("🍕");
+        }
     }
     if(bag.has("vegetarian")){
         bagObject.push({ name: "vegetarian", category: "pizza", amount: bag.get("vegetarian")});
+        for(let i = 0; i < bag.get("vegetarian"); i ++){
+          bagEmojis.push("🥒");
+        }
     }
     if(bag.has("dietcoke")){
         bagObject.push({ name: "dietcoke", category: "drink", amount: bag.get("dietcoke")});
+        for(let i = 0; i < bag.get("dietcoke"); i ++){
+           bagEmojis.push("🥤");
+        }
+    }
+    if(bag.has("beer")){
+        bagObject.push({ name: "beer", category: "drink", amount: bag.get("beer")});
+        for(let i = 0; i < bag.get("beer"); i ++){
+           bagEmojis.push("🍺");
+        }
     }
     console.log(bagObject);
+
     $("#bag").empty();
-    $("#bag").append("BAG: " + JSON.stringify(bagObject));
+    $("#bag").append("Current Order Items: " + JSON.stringify(bagEmojis));
 }
 
 function createItem(detailsImage, text, disabled) {
@@ -270,6 +299,24 @@ function createEventEntry(eventObject) {
 
 }
 
+function createBagFromOrderItems(items){
+    var emojisFromItems = [];
+    for(let i = 0; i < items.length; i++){
+        for(let j = 0; j < items[i].amount; j++){
+            if(items[i].name === "pepperoni"){
+               emojisFromItems.push("🍕");
+            }else if(items[i].name === "vegetarian"){
+               emojisFromItems.push("🥒");
+            }else if(items[i].name === "dietcoke"){
+               emojisFromItems.push("🥤");
+            }else if(items[i].name === "beer"){
+               emojisFromItems.push("🍺");
+            }
+
+        }
+    }
+    return JSON.stringify(emojisFromItems);
+}
 
 
 async function showEvent(event) {
@@ -297,7 +344,8 @@ async function showEvent(event) {
         }
 
         if (eventObject.type === "order-placed") {
-            $("#status").append(createItem("Order.png", "Order Placed" + JSON.stringify(eventObject.order.items), false));
+
+            $("#status").append(createItem("Order.png", "Order Placed" + createBagFromOrderItems(eventObject.order.items), false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             return;
@@ -381,6 +429,7 @@ $(function () {
     $("#disconnect").click(() => disconnect());
     $("#pepperoni-add").click(() => addPepperoniToBag());
     $("#vegetarian-add").click(() => addVegetarianToBag());
-    $("#dietcoke-add").click(() => addDietCockToBag());
+    $("#dietcoke-add").click(() => addDietCokeToBag());
+    $("#beer-add").click(() => addBeerToBag());
 
 });

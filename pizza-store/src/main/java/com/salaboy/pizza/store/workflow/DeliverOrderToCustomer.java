@@ -26,7 +26,7 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
     OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
     System.out.println("Delivering Pizza to Customer Activity ... ");
 
-    String daprHttp = daprConnectionDetails.getHttpEndpoint();
+    String daprHttp = daprConnectionDetails.getHttpEndpoint() + ":" + daprConnectionDetails.getHttpPort();
     String daprAPIToken = daprConnectionDetails.getApiToken();
 
     HttpHeaders headers = new HttpHeaders();
@@ -35,6 +35,9 @@ public class DeliverOrderToCustomer implements WorkflowActivity {
     headers.add("dapr-app-id", "delivery-service");
     headers.add("dapr-api-token", daprAPIToken);
     HttpEntity<OrderPayload> request = new HttpEntity<OrderPayload>(orderPayload, headers);
+
+    System.out.println("Sending request via Dapr to URL: " + daprHttp + "/deliver");
+
     restTemplate.put(
             daprHttp + "/deliver", request);
 
