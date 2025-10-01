@@ -272,7 +272,13 @@ function createBag(){
     console.log(bagObject);
 
     $("#bag").empty();
-    $("#bag").append("Current Order Items: " + JSON.stringify(bagEmojis));
+    var bagItems = "";
+    for(let i = 0; i < bagEmojis.length; i++){
+        bagItems += "<div class='bag-item'>" +
+            bagEmojis[i] +
+            "</div>";
+    }
+    $("#bag").append(bagItems);
 }
 
 function createItem(detailsImage, text, disabled) {
@@ -319,7 +325,15 @@ function createBagFromOrderItems(items){
 
         }
     }
-    return JSON.stringify(emojisFromItems);
+    var bagItems = "<div class='bag'><div class='bag-items'>";
+    for(let i = 0; i < emojisFromItems.length; i++){
+        bagItems += "<div class='bag-item'>" +
+            emojisFromItems[i] +
+            "</div>";
+    }
+    bagItems += "</div></div>";
+
+    return bagItems;
 }
 
 
@@ -349,7 +363,7 @@ async function showEvent(event) {
 
         if (eventObject.type === "order-placed") {
 
-            $("#status").append(createItem("Order.png", "Order Placed" + createBagFromOrderItems(eventObject.order.items), false));
+            $("#status").append(createItem("none.png", createBagFromOrderItems(eventObject.order.items) + "Order Placed" , false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             return;
@@ -417,7 +431,29 @@ async function showEvent(event) {
 
 }
 
+function setTab1() {
+    $("#tab1").addClass("active"); 
+    $("#tab2").removeClass("active");
+    $("#tab2-content").removeClass("active");
+    $("#tab1-content").addClass("active");    
+}
 
+function setTab2() {
+    $("#tab2").addClass("active"); 
+    $("#tab1").removeClass("active");
+    $("#tab1-content").removeClass("active");
+    $("#tab2-content").addClass("active");
+}
+
+function setManualId() {
+    if ($("#manualID").is(":checked")) {
+        $("input#orderId").prop("disabled", false);
+    } else {
+        $("input#orderId").prop("disabled", true);
+        $("input#orderId").val("");
+        currentOrderId = "";
+    }
+}
 
 $(function () {
     $("form").on('submit', (e) => e.preventDefault());
@@ -435,5 +471,10 @@ $(function () {
     $("#vegetarian-add").click(() => addVegetarianToBag());
     $("#dietcoke-add").click(() => addDietCokeToBag());
     $("#beer-add").click(() => addBeerToBag());
+
+    $("#tab1").click(() => setTab1());
+    $("#tab2").click(() => setTab2());
+
+    $("#manualID").click(() => setManualId());
 
 });

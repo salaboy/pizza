@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Cloud Native - Pizza Store</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href="main.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="app.js"></script>
 </head>
 
-<body onload="connect()">
+<body onload="connect()" data-new-gr-c-s-check-loaded="14.1255.0" data-gr-ext-installed="">
     <noscript>
         <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
             enabled. Please enable
@@ -19,49 +18,81 @@
     </noscript>
     <header>
         <div class="pizza-place">
-            <h2>Cloud Native Pizza Store</h2>
+            <h1>Cloud Native Pizza Store</h1>
             <h4><a href="https://github.com/salaboy/pizza">github.com/salaboy/pizza</a></h4>
         </div>
         <div class="pizza-order">
-            <h5>Order Id:</h5>
-            <div class="pizza-item">
-                <input id="orderId"></input>
+            <div class="order-item">
+                <input disabled id="orderId">
+                 <div class="order-item-manual"> 
+                    <input type="checkbox" name="manualID" id="manualID">
+                    <label>
+                        Set Order ID
+                    </label>
+                </div>
             </div>
-        </div>
-        <div class="pizza-order">
-            <h5>Place order:</h5>
-            <div>
-                <p>Pepperoni</p>
-                <button id="pepperoni-add">Add 🍕</button>
-            </div>
-            <div>
-                <p>Vegetarian</p>
-                <button id="vegetarian-add">Add 🥒</button>
-            </div>
-            <div>
-                <p>Diet Cocke</p>
-                <button id="dietcoke-add">Add 🥤</button>
-            </div>
-            <div>
-                <p>Beer</p>
-                <button id="beer-add">Add 🍺</button>
-            </div>
-            <div id="bag">
-
-            </div>
-            <button id="placeOrder" class="button main" type="submit">Place Order</button>
-            <button id="emptyCart" class="button main" type="submit">Empty Cart</button>
-        </div>
-        <div class="pizza-order">
-            <h5>Type your order</h5>
-            <p></p>
-            <div class="pizza-item">
-                <textarea id="prompt" rows="5"></textarea>
-            </div>
-            <button id="placeOrderPrompt" class="button main" type="submit">Sent prompt</button>
-        </div>
-
+       </div>
     </header>
+    <section id="forms">
+        <div id="tabs" class="tabs">
+            <div class="tabs-header">
+                <div id="tab1" class="tabs-header-item active">
+                    Create your order
+                </div>
+                <div id="tab2" class="tabs-header-item">
+                    AI Prompt
+                </div>
+            </div>
+            <div class="tabs-body">
+                <div id="tab1-content" class="tabs-body-content active">
+                     <div class="place-order-content">
+                        <div>
+                            <h2>Place order:</h2>
+                            <div class="place-order-items">
+                                <div class="place-order-button">
+                                    <p>Pepperoni</p>
+                                    <button id="pepperoni-add">Add 🍕</button>
+                                </div>
+                                <div class="place-order-button">
+                                    <p>Vegetarian</p>
+                                    <button id="vegetarian-add">Add 🥒</button>
+                                </div>
+                                <div class="place-order-button">
+                                    <p>Diet Coke</p>
+                                    <button id="dietcoke-add">Add 🥤</button>
+                                </div>
+                                <div class="place-order-button">
+                                    <p>Beer</p>
+                                    <button id="beer-add">Add 🍺</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bag">
+                            <h2>Current Order:</h2>
+                            <div id="bag" class="bag-items">   
+                            </div>
+                            <div class="bag-actions">
+                                <button id="placeOrder" class="button main" type="submit">Place Order</button>
+                                <button id="emptyCart" class="button secondary" type="submit">Empty Cart</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+                <div id="tab2-content" class="tabs-body-content">
+                     <div class="pizza-order">
+                        <h2>Type your order</h2>
+                        
+                        <div class="prompt">
+                            <textarea id="prompt" rows="3"></textarea>
+                        </div>
+                        <button id="placeOrderPrompt" class="button main" type="submit">Sent prompt</button>
+                    </div>
+                </div>
+            </div>
+        </div>   
+    </section>
     <div id="main-content" class="container">
         <div class="row">
             <div class="col-md-6">

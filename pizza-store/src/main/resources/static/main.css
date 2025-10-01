@@ -1,4 +1,4 @@
-@import "./base.css";
+@import "base.css";
 
 #app {
   max-width: 1280px;
@@ -19,6 +19,15 @@ header {
 header p {
   max-width: 800px;
 }
+
+#forms {
+  display: flex;
+  padding: 0 5vw 5vw;
+  gap: 40px;
+  justify-content: space-between;
+  background-color: var(--vt-c-yellow-dark);
+}
+
 .container {
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -233,6 +242,45 @@ a {
     border-radius: 1rem;
 }
 
+.order-item {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+    border: 2px solid var(--vt-c-blue-dark);
+    border-radius: 1rem;
+}
+.order-item > input{
+ background-color: var(--color-background); 
+ border: 1px solid var(--color-border);
+ border-radius: 10px;
+}
+.order-item > input:disabled{
+ background-color: var(--vt-c-white-mute); 
+ border: 1px solid var(--vt-c-white-mute);
+ border-radius: 10px;
+}
+.order-item .order-item-manual {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 10px;
+}
+.order-item .order-item-manual input {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin:0;
+  vertical-align: bottom;
+  position: relative;
+  top: 1px;
+  *overflow: hidden;
+}
+.order-item .order-item-manual label {
+  color: #777;
+  font-size: .8em;
+}
+
 img {
   margin: 0.5em 0.2em;
   width: 150px;
@@ -248,7 +296,7 @@ button {
   border-radius: 0.5rem;
   padding: 0.7rem;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.5rem;
   margin-top: 1rem;
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.4s ease-out;
@@ -258,11 +306,24 @@ button.main {
   padding: 1rem 2rem;
   background-color: var(--vt-c-blue-dark); 
   border-color: var(--vt-c-blue-dark);
-  color: var(--vt-c-yellow-light);
+  color: var(--color-background);
   font-size: 2rem;
 }
 
 button.main:hover:enabled {
+  box-shadow: 0px 0px 10px var(--vt-c-blue-dark);
+  transition: all 0.1s ease-out;
+}
+
+button.secondary {
+  padding: 1rem 2rem;
+  background-color: var(--color-background);
+  border-color: var(--color-text);
+  color: var(--color-text);
+  font-size: 2rem;
+}
+
+button.secondary:hover:enabled {
   box-shadow: 0px 0px 10px var(--vt-c-blue-dark);
   transition: all 0.1s ease-out;
 }
@@ -291,4 +352,90 @@ button:hover:enabled {
     align-items: center;
     justify-content: center;
 }
+}
+
+
+.tabs {
+width: 100%;
+}
+
+.tabs .tabs-header {
+  display: flex;
+  margin: 0 20px;
+}
+.tabs .tabs-header  .tabs-header-item {
+  padding: 20px 35px;
+  font-weight: bold;
+  font-size: 1.25em;
+  border-radius: 10px 10px 0 0;
+}
+
+.tabs .tabs-header  .tabs-header-item.active {
+ background-color: var(--vt-c-blue-dark);
+ color: var(--color-background);
+}
+
+.tabs .tabs-body {
+  border: 2px solid var(--vt-c-blue-dark);
+  border-radius: 10px;
+  background-color: var(--color-background);
+  
+}
+
+.tabs .tabs-body .tabs-body-content {
+  display: none;
+  padding: 2.5vw;
+}
+.tabs .tabs-body .tabs-body-content.active {
+  display: block;
+}
+
+.place-order-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+
+}
+.place-order-items {
+   display:grid;
+  grid-template-columns: 100px 100px;
+  grid-row: auto auto;
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+}
+.bag {
+  width: 100%;
+  text-align: center;
+}
+
+.bag .bag-actions{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding-top: 20px;
+   
+}
+.bag .bag-items {
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.bag .bag-items .bag-item {
+  padding: 10px;
+  background-color: var(--vt-c-white-mute);
+  border-radius: 100px;
+  font-size: 3em;
+}
+.prompt {
+  padding: 20px 0;
+}
+.prompt textarea{
+  background-color: var(--vt-c-white-mute);
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 600px;
+  font-size: 1.5em;
 }
