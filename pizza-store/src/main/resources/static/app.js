@@ -290,9 +290,13 @@ function createItem(detailsImage, text, disabled) {
         item += "<img class='transition' src='imgs/GreenDot.png'/>";
     }
     item += "</div>" +
-        "<div class='details'>" +
-        "<img src='imgs/" + detailsImage + "'/>" +
-        "<p>" + text + "</p>" +
+        "<div class='details'>";
+
+    if(detailsImage !== ""){
+      item += "<img src='imgs/" + detailsImage + "'/>";
+    }
+
+    item +=   "<p>" + text + "</p>" +
         "</div>" +
         "</div>";
     return item;
@@ -325,7 +329,7 @@ function createBagFromOrderItems(items){
 
         }
     }
-    var bagItems = "<div class='bag'><div class='bag-items'>";
+    var bagItems = "<div class='bag' style='flex-wrap: wrap;justify-content: left;'><div class='bag-items' style='flex-wrap: wrap; justify-content: left;'>";
     for(let i = 0; i < emojisFromItems.length; i++){
         bagItems += "<div class='bag-item'>" +
             emojisFromItems[i] +
@@ -346,7 +350,7 @@ async function showEvent(event) {
         console.log("Event Type => " + eventObject.type + " -> currentOrderLastState=> " + currentOrderLastState);
 
          if (eventObject.type === "ai-down") {
-            $("#status").append(createItem("Error.png", "Something failed while processing your order.", false));
+            $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
 
             $("#events").append(createEventEntry(eventObject));
             currentOrderLastState = "";
@@ -363,7 +367,7 @@ async function showEvent(event) {
 
         if (eventObject.type === "order-placed") {
 
-            $("#status").append(createItem("none.png", createBagFromOrderItems(eventObject.order.items) + "Order Placed" , false));
+            $("#status").append(createItem("", createBagFromOrderItems(eventObject.order.items) + "<br/><h3>Order Placed</h3>" , false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             return;

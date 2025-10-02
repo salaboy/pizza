@@ -249,6 +249,7 @@ a {
     background-color: var(--color-background);
     border: 2px solid var(--vt-c-blue-dark);
     border-radius: 1rem;
+    min-width: 400px;
 }
 .order-item > input{
  background-color: var(--color-background); 
