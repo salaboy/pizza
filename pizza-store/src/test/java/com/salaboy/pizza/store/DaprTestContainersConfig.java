@@ -119,6 +119,7 @@ public class DaprTestContainersConfig {
 
     @Bean
     @ServiceConnection
+    @ConditionalOnProperty(prefix = "tests", name = "dapr.local", havingValue = "true")
     DaprContainer daprContainer(KafkaContainer kafkaContainer, Environment env, Network daprNetwork, @Nullable MicrocksContainersEnsemble ensemble) {
         boolean reuse = env.getProperty("reuse", Boolean.class, false);
         daprContainer = new DaprContainer("daprio/daprd:1.16.0")

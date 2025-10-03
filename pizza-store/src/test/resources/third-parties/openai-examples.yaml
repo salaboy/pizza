@@ -33,7 +33,7 @@ operations:
                 "index": 0,
                 "message": {
                   "role": "assistant",
-                  "content": "[{\"category\": \"pizza\", \"name\": \"pepperoni\", \"amount\": 1}, { \"category\": \"drink\", \"name\": \"Beer\", \"amount\": 1}]",
+                  "content": "[{\"category\": \"pizza\", \"name\": \"pepperoni\", \"amount\": 1}, { \"category\": \"drink\", \"name\": \"beer\", \"amount\": 1}]",
                   "tool_calls": null,
                   "function_call": null
                 }

@@ -144,18 +144,23 @@ async function placeOrderPrompt(){
                                               prompt: $("textarea#prompt").val()
                                           }
     currentOrderId && (order.id = currentOrderId);
+
+    // No order id has been provided, let's generate one
+    if(!order.id){
+            order.id = crypto.randomUUID();
+            currentOrderId = order.id;
+
+    }
+    $("input#orderId").val(currentOrderId);
     //Send Order to store
-    const response = await fetch("/order", {
+    fetch("/order", {
             method: "POST",
             body: JSON.stringify(order),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
         });
-    const result = await response.json();
-    console.log(result);
-    currentOrderId = result.id;
-    $("input#orderId").val(currentOrderId);
+
 }
 
 function emptyCart() {
@@ -178,8 +183,16 @@ async function placeOrder() {
     };
 
     currentOrderId && (order.id = currentOrderId);
+
+    // No order id has been provided, let's generate one
+    if(!order.id){
+        order.id = crypto.randomUUID();
+        currentOrderId = order.id;
+    }
+    $("input#orderId").val(currentOrderId);
+
     //Send Order to store
-    const response = await fetch("/order", {
+    fetch("/order", {
         method: "POST",
         body: JSON.stringify(order),
         headers: {
@@ -187,10 +200,6 @@ async function placeOrder() {
         }
     });
 
-    const result = await response.json();
-    console.log(result);
-    currentOrderId = result.id;
-    $("input#orderId").val(currentOrderId);
 }
 
 function disconnect() {
@@ -345,9 +354,9 @@ async function showEvent(event) {
 
 
     eventObject = JSON.parse(event);
-
+    console.log("Event Type => " + eventObject.type + " -> currentOrderLastState=> " + currentOrderLastState);
+    console.log("Waiting => " + !waiting);
     if (currentOrderId == eventObject.order.id && !waiting){
-        console.log("Event Type => " + eventObject.type + " -> currentOrderLastState=> " + currentOrderLastState);
 
          if (eventObject.type === "ai-down") {
             $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
@@ -377,11 +386,13 @@ async function showEvent(event) {
             $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
-            waiting = true;
-            //console.log("Simulating waiting for kitchen to prepare the order");
-            await new Promise(r => setTimeout(r, 1000));
-            //console.log("Kitchen should have prepared the order by now");
-            waiting = false;
+            if(currentOrderId === "123-456-789" || currentOrderId === "abc-def-ghi"){
+                waiting = true;
+                //console.log("Simulating waiting for kitchen to prepare the order");
+                await new Promise(r => setTimeout(r, 1000));
+                //console.log("Kitchen should have prepared the order by now");
+                waiting = false;
+            }
             return;
         }
 
@@ -401,11 +412,13 @@ async function showEvent(event) {
             $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
-            waiting = true;
-            //console.log("Simulating waiting for delivery to get to you");
-            await new Promise(r => setTimeout(r, 1000));
-            //console.log("Delivery should be almost there by now");
-            waiting = false;
+            if(currentOrderId === "123-456-789" || currentOrderId === "abc-def-ghi"){
+                waiting = true;
+                //console.log("Simulating waiting for delivery to get to you");
+                await new Promise(r => setTimeout(r, 1000));
+                //console.log("Delivery should be almost there by now");
+                waiting = false;
+            }
             return;
         }
 
@@ -452,6 +465,7 @@ function setTab2() {
 function setManualId() {
     if ($("#manualID").is(":checked")) {
         $("input#orderId").prop("disabled", false);
+        $("input#orderId").val("123-456-789")
     } else {
         $("input#orderId").prop("disabled", true);
         $("input#orderId").val("");

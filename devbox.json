@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
   "packages": [
-    "zulu@21.0.8",
+    "zulu25@25.0.0",
     "httpie@3.2.4",
     "dapr-cli@1.16.0",
     "kubectl@1.33.3",

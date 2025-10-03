@@ -8,11 +8,6 @@ spec:
       app: pizza-store-service
   template:
     metadata:
-      annotations:  
-        dapr.io/app-id: pizza-store
-        dapr.io/app-port: "8080"
-        dapr.io/enabled: "true"
-        dapr.io/log-level: "debug"
       labels:
         app: pizza-store-service
         app.kubernetes.io/name: pizza-store-service
@@ -21,7 +16,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: salaboy/pizza-store:1.0.4-agentic-amd64
+        image: salaboy/pizza-store:1.0.0-agentic-amd64
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT
@@ -32,12 +27,14 @@ spec:
           value: localhost:8080
         - name: STATESTORE_NAME
           value: kvstore
-        - name: DAPR_GRPC_ENDPOINT
-          value: http://localhost:50001
-        - name: DAPR_HTTP_ENDPOINT
-          value: http://localhost:3500
         - name: OPENAI_API_KEY
-          value: <YOUR_OPENAI_API_KEY_HERE>
+          value: "<YOUR OPENAI API KEY HERE>" 
+        - name: DAPR_HTTP_ENDPOINT
+          value: "<YOUR CATALYST PROJECT DAPR HTTP ENDPOINT HERE>"
+        - name: DAPR_GRPC_ENDPOINT
+          value: "<YOUR CATALYST PROJECT DAPR GRPC ENDPOINT HERE>"
+        - name: DAPR_API_TOKEN
+          value: "<YOUR CATALYST STORE APPID API KEY HERE>"
         livenessProbe:
           httpGet:
             path: /actuator/health

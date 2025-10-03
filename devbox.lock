@@ -50,8 +50,8 @@
       }
     },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "last_modified": "2025-09-28T14:42:27Z",
-      "resolved": "github:NixOS/nixpkgs/647e5c14cbd5067f44ac86b74f014962df460840?lastModified=1759070547"
+      "last_modified": "2025-10-01T12:36:30Z",
+      "resolved": "github:NixOS/nixpkgs/ee4cd98afba682ca27242f2d7fdbd8583f6ef51a?lastModified=1759322190"
     },
     "httpie@3.2.4": {
       "last_modified": "2025-09-18T16:33:27Z",
@@ -249,51 +249,99 @@
         }
       }
     },
-    "zulu@21.0.8": {
+    "maven@3.9.11": {
       "last_modified": "2025-09-18T16:33:27Z",
-      "resolved": "github:NixOS/nixpkgs/f4b140d5b253f5e2a1ff4e5506edbf8267724bde#zulu",
+      "resolved": "github:NixOS/nixpkgs/f4b140d5b253f5e2a1ff4e5506edbf8267724bde#maven",
       "source": "devbox-search",
-      "version": "21.0.8",
+      "version": "3.9.11",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/wyi32zphr3jh1npsz0yj8bbswvjs3w8m-zulu-ca-jdk-21.0.8",
+              "path": "/nix/store/rzhr4g6jwsib6szxwji7kqj9bbc87vq6-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/wyi32zphr3jh1npsz0yj8bbswvjs3w8m-zulu-ca-jdk-21.0.8"
+          "store_path": "/nix/store/rzhr4g6jwsib6szxwji7kqj9bbc87vq6-maven-3.9.11"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/cm0s8lgr8ql4qr36yixj5vs43rd2l1ng-zulu-ca-jdk-21.0.8",
+              "path": "/nix/store/0n3y4r6ilszcw1r5ya426ig4cb4ammm8-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/cm0s8lgr8ql4qr36yixj5vs43rd2l1ng-zulu-ca-jdk-21.0.8"
+          "store_path": "/nix/store/0n3y4r6ilszcw1r5ya426ig4cb4ammm8-maven-3.9.11"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vhb3vgnnzf6alzlrs8b0acrvrvf1p1yp-zulu-ca-jdk-21.0.8",
+              "path": "/nix/store/8ni22mh86cmzc4gw5x2g7xm1nbwi5l1c-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vhb3vgnnzf6alzlrs8b0acrvrvf1p1yp-zulu-ca-jdk-21.0.8"
+          "store_path": "/nix/store/8ni22mh86cmzc4gw5x2g7xm1nbwi5l1c-maven-3.9.11"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/iv372fls098ngcidck88fbfy3kiki7w4-zulu-ca-jdk-21.0.8",
+              "path": "/nix/store/ngdc0ikxrpvdicdchs8146y2xdy83wfj-maven-3.9.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/iv372fls098ngcidck88fbfy3kiki7w4-zulu-ca-jdk-21.0.8"
+          "store_path": "/nix/store/ngdc0ikxrpvdicdchs8146y2xdy83wfj-maven-3.9.11"
+        }
+      }
+    },
+    "zulu25@25.0.0": {
+      "last_modified": "2025-09-18T16:33:27Z",
+      "resolved": "github:NixOS/nixpkgs/f4b140d5b253f5e2a1ff4e5506edbf8267724bde#zulu25",
+      "source": "devbox-search",
+      "version": "25.0.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/66bfa9mca1ah655ipm9l0g43fc21nd7n-zulu-ca-jdk-25.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/66bfa9mca1ah655ipm9l0g43fc21nd7n-zulu-ca-jdk-25.0.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/0bqba8kc78y5v27259v0wv57zlajldzi-zulu-ca-jdk-25.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/0bqba8kc78y5v27259v0wv57zlajldzi-zulu-ca-jdk-25.0.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/4k0fppg51s80b7r2ad8p8cm3zh0yx7i0-zulu-ca-jdk-25.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/4k0fppg51s80b7r2ad8p8cm3zh0yx7i0-zulu-ca-jdk-25.0.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/jga8k34caismrzxab06scky9pd31mrrm-zulu-ca-jdk-25.0.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/jga8k34caismrzxab06scky9pd31mrrm-zulu-ca-jdk-25.0.0"
         }
       }
     }
