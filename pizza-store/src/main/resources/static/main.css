@@ -242,6 +242,12 @@ a {
     border-radius: 1rem;
 }
 
+.pizza-order {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
 .order-item {
     padding: 2rem;
     display: flex;
@@ -280,6 +286,54 @@ a {
 .order-item .order-item-manual label {
   color: #777;
   font-size: .8em;
+}
+
+.service-status {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+    border: 2px solid var(--vt-c-blue-dark);
+    border-radius: 1rem;
+    min-width: 300px;
+}
+
+.service-status h4 {
+    margin: 0 0 1rem 0;
+    color: var(--color-heading);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.service-status-item {
+    padding: 0.3rem 0;
+    font-size: .8em;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.service-status-item:last-child {
+    border-bottom: none;
+}
+
+.status-up {
+    color: #28a745;
+}
+
+.status-down {
+    color: #dc3545;
+}
+
+.status-error {
+    color: #dc3545;
+}
+
+.status-unknown {
+    color: #6c757d;
+}
+
+.status-loading {
+    color: #6c757d;
+    font-style: italic;
 }
 
 img {

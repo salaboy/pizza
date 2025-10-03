@@ -25,15 +25,38 @@ public class PizzaOrderWorkflow implements Workflow {
 
       ctx.callActivity(ConfirmOrderPlaced.class.getName(), orderPayload).await();
 
-      ctx.callActivity(StoreOrderActivity.class.getName(), orderPayload).await();
+      try {
+        ctx.callActivity(StoreOrderActivity.class.getName(), orderPayload).await();
+      } catch (TaskFailedException tfe){
+        ctx.callActivity(ReportStoringIssue.class.getName(), orderPayload).await();
+        ctx.complete(orderPayload);
+      }
 
-      ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
+      boolean requiresCooking = false;
+      if (!orderPayload.items().isEmpty()) {
+        for (OrderItem oi : orderPayload.items()) {
+          if (oi.category().equals("pizza")) {
+            requiresCooking = true;
+          }
+        }
+      }
+      if (requiresCooking) {
+        try {
+          ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayload).await();
+        } catch (TaskFailedException tfe){
+          ctx.callActivity(ReportKitchenIssue.class.getName(), orderPayload).await();
+          ctx.complete(orderPayload);
+        }
 
-      OrderPayload orderFromTheKitchen = ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
-
-      ctx.callActivity(StoreOrderActivity.class.getName(), new OrderPayload(orderFromTheKitchen, Status.delivery)).await();
-
-      ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayload).await();
+        ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
+      }
+      ctx.callActivity(ReportOrderReadyForDelivery.class.getName(), orderPayload).await();
+      try {
+        ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayload).await();
+      } catch (TaskFailedException tfe){
+        ctx.callActivity(ReportDeliveryIssue.class.getName(), orderPayload).await();
+        ctx.complete(orderPayload);
+      }
 
       ctx.waitForExternalEvent("PizzaDelivered", Duration.ofMinutes(10), OrderPayload.class).await();
 

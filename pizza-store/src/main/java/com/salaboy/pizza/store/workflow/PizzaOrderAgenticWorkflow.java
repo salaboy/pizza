@@ -40,14 +40,21 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
 
       } catch (TaskFailedException tfe) {
         ctx.callActivity(ReportOrderProcessingIssue.class.getName(), orderPayloadWithPrompt).await();
+        ctx.complete(orderPayloadWithPrompt);
       }
 
       OrderPayload orderPayloadWithItems = new OrderPayload(orderPayloadWithPrompt,
               Arrays.stream(orderItems).toList());
 
+
       ctx.callActivity(ConfirmOrderPlaced.class.getName(), orderPayloadWithItems).await();
 
-      ctx.callActivity(StoreOrderActivity.class.getName(), orderPayloadWithItems).await();
+      try {
+        ctx.callActivity(StoreOrderActivity.class.getName(), orderPayloadWithItems).await();
+      } catch (TaskFailedException tfe){
+        ctx.callActivity(ReportStoringIssue.class.getName(), orderPayloadWithPrompt).await();
+        ctx.complete(orderPayloadWithItems);
+      }
 
       boolean requiresCooking = false;
       if (!orderPayloadWithItems.items().isEmpty()) {
@@ -58,11 +65,22 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
         }
       }
       if (requiresCooking) {
-        ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayloadWithItems).await();
+        try {
+          ctx.callActivity(PlaceOrderToKitchen.class.getName(), orderPayloadWithItems).await();
+        } catch (TaskFailedException tfe){
+          ctx.callActivity(ReportKitchenIssue.class.getName(), orderPayloadWithPrompt).await();
+          ctx.complete(orderPayloadWithItems);
+        }
+
         ctx.waitForExternalEvent("KitchenDone", Duration.ofMinutes(5), OrderPayload.class).await();
       }
-
-      ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayloadWithItems).await();
+      ctx.callActivity(ReportOrderReadyForDelivery.class.getName(), orderPayloadWithPrompt).await();
+      try {
+        ctx.callActivity(DeliverOrderToCustomer.class.getName(), orderPayloadWithItems).await();
+      } catch (TaskFailedException tfe){
+        ctx.callActivity(ReportDeliveryIssue.class.getName(), orderPayloadWithPrompt).await();
+        ctx.complete(orderPayloadWithItems);
+      }
 
       ctx.waitForExternalEvent("PizzaDelivered", Duration.ofMinutes(10), OrderPayload.class).await();
 

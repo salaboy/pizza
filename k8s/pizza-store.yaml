@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: salaboy/pizza-store:1.0.4-agentic-amd64
+        image: salaboy/pizza-store:1.0.8-agentic-amd64
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT

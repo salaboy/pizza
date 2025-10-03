@@ -49,6 +49,53 @@ stompClient.onStompError = (frame) => {
     console.error('Additional details: ' + frame.body);
 };
 
+
+window.addEventListener('load', function () {
+  // Your document is loaded.
+  var fetchInterval = 3000; // 5 seconds.
+
+  // Invoke the request every 5 seconds.
+  setInterval(fetchStatus, fetchInterval);
+});
+
+function fetchStatus() {
+  fetch('/status')
+    .then(function (response) {
+      return response.json();
+    }).then(function (data){
+       console.log(data);
+       updateServiceStatusIndicator(data);
+    })
+    .catch(function (err) {
+      console.log('error: ' + err);
+      updateServiceStatusIndicator({ error: 'Failed to fetch status' });
+    });
+}
+
+function updateServiceStatusIndicator(statusData) {
+  const indicator = document.getElementById('serviceStatusIndicator');
+  
+  if (statusData.error) {
+    indicator.innerHTML = '<span class="status-error">❌ Error loading status</span>';
+    return;
+  }
+  
+  if (!statusData || Object.keys(statusData).length === 0) {
+    indicator.innerHTML = '<span class="status-unknown">❓ Status unknown</span>';
+    return;
+  }
+  
+  let statusHtml = '';
+  for (const [serviceName, serviceStatus] of Object.entries(statusData)) {
+    const statusIcon = serviceStatus === true ? '✅' : '❌';
+    const statusClass = serviceStatus === true ? 'status-up' : 'status-down';
+    statusHtml += `<div class="service-status-item ${statusClass}">${serviceName}: ${statusIcon}</div>`;
+  }
+  
+  indicator.innerHTML = statusHtml;
+}
+
+
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
@@ -361,6 +408,30 @@ async function showEvent(event) {
          if (eventObject.type === "ai-down") {
             $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
 
+            $("#events").append(createEventEntry(eventObject));
+            currentOrderLastState = "";
+            currentOrderId = "";
+            return;
+         }
+
+         if (eventObject.type === "storing-issue") {
+            $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
+            $("#events").append(createEventEntry(eventObject));
+            currentOrderLastState = "";
+            currentOrderId = "";
+            return;
+         }
+
+         if (eventObject.type === "kitchen-issue") {
+            $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
+            $("#events").append(createEventEntry(eventObject));
+            currentOrderLastState = "";
+            currentOrderId = "";
+            return;
+         }
+
+         if (eventObject.type === "delivery-issue") {
+            $("#status").append(createItem("Broken-Robot.png", "Something failed while processing your order.", false));
             $("#events").append(createEventEntry(eventObject));
             currentOrderLastState = "";
             currentOrderId = "";
