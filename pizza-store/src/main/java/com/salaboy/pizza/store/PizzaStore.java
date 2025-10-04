@@ -115,6 +115,13 @@ public class PizzaStore {
   }
 
   private String startPizzaWorkflow(OrderPayload order) {
+    if(order.id().equals("789-456-123") || order.id().equals("abc-def-ghi")){
+      try {
+        daprWorkflowClient.terminateWorkflow(order.id(), "");
+        daprWorkflowClient.purgeInstance(order.id());
+      }catch(Throwable t){}
+    }
+    
     if (order.prompt() == null || order.prompt().isEmpty()) {
       System.out.println("Scheduled new PizzaOrderWorkflow instance with ID: " + order.id());
       daprWorkflowClient.scheduleNewWorkflow(PizzaOrderWorkflow.class, order, order.id());

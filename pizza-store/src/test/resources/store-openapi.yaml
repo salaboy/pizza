@@ -35,7 +35,7 @@ paths:
                   }
               lbroudoux:
                 value:
-                  id: 123-456-789
+                  id: 789-456-123
                   customer:
                     name: lbroudoux
                     email: laurent.broudoux@gmail.com
@@ -70,7 +70,7 @@ paths:
                     }
                 lbroudoux:
                   value:
-                    id: 123-456-789
+                    id: 789-456-123
                     customer:
                       name: lbroudoux
                       email: laurent.broudoux@gmail.com

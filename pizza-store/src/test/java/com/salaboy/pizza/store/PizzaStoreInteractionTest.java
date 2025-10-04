@@ -51,9 +51,9 @@ class PizzaStoreInteractionTest {
    void setup() {
       try {
          daprWorkflowClient.terminateWorkflow("abc-def-ghi", "Test setup cleanup");
-         daprWorkflowClient.terminateWorkflow("123-456-789", "Test setup cleanup");
+         daprWorkflowClient.terminateWorkflow("789-456-123", "Test setup cleanup");
          daprWorkflowClient.purgeInstance("abc-def-ghi");
-         daprWorkflowClient.purgeInstance("123-456-789");
+         daprWorkflowClient.purgeInstance("789-456-123");
       } catch (Throwable t) {
          // Exception is ok, workflow may not exist.
       }

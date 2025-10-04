@@ -458,11 +458,11 @@ async function showEvent(event) {
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             if(currentOrderId === "789-456-123" || currentOrderId === "abc-def-ghi"){
-                waiting = true;
-                //console.log("Simulating waiting for kitchen to prepare the order");
-                await new Promise(r => setTimeout(r, 1000));
-                //console.log("Kitchen should have prepared the order by now");
-                waiting = false;
+//                waiting = true;
+//                //console.log("Simulating waiting for kitchen to prepare the order");
+//                await new Promise(r => setTimeout(r, 1000));
+//                //console.log("Kitchen should have prepared the order by now");
+//                waiting = false;
             }
             return;
         }
@@ -484,11 +484,11 @@ async function showEvent(event) {
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             if(currentOrderId === "789-456-123" || currentOrderId === "abc-def-ghi"){
-                waiting = true;
-                //console.log("Simulating waiting for delivery to get to you");
-                await new Promise(r => setTimeout(r, 1000));
-                //console.log("Delivery should be almost there by now");
-                waiting = false;
+//                waiting = true;
+//                //console.log("Simulating waiting for delivery to get to you");
+//                await new Promise(r => setTimeout(r, 1000));
+//                //console.log("Delivery should be almost there by now");
+//                waiting = false;
             }
             return;
         }
@@ -514,7 +514,7 @@ async function showEvent(event) {
             return;
         }
     }else{
-           console.log("Discarding event ("+eventObject.type+") for order: " + eventObject.order.id + " as current order is: " + currentOrderId);
+           console.log("Discarding event ("+eventObject.type+") for order: " + eventObject.order.id + " as current order is: " + currentOrderId + " -> !waiting? " + !waiting);
     }
 
 }
