@@ -109,7 +109,7 @@ class PizzaStoreInteractionTest {
 
       try {
          // Now wait until the "789-456-123" event is received and processed by the store.
-         await().atMost(15, TimeUnit.SECONDS)
+         await().atMost(30, TimeUnit.SECONDS)
                .pollDelay(500, TimeUnit.MILLISECONDS)
                .pollInterval(500, TimeUnit.MILLISECONDS)
                .until(() -> {

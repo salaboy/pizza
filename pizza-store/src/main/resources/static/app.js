@@ -457,7 +457,7 @@ async function showEvent(event) {
             $("#status").append(createItem("PizzaInOven.png", "Your Order is being prepared.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
-            if(currentOrderId === "123-456-789" || currentOrderId === "abc-def-ghi"){
+            if(currentOrderId === "789-456-123" || currentOrderId === "abc-def-ghi"){
                 waiting = true;
                 //console.log("Simulating waiting for kitchen to prepare the order");
                 await new Promise(r => setTimeout(r, 1000));
@@ -483,7 +483,7 @@ async function showEvent(event) {
             $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
-            if(currentOrderId === "123-456-789" || currentOrderId === "abc-def-ghi"){
+            if(currentOrderId === "789-456-123" || currentOrderId === "abc-def-ghi"){
                 waiting = true;
                 //console.log("Simulating waiting for delivery to get to you");
                 await new Promise(r => setTimeout(r, 1000));
@@ -536,7 +536,7 @@ function setTab2() {
 function setManualId() {
     if ($("#manualID").is(":checked")) {
         $("input#orderId").prop("disabled", false);
-        $("input#orderId").val("123-456-789")
+        $("input#orderId").val("789-456-123")
     } else {
         $("input#orderId").prop("disabled", true);
         $("input#orderId").val("");

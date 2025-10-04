@@ -84,6 +84,13 @@ public class PizzaOrderAgenticWorkflow implements Workflow {
 
       ctx.waitForExternalEvent("PizzaDelivered", Duration.ofMinutes(10), OrderPayload.class).await();
 
+      try {
+        ctx.callActivity(StoreOrderActivity.class.getName(), new OrderPayload(orderPayloadWithItems, Status.delivery)).await();
+      } catch (TaskFailedException tfe){
+        ctx.callActivity(ReportStoringIssue.class.getName(), orderPayloadWithItems).await();
+        ctx.complete(orderPayloadWithItems);
+      }
+
       ctx.complete(orderPayloadWithItems);
 
     };

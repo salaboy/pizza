@@ -24,10 +24,10 @@ public class StoreOrderActivity implements WorkflowActivity {
 
   @Override
   public Object run(WorkflowActivityContext ctx) {
-    System.out.println("Store Order Activity ... ");
-    OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
 
-    //String STATE_STORE_NAME = System.getenv("STATE_STORE_NAME");
+    OrderPayload orderPayload = ctx.getInput(OrderPayload.class);
+    System.out.println(">> Store Order Activity ... " + orderPayload);
+
     String STATE_STORE_NAME = "kvstore";
 
     Orders orders = new Orders(new ArrayList<OrderPayload>());
