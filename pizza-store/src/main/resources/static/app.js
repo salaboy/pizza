@@ -473,13 +473,13 @@ async function showEvent(event) {
              return;
         }
 
-        if (eventObject.type === "order-ready" && currentOrderLastState === "order-in-preparation") {
+        if (eventObject.type === "order-ready" && currentOrderLastState === "order-in-preparation")  {
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));
             return;
         }
 
-        if (eventObject.type === "order-out-for-delivery" && currentOrderLastState === "order-ready" ) {
+        if (eventObject.type === "order-out-for-delivery" && ( currentOrderLastState === "order-ready"  || currentOrderLastState === "order-placed" )) {
             $("#status").append(createItem("Map.gif", "Your order is out for delivery.", false));
             currentOrderLastState = eventObject.type;
             $("#events").append(createEventEntry(eventObject));

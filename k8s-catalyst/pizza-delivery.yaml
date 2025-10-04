@@ -28,11 +28,11 @@ spec:
         - name: PUB_SUB_TOPIC
           value: topic
         - name: DAPR_HTTP_ENDPOINT
-          value: "<YOUR CATALYST PROJECT DAPR HTTP ENDPOINT HERE>"
+          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
         - name: DAPR_GRPC_ENDPOINT
-          value: "<YOUR CATALYST PROJECT DAPR GRPC ENDPOINT HERE>"
+          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
         - name: DAPR_API_TOKEN
-          value: "<YOUR CATALYST STORE APPID API KEY HERE>"
+          value: <YOUR_DAPR_API_TOKEN_HERE>
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -50,3 +50,14 @@ spec:
             memory: "2Gi"
         ports:
         - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-delivery-service
+spec:
+  selector:
+    app: pizza-delivery-service
+  ports:
+  - port: 80
+    targetPort: 8080         

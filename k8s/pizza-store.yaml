@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: salaboy/pizza-store:1.0.8-agentic-amd64
+        image: salaboy/pizza-store:1.0.12-agentic-amd64
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT
@@ -37,7 +37,7 @@ spec:
         - name: DAPR_HTTP_ENDPOINT
           value: http://localhost:3500
         - name: OPENAI_API_KEY
-          value: <YOUR_OPENAI_API_KEY_HERE>
+          value: <YOUR OPENAI_API_KEY HERE>
         livenessProbe:
           httpGet:
             path: /actuator/health

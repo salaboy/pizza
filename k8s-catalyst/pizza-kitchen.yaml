@@ -24,15 +24,15 @@ spec:
         - name: JAVA_OPTS
           value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"   
         - name: PUB_SUB_NAME
-          value: pubsub       
+          value: pubsub
         - name: PUB_SUB_TOPIC
           value: topic  
         - name: DAPR_HTTP_ENDPOINT
-          value: "<YOUR CATALYST PROJECT DAPR HTTP ENDPOINT HERE>"
+          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
         - name: DAPR_GRPC_ENDPOINT
-          value: "<YOUR CATALYST PROJECT DAPR GRPC ENDPOINT HERE>"
+          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
         - name: DAPR_API_TOKEN
-          value: "<YOUR CATALYST STORE APPID API KEY HERE>"  
+          value: <YOUR_DAPR_API_TOKEN_HERE>
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -50,3 +50,14 @@ spec:
             memory: "2Gi"
         ports:
         - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-kitchen-service
+spec:
+  selector:
+    app: pizza-kitchen-service
+  ports:
+  - port: 80
+    targetPort: 8080        

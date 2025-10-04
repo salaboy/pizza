@@ -33,13 +33,27 @@ You will need to set up your Project URLs and API KEY to the following filles:
 To install the application you only need to run the following command: 
 
 ```
-kubectl apply -f k8s/
+kubectl apply -f k8s-catalyst/
 ```
 
-This install all the application services. To avoid dealing with Ingresses you can access the application by using `kubectl port-forward`, run to access the application on port `8080`: 
+This install all the application services. To avoid dealing with Ingresses you can access the application by using `kubectl port-forward`, run to access the application on port `8080`. 
+We also need to connect out three services to Catalyst, so Catalyst can connect back to our applications: 
+
+For the Pizza Store Service run: 
 
 ```
-kubectl port-forward svc/pizza-store 8080:80
+diagrid dev run --app-id pizza-store --app-port 8080 -- kubectl port-forward svc/pizza-store 8080:80
+```
+
+For the Pizza Kitchen Service run: 
+```
+diagrid dev run --app-id kitchen-service --app-port 8081 -- kubectl port-forward svc/pizza-kitchen-service 8081:80
+```
+
+For the Pizza Delivery Service run: 
+
+```
+diagrid dev run --app-id delivery-service --app-port 8082 -- kubectl port-forward svc/pizza-delivery-service 8082:80
 ```
 
 Then you can point your browser to [`http://localhost:8080`](http://localhost:8080) and you should see: 

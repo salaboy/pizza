@@ -80,21 +80,23 @@ public class PizzaStore {
 
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {
-    if(event.getData().type().equals(EventType.PING)) {
-      return;
-    }
-    emitWSEvent(event.getData());
     System.out.println("Received CloudEvent via Subscription: " + event.getData());
-    Event pizzaEvent = event.getData();
-
-    try {
-      if (pizzaEvent.type().equals(EventType.ORDER_READY)) {
-        daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "KitchenDone", pizzaEvent.order());
-      } else if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)) {
-        daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "PizzaDelivered", pizzaEvent.order());
+    if( event.getData() != null) {
+      if (event.getData().type().equals(EventType.PING)) {
+        return;
       }
-    } catch (Exception e) {
-      System.err.println("Exception raised while processing event: " + e.getMessage());
+      emitWSEvent(event.getData());
+      Event pizzaEvent = event.getData();
+
+      try {
+        if (pizzaEvent.type().equals(EventType.ORDER_READY)) {
+          daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "KitchenDone", pizzaEvent.order());
+        } else if (pizzaEvent.type().equals(EventType.ORDER_COMPLETED)) {
+          daprWorkflowClient.raiseEvent(pizzaEvent.order().id(), "PizzaDelivered", pizzaEvent.order());
+        }
+      } catch (Exception e) {
+        System.err.println("Exception raised while processing event: " + e.getMessage());
+      }
     }
   }
 
