@@ -28,11 +28,11 @@ spec:
         - name: PUB_SUB_TOPIC
           value: topic
         - name: DAPR_HTTP_ENDPOINT
-          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
+          value: <YOUR DAPR HTTP ENDPOINT HERE>
         - name: DAPR_GRPC_ENDPOINT
-          value: <YOUR_DAPR_HTTP_ENDPOINT_HERE>
+          value: <YOUR DAPR GRPC ENDPOINT HERE>
         - name: DAPR_API_TOKEN
-          value: <YOUR_DAPR_API_TOKEN_HERE>
+          value: <YOUR DAPR API TOKEN HERE>
         livenessProbe:
           httpGet:
             path: /actuator/health

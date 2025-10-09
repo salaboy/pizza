@@ -13,20 +13,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static java.util.Collections.singletonMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import io.dapr.client.DaprClient;
-import io.dapr.client.domain.Metadata;
 import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 @RestController
 public class PizzaKitchen {
 
-  private static final String MESSAGE_TTL_IN_SECONDS = "1000";
 
   @Autowired
   private DaprMessagingTemplate<Event> messagingTemplate;

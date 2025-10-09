@@ -363,7 +363,7 @@ function createEventEntry(eventObject) {
         "<p>Event from Service: <strong>" + eventObject.service + "</strong></p>" +
         "<p>Event Type: <strong>" + eventObject.type + "</strong></p>" +
         "<p>Message: <strong>" + eventObject.message + "</strong></p>" +
-        "<p>Event Order Id: <strong>" + eventObject.order.id + "</strong></p>" +
+        "<p>Event Order Id: <strong><a href='https://catalyst.diagrid.io/workflows/pizza-store/" + eventObject.order.id + "'>"+ eventObject.order.id +"</a></strong></p>" +
         "</div>";
     return eventEntry;
 
