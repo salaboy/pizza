@@ -36,13 +36,13 @@ jobs:
         uses: s4u/setup-maven-action@6c4e9964d4ecb8f1026310cd8618791fd51a8016 # v1.19.0
 
       - name: Compile and test store
-        run: ./mvnw clean package
+        run: cd pizza-store/ && mvn clean package
 
       - name: Compile and test kitchen
-        run: ./mvnw clean package  
+        run: cd pizza-kitchen/ && mvn clean package  
       
       - name: Compile and test delivery
-        run: ./mvnw clean package    
+        run: cd pizza-delivery/ && mvn clean package    
   
   package:
     name: Package
@@ -84,10 +84,11 @@ jobs:
 
       - name: Build and publish OCI image Pizza Store
         run: |
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64 --imagePlatform linux/amd64
+          cd ${{ github.workspace }}/pizza-store/
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64 --imagePlatform linux/amd64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64
 
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64 --imagePlatform linux/arm64
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64 --imagePlatform linux/arm64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64
       
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest \
@@ -119,10 +120,11 @@ jobs:
 
       - name: Build and publish OCI image Pizza Kitchen
         run: |
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64 --imagePlatform linux/amd64
+          cd ${{ github.workspace }}/pizza-kitchen/
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64 --imagePlatform linux/amd64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64
 
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64 --imagePlatform linux/arm64
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64 --imagePlatform linux/arm64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64
       
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest \
@@ -153,10 +155,11 @@ jobs:
           
       - name: Build and publish OCI image Pizza Delivery
         run: |
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64 --imagePlatform linux/amd64
+          cd ${{ github.workspace }}/pizza-delivery/
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64 --imagePlatform linux/amd64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64
 
-          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64 --imagePlatform linux/arm64
+          mvn spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64 --imagePlatform linux/arm64
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64
       
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest \
