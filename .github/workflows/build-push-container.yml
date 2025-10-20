@@ -1,0 +1,186 @@
+name: Commit Stage
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_STORE: salaboy/pizza-store
+  IMAGE_KITCHEN: salaboy/pizza-kitchen
+  IMAGE_DELIVERY: salaboy/pizza-delivery
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@6f327093bb6a42fe5eac053d21b168c46aa46f22 # v1.2.4
+        with:
+          java-version: '25'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Maven
+        uses: s4u/setup-maven-action@6c4e9964d4ecb8f1026310cd8618791fd51a8016 # v1.19.0
+
+      - name: Compile and test store
+        run: ./mvnw clean package
+
+      - name: Compile and test kitchen
+        run: ./mvnw clean package  
+      
+      - name: Compile and test delivery
+        run: ./mvnw clean package    
+  
+  package:
+    name: Package
+    runs-on: ubuntu-24.04
+    needs: [build]
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
+      packages: write
+    outputs:
+      image-digest: ${{ steps.image-info.outputs.digest }}
+      image-name: ${{ steps.image-info.outputs.name }}
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@6f327093bb6a42fe5eac053d21b168c46aa46f22 # v1.2.4
+        with:
+          java-version: '25'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Maven
+        uses: s4u/setup-maven-action@6c4e9964d4ecb8f1026310cd8618791fd51a8016 # v1.19.0
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+      
+      - name: Login to Docker
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build and publish OCI image Pizza Store
+        run: |
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64 --imagePlatform linux/amd64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64
+
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64 --imagePlatform linux/arm64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64
+      
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-amd64 \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest-arm64
+          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest
+
+
+      - name: Get OCI image digest Pizza Store
+        id: image-info-store
+        run: |
+          image_digest=$(skopeo inspect docker://${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}:latest | jq -r '.Digest')
+          echo $image_digest
+          echo "IMAGE_STORE_DIGEST=${image_digest}" >> $GITHUB_ENV
+          echo "digest=${image_digest}" >> $GITHUB_OUTPUT
+          echo "name=${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}" >> $GITHUB_OUTPUT
+      
+      - name: Sign image Pizza Store with Cosign
+        run: |
+          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}@${{ env.IMAGE_STORE_DIGEST }}
+      
+      - name: Generate SLSA Build Attestation for Pizza Store
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_STORE }}
+          subject-digest: ${{ env.IMAGE_STORE_DIGEST }}
+          push-to-registry: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}          
+
+      - name: Build and publish OCI image Pizza Kitchen
+        run: |
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64 --imagePlatform linux/amd64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64
+
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64 --imagePlatform linux/arm64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64
+      
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-amd64 \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest-arm64
+          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest
+
+      - name: Get OCI image digest Pizza Kitchen
+        id: image-info-kitchen
+        run: |
+          image_digest=$(skopeo inspect docker://${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}:latest | jq -r '.Digest')
+          echo $image_digest
+          echo "IMAGE_KITCHEN_DIGEST=${image_digest}" >> $GITHUB_ENV
+          echo "digest=${image_digest}" >> $GITHUB_OUTPUT
+          echo "name=${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}" >> $GITHUB_OUTPUT
+
+      - name: Sign image Pizza Kitchen with Cosign
+        run: |
+          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}@${{ env.IMAGE_KITCHEN_DIGEST }}
+      
+      - name: Generate SLSA Build Attestation for Pizza Store
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_KITCHEN }}
+          subject-digest: ${{ env.IMAGE_KITCHEN_DIGEST }}
+          push-to-registry: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}          
+          
+      - name: Build and publish OCI image Pizza Delivery
+        run: |
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64 --imagePlatform linux/amd64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64
+
+          ./mvnw spring-boot:build-image --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64 --imagePlatform linux/arm64
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64
+      
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-amd64 \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest-arm64
+          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest      
+
+      - name: Get OCI image digest Pizza Delivery
+        id: image-info-delveiry
+        run: |
+          image_digest=$(skopeo inspect docker://${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}:latest | jq -r '.Digest')
+          echo $image_digest
+          echo "IMAGE_DELIVERY_DIGEST=${image_digest}" >> $GITHUB_ENV
+          echo "digest=${image_digest}" >> $GITHUB_OUTPUT
+          echo "name=${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}" >> $GITHUB_OUTPUT
+
+      - name: Sign image Pizza Kitchen with Cosign
+        run: |
+          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}@${{ env.IMAGE_DELIVERY_DIGEST }}
+      
+      - name: Generate SLSA Build Attestation for Pizza Store
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_DELIVERY }}
+          subject-digest: ${{ env.IMAGE_DELIVERY_DIGEST }}
+          push-to-registry: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}          

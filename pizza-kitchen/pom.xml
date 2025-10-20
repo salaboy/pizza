@@ -14,7 +14,7 @@
   <name>Pizza Kitchen Service</name>
   <description>Pizza Kitchen Service</description>
   <properties>
-    <java.version>17</java.version>
+    <java.version>25</java.version>
     <dapr.version>1.16.0</dapr.version>
   </properties>
 
