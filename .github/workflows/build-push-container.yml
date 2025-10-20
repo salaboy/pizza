@@ -2,7 +2,7 @@ name: Commit Stage
 on:
   push:
     branches:
-      - main
+      - agentic-workflows
 
 env:
   REGISTRY: ghcr.io
