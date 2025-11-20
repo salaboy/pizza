@@ -1,0 +1,32 @@
+enabled: true
+fullnameOverride: jaeger
+provisionDataStore:
+  cassandra: false
+allInOne:
+  enabled: true
+  args:
+    - "--memory.max-traces=5000"
+  extraEnv:
+    - name: COLLECTOR_OTLP_GRPC_HOST_PORT
+      value: "0.0.0.0:4317"
+    - name: COLLECTOR_OTLP_HTTP_HOST_PORT
+      value: "0.0.0.0:4318"
+  resources:
+    limits:
+      memory: 400Mi
+  service:
+    otlp:
+      grpc:
+        name: otlp-grpc
+        port: 4317
+      http:
+        name: otlp-http
+        port: 4318
+storage:
+  type: memory
+agent:
+  enabled: false
+collector:
+  enabled: false
+query:
+  enabled: false

@@ -8,11 +8,13 @@ spec:
       app: pizza-kitchen-service
   template:
     metadata:
-      annotations:  
+      annotations:
         dapr.io/app-id: kitchen-service
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
+        dapr.io/config: "tracing"
+        instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"
       labels:
         app: pizza-kitchen-service
         app.kubernetes.io/name: pizza-kitchen-service
