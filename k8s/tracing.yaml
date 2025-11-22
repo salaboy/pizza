@@ -6,6 +6,6 @@ spec:
   tracing:
     samplingRate: "1"
     otel:
-      endpointAddress: "http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4317"
+      endpointAddress: "otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4317"
       isSecure: false
       protocol: grpc 

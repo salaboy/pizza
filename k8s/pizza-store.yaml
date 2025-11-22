@@ -8,12 +8,14 @@ spec:
       app: pizza-store-service
   template:
     metadata:
-      annotations: 
+      annotations:
         dapr.io/app-id: pizza-store
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
         dapr.io/config: "tracing"
+        dapr.io/sidecar-image: kaspernissen/daprd:tracing-v3-linux-arm64
+        dapr.io/env: "OTEL_SERVICE_NAME=pizza-store-daprd"
         instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"
       labels:
         app: pizza-store-service
