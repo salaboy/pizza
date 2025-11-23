@@ -14,7 +14,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
         dapr.io/config: "tracing"
-        dapr.io/sidecar-image: kaspernissen/daprd:tracing-v3-linux-arm64
+        dapr.io/sidecar-image: kaspernissen/daprd:tracing-v9-linux-arm64-linux-arm64
         dapr.io/env: "OTEL_SERVICE_NAME=delivery-service-daprd"
         instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"
       labels:
@@ -26,13 +26,12 @@ spec:
       containers:
       - name: pizza-delivery-service
         #image: salaboy/pizza-delivery:1.0.0-agentic-amd64
-        image: salaboy/pizza-delivery:1.0.0-agentic-arm64
+        #image: salaboy/pizza-delivery:1.0.0-agentic-arm64
+        image: kaspernissen/pizza-delivery:1.0.0-agentic-tracing-v8-arm64
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT
           value: "8080"
-        - name: JAVA_OPTS
-          value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"   
         - name: PUB_SUB_NAME
           value: pubsub       
         - name: PUB_SUB_TOPIC

@@ -14,7 +14,7 @@
   <name>Pizza Online Store</name>
   <description>Pizza Online Store</description>
   <properties>
-    <java.version>25</java.version>
+    <java.version>21</java.version>
     <dapr.version>1.16.1-rc-2</dapr.version>
     <spring-ai.version>1.1.0-M2</spring-ai.version>
   </properties>
@@ -42,6 +42,13 @@
       <artifactId>dapr-spring-boot-starter-test</artifactId>
       <version>${dapr.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- Override durabletask-client with modified local version for trace propagation -->
+    <dependency>
+      <groupId>io.dapr</groupId>
+      <artifactId>durabletask-client</artifactId>
+      <version>1.5.13-SNAPSHOT</version>
     </dependency>
 
     <!-- Spring AI -->
