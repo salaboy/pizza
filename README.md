@@ -74,8 +74,9 @@ We will be using OpenTelemetry for collecting telemetry. This demo has support f
 
 Let's start by installing Jaeger into our cluster:
 ```sh
-helm repo add jaeger-all-in-one https://raw.githubusercontent.com/hansehe/jaeger-all-in-one/master/helm/charts
-helm install jaeger jaeger-all-in-one/jaeger-all-in-one -f jaeger/values.yaml
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm repo update
+helm install jaeger jaegertracing/jaeger  -f jaeger/values.yaml
 ```
 Verify that Jaeger is running:
 ```
