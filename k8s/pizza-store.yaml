@@ -14,7 +14,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
         dapr.io/config: "tracing"
-        dapr.io/sidecar-image: kaspernissen/daprd:tracing-v9-linux-arm64-linux-arm64
+        dapr.io/sidecar-image: kaspernissen/daprd:stable-v1-linux-arm64
         dapr.io/env: "OTEL_SERVICE_NAME=pizza-store-daprd"
         instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"
       labels:
@@ -25,8 +25,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        #image: salaboy/pizza-store:1.0.14-agentic-amd64
-        image: kaspernissen/pizza-store:1.0.14-agentic-tracing-v8-arm64
+        image: salaboy/pizza-store:ctx3
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT
