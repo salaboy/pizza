@@ -31,39 +31,46 @@ If you don't have a Kubernetes Cluster you can [install KinD](https://kind.sigs.
 
 Once you have KinD installed you can run the following command to create a local Cluster: 
 
-```
+```sh
 kind create cluster
 ```
 
 Then we will install [Dapr](https://dapr.io) into our fresh new cluster by running the following command: 
 
-```
+```sh
 helm repo add dapr https://dapr.github.io/helm-charts/
 helm repo update
 helm upgrade --install dapr dapr/dapr \
---version=1.16.0 \
---namespace dapr-system \
---create-namespace \
---wait
+  --version=1.16.3 \
+  --namespace dapr-system \
+  --create-namespace \
+  --wait \
+  --set dapr_operator.image.name=daprio/operator:edge \
+  --set dapr_sentry.image.name=daprio/sentry:edge \
+  --set dapr_placement.image.name=daprio/placement:edge \
+  --set dapr_scheduler.image.name=daprio/scheduler:edge
+
+  # Manually update the injector (since Helm doesn't handle it correctly)
+  kubectl set image deployment/dapr-sidecar-injector -n dapr-system dapr-sidecar-injector=daprio/injector:edge
 ```
 
 ## Installing infrastructure for the application
 
 We will be using Kafka for sending messages between services: 
 
-```
+```sh
 helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka --version 22.1.5 --set "provisioning.topics[0].name=events-topic" --set "provisioning.topics[0].partitions=1" --set "persistence.size=1Gi" --set "image.repository=bitnamilegacy/kafka"
 ```
 
 We will be using PostgreSQL as our persistent store, but before installing the PostgreSQL Chart run:
 
-```
+```sh
 kubectl apply -f k8s/pizza-init-sql-cm.yaml
 ```
 
 Then: 
 
-```
+```sh
 helm install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql --version 12.5.7 --set "image.debug=true" --set "primary.initdb.user=postgres" --set "primary.initdb.password=postgres" --set "primary.initdb.scriptsConfigMap=pizza-init-sql" --set "global.postgresql.auth.postgresPassword=postgres" --set "primary.persistence.size=1Gi" --set "image.repository=bitnamilegacy/postgresql"
 
 ```
@@ -79,7 +86,7 @@ helm repo update
 helm install jaeger jaegertracing/jaeger  -f jaeger/values.yaml
 ```
 Verify that Jaeger is running:
-```
+```sh
 kubectl port-forward svc/jaeger-query 16686
 ```
 Go to localhost:16686 and you should see Jaeger running.
@@ -132,13 +139,13 @@ kubectl apply -f instrumentation/instrumentation.yaml
 
 To install the application you only need to run the following command: 
 
-```
+```sh
 kubectl apply -f k8s/
 ```
 
 This install all the application services. To avoid dealing with Ingresses you can access the application by using `kubectl port-forward`, run to access the application on port `8080`: 
 
-```
+```sh
 kubectl port-forward svc/pizza-store 8080:80
 ```
 
