@@ -1,0 +1,74 @@
+mode: deployment
+replicaCount: 1
+image:
+  repository: otel/opentelemetry-collector-contrib
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 256Mi
+extraEnvs:
+  - name: DASH0_AUTH_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: dash0-secrets
+        key: dash0-authorization-token
+  - name: DASH0_ENDPOINT_OTLP_GRPC_HOSTNAME
+    valueFrom:
+      secretKeyRef:
+        name: dash0-secrets
+        key: dash0-grpc-hostname
+  - name: DASH0_ENDPOINT_OTLP_GRPC_PORT
+    valueFrom:
+      secretKeyRef:
+        name: dash0-secrets
+        key: dash0-grpc-port
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  processors:
+    batch:
+      timeout: 10s
+      send_batch_size: 1024
+
+  exporters:
+    otlp/jaeger:
+      endpoint: jaeger-collector.default.svc.cluster.local:4317  
+      tls:
+        insecure: true
+
+    otlp/dash0:
+      endpoint: ${DASH0_ENDPOINT_OTLP_GRPC_HOSTNAME}:${DASH0_ENDPOINT_OTLP_GRPC_PORT}
+      headers:
+        Authorization: Bearer ${DASH0_AUTH_TOKEN}
+      tls:
+        insecure: false
+
+  extensions:
+    health_check:
+      endpoint: 0.0.0.0:13133
+
+  service:
+    extensions: [health_check]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/jaeger, otlp/dash0]
+
+      metrics:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/dash0]
+
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/dash0]

@@ -1,0 +1,15 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: instrumentation
+  namespace: opentelemetry
+spec:
+  exporter:
+    endpoint: http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: always_on
+  resource:
+    addK8sUIDAttributes: true

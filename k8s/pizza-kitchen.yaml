@@ -8,11 +8,15 @@ spec:
       app: pizza-kitchen-service
   template:
     metadata:
-      annotations:  
+      annotations:
         dapr.io/app-id: kitchen-service
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
+        dapr.io/config: "tracing"
+        dapr.io/sidecar-image: kaspernissen/daprd:stable-v1-linux-arm64
+        dapr.io/env: "OTEL_SERVICE_NAME=kitchen-service-daprd"
+        instrumentation.opentelemetry.io/inject-java: "opentelemetry/instrumentation"
       labels:
         app: pizza-kitchen-service
         app.kubernetes.io/name: pizza-kitchen-service
@@ -21,14 +25,13 @@ spec:
     spec:
       containers:
       - name: pizza-kitchen-service
-        #image: salaboy/pizza-kitchen:1.0.0-agentic-amd64
-        image: salaboy/pizza-kitchen:1.0.0-agentic-arm64
+        image: salaboy/pizza-kitchen:ctx7
         imagePullPolicy: Always
         env:
         - name: SERVER_PORT
           value: "8080"
         - name: JAVA_OPTS
-          value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"   
+          value: "-XX:+UseParallelGC -XX:ActiveProcessorCount=1 -XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1"  
         - name: PUB_SUB_NAME
           value: pubsub       
         - name: PUB_SUB_TOPIC
