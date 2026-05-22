@@ -152,6 +152,22 @@ Once the service is up, you can place orders and simulate other events coming fr
 
 In the application you should see events that indicate the progress of the order.
 
+## Project structure
+
+- `pizza-store/` — Front-end and back-end Spring Boot service that places orders.
+- `pizza-kitchen/` — Spring Boot service that prepares the order.
+- `pizza-delivery/` — Spring Boot service that delivers the order.
+- `k8s/` — Kubernetes manifests for deploying all services to a cluster.
+- `local/` — Local-development assets (see `local.md`).
+- `dapr.yaml` — Multi-app Dapr run file.
+- `kind-config.yaml` — kind cluster configuration.
+- `run.sh` / `test.rest` — Load and individual REST requests against the order endpoint.
+- `.devcontainer/` — Devcontainer with kind, helm, Ddosify, and VSCode extensions preinstalled.
+
 ## More information
 
-Do you want to learn more about Conductor? Join the [Diagrid Discourse](https://community.diagrid.io/invites/TJkNYwdh1y) where developers and platform engineers share knowledge on running distributed applications at scale with Dapr.
+Do you want to learn more about Conductor? Join the [Diagrid Discourse](https://community.diagrid.io/invites/TJkNYwdh1y) where developers and platform engineers share knowledge on running distributed applications at scale with Dapr.
+
+---
+
+Join the [Dapr Discord](https://diagrid.ws/dapr-discord) for Q&A and chat with other community members!
